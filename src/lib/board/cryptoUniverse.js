@@ -119,6 +119,7 @@ export const BENCHMARKS = [
 export const ROTATION_PAIRS = [
   { label: 'ETH / BTC',    a: 'ETH',    b: 'BTC',    desc: 'Alt vs store-of-value' },
   { label: 'SOL / ETH',    a: 'SOL',    b: 'ETH',    desc: 'New L1 vs established' },
+  { label: 'HYPE / SOL',   a: 'HYPE',   b: 'SOL',    desc: 'Perp DEX L1 vs Smart Contract L1' },
   { label: 'ARB / ETH',    a: 'ARB',    b: 'ETH',    desc: 'L2 vs base chain' },
   { label: 'DOGE / BTC',   a: 'DOGE',   b: 'BTC',    desc: 'Speculation vs safety' },
   { label: 'UNI / BTC',    a: 'UNI',    b: 'BTC',    desc: 'DeFi vs Bitcoin' },

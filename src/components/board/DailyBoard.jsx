@@ -209,7 +209,7 @@ function StyleRotation({ styleRotation }) {
   return (
     <section>
       <SectionLabel>Style Rotation</SectionLabel>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {styleRotation.map(pair => (
           <div key={pair.label} className="p-3 rounded" style={{ background: 'var(--scanner-bg2)', border: '1px solid var(--scanner-border2)' }}>
             <div className="text-[9px] font-bold tracking-widest uppercase mb-2" style={{ color: 'var(--scanner-accent)' }}>{pair.label}</div>

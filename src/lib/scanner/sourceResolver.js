@@ -49,24 +49,24 @@ function classifySymbol(symbol) {
 // Massive is tier 0 only when VITE_MASSIVE_API_KEY is configured; otherwise
 // it's filtered out by the `supports` check (returns false if no key).
 const CRYPTO_SOURCES = [
-  { id: 'massive',     tier: 0, fetch: massive.fetchCandles,     bestFor: ['all'],
-    supports: () => massive.isConfigured() },  // skip if no API key
   { id: 'okx_perps',   tier: 1, fetch: okxCrypto.fetchCandles,   bestFor: ['all'] },
   { id: 'hyperliquid', tier: 1, fetch: hyperliquid.fetchCandles, bestFor: ['15m','30m','1H','4H','1w'] },
   { id: 'kraken',      tier: 1, fetch: kraken.fetchCandles,      bestFor: ['1D','1w'] },
   { id: 'bybit',       tier: 2, fetch: bybit.fetchCandles,       bestFor: ['all'] },
   { id: 'gate',        tier: 3, fetch: gate.fetchCandles,        bestFor: ['all'] },
   { id: 'kucoin',      tier: 3, fetch: kucoin.fetchCandles,      bestFor: ['all'] },
-  { id: 'coingecko',   tier: 4, fetch: coingecko.fetchCandles,   bestFor: ['1D','1w'] },  // last resort
+  { id: 'coingecko',   tier: 4, fetch: coingecko.fetchCandles,   bestFor: ['1D','1w'] },
+  // Massive/Polygon free tier: only /prev works for crypto (NOT /range).
+  // Keep as absolute last resort — fetchCandles will return null for /range calls,
+  // and the resolver will move on. Useful only for the fetchPrevClose() helper.
+  { id: 'massive',     tier: 5, fetch: massive.fetchCandles,     bestFor: ['1D'],
+    supports: () => massive.isConfigured() },
 ];
 
 // ─── Tradfi sources (in priority order) ─────────────────────────────────────
 // Massive/Polygon has the broadest tradfi coverage (all US stocks, ETFs, forex,
 // commodities, indices) — preferred when API key is configured.
 const TRADFI_SOURCES = [
-  // Massive (Polygon) — covers ALL tradfi tickers + forex + indices
-  { id: 'massive',         tier: 0, fetch: massive.fetchCandles,
-    supports: () => massive.isConfigured() },
   // OKX SWAP perps for the 7 most liquid names (no auth needed, high liquidity)
   { id: 'okx_swap',        tier: 1, fetch: okxTradfi.fetchCandles,
     supports: (s) => OKX_TRADFI.has(s.toUpperCase()) },
@@ -76,6 +76,10 @@ const TRADFI_SOURCES = [
   // Binance xStocks (NVDA/TSLA backup)
   { id: 'binance_xstocks', tier: 2, fetch: binanceXStocks.fetchCandles,
     supports: (s) => binanceXStocks.isTradfi?.(s) || OKX_TRADFI.has(s.toUpperCase()) && false },
+  // Massive/Polygon free tier — limited (only /prev works reliably for most assets)
+  // Keep as last resort; useful for tickers not on any exchange (obscure stocks/ETFs)
+  { id: 'massive',         tier: 3, fetch: massive.fetchCandles,
+    supports: () => massive.isConfigured() },
 ];
 
 // ─── Failure tracking ────────────────────────────────────────────────────────
