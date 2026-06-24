@@ -1,0 +1,1820 @@
+{
+  "generated_at": "2026-06-24T07:38:19.679Z",
+  "fred": {
+    "M2SL": [],
+    "WALCL": [],
+    "WTREGEN": [],
+    "RRPONTSYD": [],
+    "NFCI": [],
+    "WRESBAL": [],
+    "ICSA": [],
+    "BAMLH0A0HYM2": [],
+    "T10YIE": [],
+    "T5YIFR": [],
+    "CPIAUCSL": []
+  },
+  "coingecko_top": {
+    "BTC": {
+      "id": "bitcoin",
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "price": 62579,
+      "marketCap": 1255596378555,
+      "volume24h": 28974515404,
+      "marketCapRank": 1,
+      "change24h": -0.52781,
+      "change7d": -4.5406569606892795,
+      "change30d": -19.065014690739233
+    },
+    "ETH": {
+      "id": "ethereum",
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "price": 1670.69,
+      "marketCap": 201849955173,
+      "volume24h": 9134370302,
+      "marketCapRank": 2,
+      "change24h": -1.03401,
+      "change7d": -6.584275487752461,
+      "change30d": -20.673801266912445
+    },
+    "USDT": {
+      "id": "tether",
+      "name": "Tether",
+      "symbol": "USDT",
+      "price": 0.998732,
+      "marketCap": 186098312408,
+      "volume24h": 45279511358,
+      "marketCapRank": 3,
+      "change24h": -0.01358,
+      "change7d": -0.031752314436872923,
+      "change30d": -0.006938688090850777
+    },
+    "BNB": {
+      "id": "binancecoin",
+      "name": "BNB",
+      "symbol": "BNB",
+      "price": 576.62,
+      "marketCap": 77801496042,
+      "volume24h": 620186922,
+      "marketCapRank": 4,
+      "change24h": -0.73626,
+      "change7d": -5.066372404364177,
+      "change30d": -12.624663827847577
+    },
+    "USDC": {
+      "id": "usd-coin",
+      "name": "USDC",
+      "symbol": "USDC",
+      "price": 0.999728,
+      "marketCap": 74075369340,
+      "volume24h": 10784089410,
+      "marketCapRank": 5,
+      "change24h": -0.00132,
+      "change7d": 0.007273242282103399,
+      "change30d": 0.004966299753933365
+    },
+    "XRP": {
+      "id": "ripple",
+      "name": "XRP",
+      "symbol": "XRP",
+      "price": 1.098,
+      "marketCap": 68177322945,
+      "volume24h": 1370924378,
+      "marketCapRank": 6,
+      "change24h": -1.34971,
+      "change7d": -9.267397405512087,
+      "change30d": -19.070167730919245
+    },
+    "SOL": {
+      "id": "solana",
+      "name": "Solana",
+      "symbol": "SOL",
+      "price": 69.46,
+      "marketCap": 40349173858,
+      "volume24h": 2077530971,
+      "marketCapRank": 7,
+      "change24h": -1.0848,
+      "change7d": -5.264975288318811,
+      "change30d": -19.11425017911918
+    },
+    "TRX": {
+      "id": "tron",
+      "name": "TRON",
+      "symbol": "TRX",
+      "price": 0.328671,
+      "marketCap": 31177482802,
+      "volume24h": 434444908,
+      "marketCapRank": 8,
+      "change24h": -0.90689,
+      "change7d": 3.366648221551763,
+      "change30d": -10.35721048406517
+    },
+    "FIGR_HELOC": {
+      "id": "figure-heloc",
+      "name": "Figure Heloc",
+      "symbol": "FIGR_HELOC",
+      "price": 1.033,
+      "marketCap": 19748929275,
+      "volume24h": 39905187,
+      "marketCapRank": 9,
+      "change24h": -0.15006,
+      "change7d": -0.1485186494242893,
+      "change30d": 0.33175728155340406
+    },
+    "HYPE": {
+      "id": "hyperliquid",
+      "name": "Hyperliquid",
+      "symbol": "HYPE",
+      "price": 62.01,
+      "marketCap": 13794142520,
+      "volume24h": 696661459,
+      "marketCapRank": 10,
+      "change24h": -3.22917,
+      "change7d": -16.61367804132166,
+      "change30d": 0.15586969029579156
+    },
+    "DOGE": {
+      "id": "dogecoin",
+      "name": "Dogecoin",
+      "symbol": "DOGE",
+      "price": 0.078817,
+      "marketCap": 12211451979,
+      "volume24h": 553524160,
+      "marketCapRank": 11,
+      "change24h": -1.68391,
+      "change7d": -9.355043830096795,
+      "change30d": -23.365157150482414
+    },
+    "USDS": {
+      "id": "usds",
+      "name": "USDS",
+      "symbol": "USDS",
+      "price": 0.999619,
+      "marketCap": 10292665834,
+      "volume24h": 55858504,
+      "marketCapRank": 12,
+      "change24h": -0.01104,
+      "change7d": 0.00013172520192907678,
+      "change30d": -0.013479031434838938
+    },
+    "RAIN": {
+      "id": "rain",
+      "name": "Rain",
+      "symbol": "RAIN",
+      "price": 0.01563671,
+      "marketCap": 9737059035,
+      "volume24h": 30045159,
+      "marketCapRank": 13,
+      "change24h": -1.71766,
+      "change7d": 10.761841203969368,
+      "change30d": 105.83487003727087
+    },
+    "LEO": {
+      "id": "leo-token",
+      "name": "LEO Token",
+      "symbol": "LEO",
+      "price": 9.53,
+      "marketCap": 8769982553,
+      "volume24h": 334185,
+      "marketCapRank": 14,
+      "change24h": -0.0083,
+      "change7d": -1.27855249879394,
+      "change30d": -5.231497900996572
+    },
+    "ZEC": {
+      "id": "zcash",
+      "name": "Zcash",
+      "symbol": "ZEC",
+      "price": 414.4,
+      "marketCap": 6961503954,
+      "volume24h": 320321585,
+      "marketCapRank": 15,
+      "change24h": -2.56296,
+      "change7d": -18.93730141278874,
+      "change30d": -36.98832276258979
+    },
+    "XLM": {
+      "id": "stellar",
+      "name": "Stellar",
+      "symbol": "XLM",
+      "price": 0.191272,
+      "marketCap": 6478979482,
+      "volume24h": 177274009,
+      "marketCapRank": 16,
+      "change24h": -2.0755,
+      "change7d": -14.275411428819954,
+      "change30d": 28.564286717023613
+    },
+    "XMR": {
+      "id": "monero",
+      "name": "Monero",
+      "symbol": "XMR",
+      "price": 324.56,
+      "marketCap": 6098192946,
+      "volume24h": 152354966,
+      "marketCapRank": 17,
+      "change24h": -0.05025,
+      "change7d": -7.943880959700447,
+      "change30d": -16.840948620951142
+    },
+    "WBT": {
+      "id": "whitebit",
+      "name": "WhiteBIT Coin",
+      "symbol": "WBT",
+      "price": 51.02,
+      "marketCap": 6029844452,
+      "volume24h": 53326980,
+      "marketCapRank": 18,
+      "change24h": -0.64456,
+      "change7d": -5.286801559309447,
+      "change30d": -10.393923581362559
+    },
+    "CC": {
+      "id": "canton-network",
+      "name": "Canton",
+      "symbol": "CC",
+      "price": 0.150633,
+      "marketCap": 5857968300,
+      "volume24h": 11568975,
+      "marketCapRank": 19,
+      "change24h": -0.36115,
+      "change7d": -6.489388566149929,
+      "change30d": -8.832376307951742
+    },
+    "LINK": {
+      "id": "chainlink",
+      "name": "Chainlink",
+      "symbol": "LINK",
+      "price": 7.61,
+      "marketCap": 5697834234,
+      "volume24h": 236955604,
+      "marketCapRank": 20,
+      "change24h": -0.96955,
+      "change7d": -8.535242441584566,
+      "change30d": -19.94260908835575
+    },
+    "ADA": {
+      "id": "cardano",
+      "name": "Cardano",
+      "symbol": "ADA",
+      "price": 0.150605,
+      "marketCap": 5612492684,
+      "volume24h": 397080282,
+      "marketCapRank": 21,
+      "change24h": -2.911,
+      "change7d": -12.12295122457487,
+      "change30d": -38.22223288454834
+    },
+    "LAB": {
+      "id": "lab",
+      "name": "LAB",
+      "symbol": "LAB",
+      "price": 16.18,
+      "marketCap": 5072028206,
+      "volume24h": 46241580,
+      "marketCapRank": 22,
+      "change24h": -2.89058,
+      "change7d": 17.5658522993105,
+      "change30d": 270.96695901939984
+    },
+    "USD1": {
+      "id": "usd1-wlfi",
+      "name": "USD1",
+      "symbol": "USD1",
+      "price": 0.999409,
+      "marketCap": 4733587182,
+      "volume24h": 874979225,
+      "marketCapRank": 23,
+      "change24h": 0.05098,
+      "change7d": -0.0491275470709736,
+      "change30d": 0.049406211297026124
+    },
+    "DAI": {
+      "id": "dai",
+      "name": "Dai",
+      "symbol": "DAI",
+      "price": 0.99956,
+      "marketCap": 4648314957,
+      "volume24h": 156346841,
+      "marketCapRank": 24,
+      "change24h": -0.015,
+      "change7d": -0.011563800693146139,
+      "change30d": -0.021373886951519466
+    },
+    "USDE": {
+      "id": "ethena-usde",
+      "name": "Ethena USDe",
+      "symbol": "USDE",
+      "price": 0.998548,
+      "marketCap": 4482708937,
+      "volume24h": 122178502,
+      "marketCapRank": 25,
+      "change24h": -0.01953,
+      "change7d": -0.06692609639695261,
+      "change30d": -0.03568057321051589
+    },
+    "GRAM": {
+      "id": "the-open-network",
+      "name": "Gram (prev. Toncoin)",
+      "symbol": "GRAM",
+      "price": 1.56,
+      "marketCap": 4212993879,
+      "volume24h": 7388224,
+      "marketCapRank": 26,
+      "change24h": -9.29957,
+      "change7d": -4.92278414905759,
+      "change30d": -13.488243489885358
+    },
+    "BCH": {
+      "id": "bitcoin-cash",
+      "name": "Bitcoin Cash",
+      "symbol": "BCH",
+      "price": 193.81,
+      "marketCap": 3890292760,
+      "volume24h": 115258341,
+      "marketCapRank": 27,
+      "change24h": 1.39543,
+      "change7d": -9.731531983750235,
+      "change30d": -44.711250166906076
+    },
+    "M": {
+      "id": "memecore",
+      "name": "MemeCore",
+      "symbol": "M",
+      "price": 2.86,
+      "marketCap": 3764399082,
+      "volume24h": 11901167,
+      "marketCapRank": 28,
+      "change24h": -0.81012,
+      "change7d": -9.536770335525345,
+      "change30d": -3.667973415870028
+    },
+    "HBAR": {
+      "id": "hedera-hashgraph",
+      "name": "Hedera",
+      "symbol": "HBAR",
+      "price": 0.077456,
+      "marketCap": 3369207050,
+      "volume24h": 59070585,
+      "marketCapRank": 29,
+      "change24h": -0.46601,
+      "change7d": -4.253991648047915,
+      "change30d": -13.094843968570501
+    },
+    "LTC": {
+      "id": "litecoin",
+      "name": "Litecoin",
+      "symbol": "LTC",
+      "price": 41.98,
+      "marketCap": 3246453068,
+      "volume24h": 229750641,
+      "marketCapRank": 30,
+      "change24h": -4.42005,
+      "change7d": -7.803733315367048,
+      "change30d": -20.5471183986126
+    },
+    "USYC": {
+      "id": "hashnote-usyc",
+      "name": "Circle USYC",
+      "symbol": "USYC",
+      "price": 1.13,
+      "marketCap": 3127427232,
+      "volume24h": 89163,
+      "marketCapRank": 31,
+      "change24h": 0,
+      "change7d": 0.11553905971900813,
+      "change30d": 0.09880730185747418
+    },
+    "USDG": {
+      "id": "global-dollar",
+      "name": "Global Dollar",
+      "symbol": "USDG",
+      "price": 0.999821,
+      "marketCap": 2876757298,
+      "volume24h": 58742047,
+      "marketCapRank": 32,
+      "change24h": -0.01536,
+      "change7d": -0.011593892559966795,
+      "change30d": 0.005152665521808712
+    },
+    "SUI": {
+      "id": "sui",
+      "name": "Sui",
+      "symbol": "SUI",
+      "price": 0.70366,
+      "marketCap": 2837024704,
+      "volume24h": 313670826,
+      "marketCapRank": 33,
+      "change24h": 2.22142,
+      "change7d": -12.515981730094596,
+      "change30d": -32.74364742360108
+    },
+    "AVAX": {
+      "id": "avalanche-2",
+      "name": "Avalanche",
+      "symbol": "AVAX",
+      "price": 6.41,
+      "marketCap": 2767974041,
+      "volume24h": 263979197,
+      "marketCapRank": 34,
+      "change24h": 3.86853,
+      "change7d": -7.494525760875866,
+      "change30d": -31.1545661012304
+    },
+    "PYUSD": {
+      "id": "paypal-usd",
+      "name": "PayPal USD",
+      "symbol": "PYUSD",
+      "price": 0.999812,
+      "marketCap": 2741131711,
+      "volume24h": 81840707,
+      "marketCapRank": 35,
+      "change24h": -0.00217,
+      "change7d": 0.003127333393593721,
+      "change30d": -0.0052336283185964606
+    },
+    "SHIB": {
+      "id": "shiba-inu",
+      "name": "Shiba Inu",
+      "symbol": "SHIB",
+      "price": 0.00000456,
+      "marketCap": 2688048132,
+      "volume24h": 54398570,
+      "marketCapRank": 36,
+      "change24h": 0.2861,
+      "change7d": -8.36884776858413,
+      "change30d": -18.983506567724586
+    },
+    "CRO": {
+      "id": "crypto-com-chain",
+      "name": "Cronos",
+      "symbol": "CRO",
+      "price": 0.056289,
+      "marketCap": 2591890748,
+      "volume24h": 8545553,
+      "marketCapRank": 37,
+      "change24h": -1.79832,
+      "change7d": -6.312715007218143,
+      "change30d": -18.62554244195855
+    },
+    "NEAR": {
+      "id": "near",
+      "name": "NEAR Protocol",
+      "symbol": "NEAR",
+      "price": 1.97,
+      "marketCap": 2555284960,
+      "volume24h": 207009493,
+      "marketCapRank": 38,
+      "change24h": -2.55576,
+      "change7d": -15.380485235719402,
+      "change30d": -17.284240522091025
+    },
+    "XAUT": {
+      "id": "tether-gold",
+      "name": "Tether Gold",
+      "symbol": "XAUT",
+      "price": 4068.79,
+      "marketCap": 2495196592,
+      "volume24h": 164387547,
+      "marketCapRank": 39,
+      "change24h": -0.87206,
+      "change7d": -5.587161500327395,
+      "change30d": -10.286603771911041
+    },
+    "BUIDL": {
+      "id": "blackrock-usd-institutional-digital-liquidity-fund",
+      "name": "BlackRock USD Institutional Digital Liquidity Fund",
+      "symbol": "BUIDL",
+      "price": 1,
+      "marketCap": 2368170057,
+      "volume24h": 0,
+      "marketCapRank": 40,
+      "change24h": 0,
+      "change7d": 0,
+      "change30d": 0
+    },
+    "USDY": {
+      "id": "ondo-us-dollar-yield",
+      "name": "Ondo US Dollar Yield",
+      "symbol": "USDY",
+      "price": 1.13,
+      "marketCap": 2150576242,
+      "volume24h": 2915736,
+      "marketCapRank": 41,
+      "change24h": 0.26396,
+      "change7d": 0.2935340998673943,
+      "change30d": 0.26992295406868066
+    },
+    "TAO": {
+      "id": "bittensor",
+      "name": "Bittensor",
+      "symbol": "TAO",
+      "price": 220.94,
+      "marketCap": 2121487998,
+      "volume24h": 594865823,
+      "marketCapRank": 42,
+      "change24h": -0.59018,
+      "change7d": -14.317159027572114,
+      "change30d": -20.155223576765998
+    },
+    "WLFI": {
+      "id": "world-liberty-financial",
+      "name": "World Liberty Financial",
+      "symbol": "WLFI",
+      "price": 0.05884,
+      "marketCap": 1869586897,
+      "volume24h": 28441401,
+      "marketCapRank": 43,
+      "change24h": 1.92006,
+      "change7d": -2.7328625359693244,
+      "change30d": -4.010996583943592
+    },
+    "PAXG": {
+      "id": "pax-gold",
+      "name": "PAX Gold",
+      "symbol": "PAXG",
+      "price": 4076.45,
+      "marketCap": 1844950238,
+      "volume24h": 169290993,
+      "marketCapRank": 44,
+      "change24h": -0.84872,
+      "change7d": -5.567863285006382,
+      "change30d": -10.274660136290109
+    },
+    "WLD": {
+      "id": "worldcoin-wld",
+      "name": "Worldcoin",
+      "symbol": "WLD",
+      "price": 0.523843,
+      "marketCap": 1816630529,
+      "volume24h": 384119515,
+      "marketCapRank": 45,
+      "change24h": -10.68508,
+      "change7d": -23.913541030373374,
+      "change30d": 78.22615881209246
+    },
+    "UNI": {
+      "id": "uniswap",
+      "name": "Uniswap",
+      "symbol": "UNI",
+      "price": 2.9,
+      "marketCap": 1803564032,
+      "volume24h": 155829281,
+      "marketCapRank": 46,
+      "change24h": 0.85301,
+      "change7d": -19.957929209625828,
+      "change30d": -14.855346202541874
+    },
+    "MNT": {
+      "id": "mantle",
+      "name": "Mantle",
+      "symbol": "MNT",
+      "price": 0.515349,
+      "marketCap": 1701952500,
+      "volume24h": 23920245,
+      "marketCapRank": 47,
+      "change24h": -1.07483,
+      "change7d": -9.123147428740145,
+      "change30d": -20.170612590071567
+    },
+    "ASTER": {
+      "id": "aster-2",
+      "name": "Aster",
+      "symbol": "ASTER",
+      "price": 0.628987,
+      "marketCap": 1685704602,
+      "volume24h": 92253149,
+      "marketCapRank": 48,
+      "change24h": 1.04482,
+      "change7d": -6.128085719443533,
+      "change30d": -11.44597166512507
+    },
+    "OKB": {
+      "id": "okb",
+      "name": "OKB",
+      "symbol": "OKB",
+      "price": 78.09,
+      "marketCap": 1639174764,
+      "volume24h": 18464158,
+      "marketCapRank": 49,
+      "change24h": -0.50183,
+      "change7d": 2.9418032778515726,
+      "change30d": -6.32479575272822
+    },
+    "RLUSD": {
+      "id": "ripple-usd",
+      "name": "Ripple USD",
+      "symbol": "RLUSD",
+      "price": 0.999675,
+      "marketCap": 1596559965,
+      "volume24h": 128703322,
+      "marketCapRank": 50,
+      "change24h": -0.02817,
+      "change7d": -0.03853363413324037,
+      "change30d": -0.04222244173754301
+    },
+    "HTX": {
+      "id": "htx-dao",
+      "name": "HTX DAO",
+      "symbol": "HTX",
+      "price": 0.00000172,
+      "marketCap": 1560389688,
+      "volume24h": 15405986,
+      "marketCapRank": 51,
+      "change24h": -0.74053,
+      "change7d": 1.7391899149609786,
+      "change30d": -14.408473416730741
+    },
+    "DOT": {
+      "id": "polkadot",
+      "name": "Polkadot",
+      "symbol": "DOT",
+      "price": 0.904786,
+      "marketCap": 1529701376,
+      "volume24h": 81675411,
+      "marketCapRank": 52,
+      "change24h": -0.35656,
+      "change7d": -11.625195305557892,
+      "change30d": -28.39585590994173
+    },
+    "ONDO": {
+      "id": "ondo-finance",
+      "name": "Ondo",
+      "symbol": "ONDO",
+      "price": 0.308734,
+      "marketCap": 1503719510,
+      "volume24h": 60876798,
+      "marketCapRank": 53,
+      "change24h": -2.27543,
+      "change7d": -17.79652644647689,
+      "change30d": -30.156901644704238
+    },
+    "USDF": {
+      "id": "falcon-finance",
+      "name": "Falcon USD",
+      "symbol": "USDF",
+      "price": 0.995954,
+      "marketCap": 1462308718,
+      "volume24h": 800805,
+      "marketCapRank": 54,
+      "change24h": 0.01556,
+      "change7d": 0.0026196928315380757,
+      "change30d": -0.08301223824524501
+    },
+    "PI": {
+      "id": "pi-network",
+      "name": "Pi Network",
+      "symbol": "PI",
+      "price": 0.128339,
+      "marketCap": 1385585895,
+      "volume24h": 8685738,
+      "marketCapRank": 55,
+      "change24h": -1.32705,
+      "change7d": -4.835967602231877,
+      "change30d": -14.133327823163025
+    },
+    "USDD": {
+      "id": "usdd",
+      "name": "USDD",
+      "symbol": "USDD",
+      "price": 0.999036,
+      "marketCap": 1377492080,
+      "volume24h": 9500648,
+      "marketCapRank": 56,
+      "change24h": 0.05904,
+      "change7d": -0.008627718797955349,
+      "change30d": -0.04868518128003341
+    },
+    "BFUSD": {
+      "id": "bfusd",
+      "name": "BFUSD",
+      "symbol": "BFUSD",
+      "price": 0.998148,
+      "marketCap": 1317459450,
+      "volume24h": 3516315,
+      "marketCapRank": 57,
+      "change24h": -0.03469,
+      "change7d": -0.031825419227308915,
+      "change30d": -0.04550014063395594
+    },
+    "SKY": {
+      "id": "sky",
+      "name": "Sky",
+      "symbol": "SKY",
+      "price": 0.055263,
+      "marketCap": 1287713380,
+      "volume24h": 14560603,
+      "marketCapRank": 58,
+      "change24h": -5.19964,
+      "change7d": -3.140405091479623,
+      "change30d": -21.570347103968157
+    },
+    "ICP": {
+      "id": "internet-computer",
+      "name": "Internet Computer",
+      "symbol": "ICP",
+      "price": 2.18,
+      "marketCap": 1207920269,
+      "volume24h": 42728943,
+      "marketCapRank": 59,
+      "change24h": -0.98185,
+      "change7d": -9.870628671476346,
+      "change30d": -15.590851949660445
+    },
+    "BGB": {
+      "id": "bitget-token",
+      "name": "Bitget Token",
+      "symbol": "BGB",
+      "price": 1.71,
+      "marketCap": 1200267244,
+      "volume24h": 8792360,
+      "marketCapRank": 60,
+      "change24h": -1.11664,
+      "change7d": -6.184485337685513,
+      "change30d": -12.911706806288128
+    },
+    "PEPE": {
+      "id": "pepe",
+      "name": "Pepe",
+      "symbol": "PEPE",
+      "price": 0.00000266,
+      "marketCap": 1119584123,
+      "volume24h": 111731142,
+      "marketCapRank": 61,
+      "change24h": -2.83595,
+      "change7d": -10.792644446196613,
+      "change30d": -26.134594622968265
+    },
+    "ETC": {
+      "id": "ethereum-classic",
+      "name": "Ethereum Classic",
+      "symbol": "ETC",
+      "price": 7.06,
+      "marketCap": 1105019894,
+      "volume24h": 42258572,
+      "marketCapRank": 62,
+      "change24h": 0.26003,
+      "change7d": -4.821504415888745,
+      "change30d": -21.477686289590743
+    },
+    "AAVE": {
+      "id": "aave",
+      "name": "Aave",
+      "symbol": "AAVE",
+      "price": 71.48,
+      "marketCap": 1085649800,
+      "volume24h": 157960206,
+      "marketCapRank": 63,
+      "change24h": -1.26543,
+      "change7d": -6.040207672837676,
+      "change30d": -17.262261592099705
+    },
+    "MORPHO": {
+      "id": "morpho",
+      "name": "Morpho",
+      "symbol": "MORPHO",
+      "price": 1.65,
+      "marketCap": 1068269508,
+      "volume24h": 15886279,
+      "marketCapRank": 64,
+      "change24h": -5.21505,
+      "change7d": -15.051700678777014,
+      "change30d": -28.416091239577117
+    },
+    "DEXE": {
+      "id": "dexe",
+      "name": "DeXe",
+      "symbol": "DEXE",
+      "price": 22.62,
+      "marketCap": 1057761213,
+      "volume24h": 63925821,
+      "marketCapRank": 65,
+      "change24h": -2.98414,
+      "change7d": 29.0104786688666,
+      "change30d": 28.826780892472808
+    },
+    "U": {
+      "id": "united-stables",
+      "name": "United Stables",
+      "symbol": "U",
+      "price": 0.999801,
+      "marketCap": 1016356405,
+      "volume24h": 3563247,
+      "marketCapRank": 66,
+      "change24h": -0.00997,
+      "change7d": 0.020119830811197784,
+      "change30d": -0.004310881534652597
+    },
+    "QNT": {
+      "id": "quant-network",
+      "name": "Quant",
+      "symbol": "QNT",
+      "price": 69.57,
+      "marketCap": 1012134251,
+      "volume24h": 13101115,
+      "marketCapRank": 67,
+      "change24h": 1.79004,
+      "change7d": -2.94062840921596,
+      "change30d": -14.687343069072934
+    },
+    "USTB": {
+      "id": "superstate-short-duration-us-government-securities-fund-ustb",
+      "name": "Invesco Short Duration US Government Securities Fund",
+      "symbol": "USTB",
+      "price": 11.12,
+      "marketCap": 996835557,
+      "volume24h": 0,
+      "marketCapRank": 68,
+      "change24h": 0.03713,
+      "change7d": 0.06470979147397099,
+      "change30d": 0.30141890338201643
+    },
+    "BCAP": {
+      "id": "blockchain-capital",
+      "name": "Blockchain Capital",
+      "symbol": "BCAP",
+      "price": 107.03,
+      "marketCap": 975269240,
+      "volume24h": 0,
+      "marketCapRank": 69,
+      "change24h": 0,
+      "change7d": -0.03735873727467268,
+      "change30d": 1.2199735199546116
+    },
+    "KCS": {
+      "id": "kucoin-shares",
+      "name": "KuCoin",
+      "symbol": "KCS",
+      "price": 7.11,
+      "marketCap": 957965367,
+      "volume24h": 2421060,
+      "marketCapRank": 70,
+      "change24h": 0.13455,
+      "change7d": -2.1357609395953796,
+      "change30d": -12.222726509671569
+    },
+    "EUTBL": {
+      "id": "eutbl",
+      "name": "Spiko EU T-Bills Money Market Fund",
+      "symbol": "EUTBL",
+      "price": 1.2,
+      "marketCap": 925877112,
+      "volume24h": 0,
+      "marketCapRank": 71,
+      "change24h": -0.62659,
+      "change7d": -2.222575498640188,
+      "change30d": -2.3378842879059127
+    },
+    "USDTB": {
+      "id": "usdtb",
+      "name": "USDtb",
+      "symbol": "USDTB",
+      "price": 0.999713,
+      "marketCap": 919962514,
+      "volume24h": 3903078,
+      "marketCapRank": 72,
+      "change24h": 0.03394,
+      "change7d": 0.04607152985405872,
+      "change30d": 0.07300006199758777
+    },
+    "ATOM": {
+      "id": "cosmos",
+      "name": "Cosmos Hub",
+      "symbol": "ATOM",
+      "price": 1.7,
+      "marketCap": 875542348,
+      "volume24h": 30906301,
+      "marketCapRank": 73,
+      "change24h": -3.87438,
+      "change7d": -14.727876951543797,
+      "change30d": -20.722841501996495
+    },
+    "JTRSY": {
+      "id": "janus-henderson-anemoy-treasury-fund",
+      "name": "Janus Henderson Anemoy Treasury Fund",
+      "symbol": "JTRSY",
+      "price": 1.11,
+      "marketCap": 869750766,
+      "volume24h": 0,
+      "marketCapRank": 74,
+      "change24h": 0.00732,
+      "change7d": 0.059640368577487286,
+      "change30d": 0.2858340948632424
+    },
+    "RENDER": {
+      "id": "render-token",
+      "name": "Render",
+      "symbol": "RENDER",
+      "price": 1.59,
+      "marketCap": 826451054,
+      "volume24h": 37623564,
+      "marketCapRank": 75,
+      "change24h": 0.77877,
+      "change7d": -9.006628208089435,
+      "change30d": -20.907126966218556
+    },
+    "POL": {
+      "id": "polygon-ecosystem-token",
+      "name": "POL (ex-MATIC)",
+      "symbol": "POL",
+      "price": 0.077112,
+      "marketCap": 823164035,
+      "volume24h": 35826171,
+      "marketCapRank": 76,
+      "change24h": -0.37979,
+      "change7d": -0.1004769191552339,
+      "change30d": -15.800416376947602
+    },
+    "STABLE": {
+      "id": "stable-2",
+      "name": "​​Stable",
+      "symbol": "STABLE",
+      "price": 0.03442924,
+      "marketCap": 822993386,
+      "volume24h": 14357352,
+      "marketCapRank": 78,
+      "change24h": -1.67824,
+      "change7d": -0.23233190165268383,
+      "change30d": -12.435075936524537
+    },
+    "ALGO": {
+      "id": "algorand",
+      "name": "Algorand",
+      "symbol": "ALGO",
+      "price": 0.09199,
+      "marketCap": 821726728,
+      "volume24h": 56296000,
+      "marketCapRank": 77,
+      "change24h": 1.92086,
+      "change7d": -5.205236928613496,
+      "change30d": -20.14880418820816
+    },
+    "ENA": {
+      "id": "ethena",
+      "name": "Ethena",
+      "symbol": "ENA",
+      "price": 0.084576,
+      "marketCap": 786033040,
+      "volume24h": 108452847,
+      "marketCapRank": 79,
+      "change24h": -3.03993,
+      "change7d": -1.8838153099262664,
+      "change30d": -15.526902414541755
+    },
+    "KAS": {
+      "id": "kaspa",
+      "name": "Kaspa",
+      "symbol": "KAS",
+      "price": 0.02848777,
+      "marketCap": 783262683,
+      "volume24h": 17706242,
+      "marketCapRank": 80,
+      "change24h": -2.0688,
+      "change7d": -12.21095511230364,
+      "change30d": -14.94553429552743
+    },
+    "NEXO": {
+      "id": "nexo",
+      "name": "NEXO",
+      "symbol": "NEXO",
+      "price": 0.77436,
+      "marketCap": 774610169,
+      "volume24h": 7472241,
+      "marketCapRank": 81,
+      "change24h": 0.70378,
+      "change7d": -5.3174764311881315,
+      "change30d": -9.302922916730601
+    },
+    "BEAT": {
+      "id": "audiera",
+      "name": "Audiera",
+      "symbol": "BEAT",
+      "price": 2.68,
+      "marketCap": 770685602,
+      "volume24h": 65301249,
+      "marketCapRank": 82,
+      "change24h": 57.24287,
+      "change7d": 24.052597793861796,
+      "change30d": 131.39454588491463
+    },
+    "JAAA": {
+      "id": "janus-henderson-anemoy-aaa-clo-fund",
+      "name": "Janus Henderson Anemoy AAA CLO Fund",
+      "symbol": "JAAA",
+      "price": 1.039,
+      "marketCap": 733487673,
+      "volume24h": 0,
+      "marketCapRank": 83,
+      "change24h": 0.00231,
+      "change7d": 0.07023297308024862,
+      "change30d": 0.32356114291453875
+    },
+    "JST": {
+      "id": "just",
+      "name": "JUST",
+      "symbol": "JST",
+      "price": 0.083585,
+      "marketCap": 714581788,
+      "volume24h": 21764302,
+      "marketCapRank": 84,
+      "change24h": 1.16245,
+      "change7d": 1.616741165081877,
+      "change30d": -9.838158653798969
+    },
+    "GT": {
+      "id": "gatechain-token",
+      "name": "Gate",
+      "symbol": "GT",
+      "price": 6.67,
+      "marketCap": 711345882,
+      "volume24h": 2388598,
+      "marketCapRank": 85,
+      "change24h": 0.53511,
+      "change7d": -2.323104651766789,
+      "change30d": -5.759257932008849
+    },
+    "币安人生": {
+      "id": "bianrensheng",
+      "name": "币安人生 (BinanceLife)",
+      "symbol": "币安人生",
+      "price": 0.710884,
+      "marketCap": 710968177,
+      "volume24h": 11449531,
+      "marketCapRank": 86,
+      "change24h": -0.06251,
+      "change7d": 6.512342688920403,
+      "change30d": 61.292958623287255
+    },
+    "JUP": {
+      "id": "jupiter-exchange-solana",
+      "name": "Jupiter",
+      "symbol": "JUP",
+      "price": 0.209828,
+      "marketCap": 696612271,
+      "volume24h": 35058078,
+      "marketCapRank": 87,
+      "change24h": 1.24074,
+      "change7d": 5.7190364371811535,
+      "change30d": 3.369496601917861
+    },
+    "VVV": {
+      "id": "venice-token",
+      "name": "Venice Token",
+      "symbol": "VVV",
+      "price": 13.5,
+      "marketCap": 633879070,
+      "volume24h": 27010749,
+      "marketCapRank": 89,
+      "change24h": -5.51617,
+      "change7d": -19.58182080106582,
+      "change30d": -27.926168792662725
+    },
+    "BDX": {
+      "id": "beldex",
+      "name": "Beldex",
+      "symbol": "BDX",
+      "price": 0.081775,
+      "marketCap": 633123009,
+      "volume24h": 12511959,
+      "marketCapRank": 88,
+      "change24h": -0.54983,
+      "change7d": 2.467525896829673,
+      "change30d": 2.839645583759851
+    },
+    "FIL": {
+      "id": "filecoin",
+      "name": "Filecoin",
+      "symbol": "FIL",
+      "price": 0.778938,
+      "marketCap": 616564333,
+      "volume24h": 70409509,
+      "marketCapRank": 90,
+      "change24h": 0.89145,
+      "change7d": -4.263739546247535,
+      "change30d": -19.510834480529134
+    },
+    "FLR": {
+      "id": "flare-networks",
+      "name": "Flare",
+      "symbol": "FLR",
+      "price": 0.00702827,
+      "marketCap": 608853761,
+      "volume24h": 2735163,
+      "marketCapRank": 91,
+      "change24h": -1.13679,
+      "change7d": -9.463136034549075,
+      "change30d": -15.822547974220463
+    },
+    "GHO": {
+      "id": "gho",
+      "name": "GHO",
+      "symbol": "GHO",
+      "price": 0.997699,
+      "marketCap": 597628098,
+      "volume24h": 4926033,
+      "marketCapRank": 92,
+      "change24h": -0.04176,
+      "change7d": -0.1042964512861149,
+      "change30d": -0.11725802430659175
+    },
+    "EURSAFO": {
+      "id": "spiko-amundi-overnight-swap-fund-eur",
+      "name": "Spiko Amundi Overnight Swap Fund (EUR)",
+      "symbol": "EURSAFO",
+      "price": 1.14,
+      "marketCap": 590125508,
+      "volume24h": 0,
+      "marketCapRank": 93,
+      "change24h": -0.49734,
+      "change7d": -2.1271299323549915,
+      "change30d": -2.300069060128365
+    },
+    "XDC": {
+      "id": "xdce-crowd-sale",
+      "name": "XDC Network",
+      "symbol": "XDC",
+      "price": 0.02908432,
+      "marketCap": 580152205,
+      "volume24h": 7512066,
+      "marketCapRank": 94,
+      "change24h": 0.95703,
+      "change7d": -3.576223752132362,
+      "change30d": -13.723786541205229
+    },
+    "YLDS": {
+      "id": "ylds",
+      "name": "YLDS",
+      "symbol": "YLDS",
+      "price": 0.999707,
+      "marketCap": 559655527,
+      "volume24h": 16192568,
+      "marketCapRank": 95,
+      "change24h": -0.00701,
+      "change7d": -0.02521948016613772,
+      "change30d": 0.00009645944879307874
+    },
+    "ADI": {
+      "id": "adi-token",
+      "name": "ADI",
+      "symbol": "ADI",
+      "price": 4.42,
+      "marketCap": 553713538,
+      "volume24h": 5154082,
+      "marketCapRank": 96,
+      "change24h": 0.44199,
+      "change7d": 17.01542323394843,
+      "change30d": 13.196244607244434
+    },
+    "USD0": {
+      "id": "usual-usd",
+      "name": "Usual USD",
+      "symbol": "USD0",
+      "price": 0.998955,
+      "marketCap": 553000172,
+      "volume24h": 8488.27,
+      "marketCapRank": 97,
+      "change24h": -0.00109,
+      "change7d": 0.012252871913137313,
+      "change30d": 0.049222027977543395
+    },
+    "APT": {
+      "id": "aptos",
+      "name": "Aptos",
+      "symbol": "APT",
+      "price": 0.645379,
+      "marketCap": 537326475,
+      "volume24h": 43653616,
+      "marketCapRank": 98,
+      "change24h": 1.12706,
+      "change7d": -3.5438220566444154,
+      "change30d": -32.522438576050654
+    },
+    "HASH": {
+      "id": "hash-2",
+      "name": "Provenance Blockchain",
+      "symbol": "HASH",
+      "price": 0.00944418,
+      "marketCap": 514957804,
+      "volume24h": 19372.42,
+      "marketCapRank": 99,
+      "change24h": -9.56251,
+      "change7d": 9.621258369053045,
+      "change30d": -11.665265348589232
+    },
+    "NIGHT": {
+      "id": "midnight-3",
+      "name": "Midnight",
+      "symbol": "NIGHT",
+      "price": 0.03055364,
+      "marketCap": 507501382,
+      "volume24h": 8821932,
+      "marketCapRank": 100,
+      "change24h": -6.13198,
+      "change7d": -2.968966979676217,
+      "change30d": -8.237187273593683
+    }
+  },
+  "fear_greed": [
+    {
+      "time": 1782259200000,
+      "value": 17,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1782172800000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1782086400000,
+      "value": 20,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1782000000000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781913600000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781827200000,
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781740800000,
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781654400000,
+      "value": 22,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781568000000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781481600000,
+      "value": 20,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781395200000,
+      "value": 18,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781308800000,
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781222400000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781136000000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1781049600000,
+      "value": 9,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780963200000,
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780876800000,
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780790400000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780704000000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780617600000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780531200000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780444800000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780358400000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780272000000,
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "time": 1780185600000,
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "time": 1780099200000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1780012800000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1779926400000,
+      "value": 22,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1779840000000,
+      "value": 25,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1779753600000,
+      "value": 34,
+      "classification": "Fear"
+    },
+    {
+      "time": 1779667200000,
+      "value": 30,
+      "classification": "Fear"
+    },
+    {
+      "time": 1779580800000,
+      "value": 25,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1779494400000,
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "time": 1779408000000,
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "time": 1779321600000,
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "time": 1779235200000,
+      "value": 27,
+      "classification": "Fear"
+    },
+    {
+      "time": 1779148800000,
+      "value": 25,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1779062400000,
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778976000000,
+      "value": 27,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778889600000,
+      "value": 31,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778803200000,
+      "value": 43,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778716800000,
+      "value": 34,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778630400000,
+      "value": 42,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778544000000,
+      "value": 49,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1778457600000,
+      "value": 48,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1778371200000,
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1778284800000,
+      "value": 38,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778198400000,
+      "value": 38,
+      "classification": "Fear"
+    },
+    {
+      "time": 1778112000000,
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1778025600000,
+      "value": 46,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777939200000,
+      "value": 50,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1777852800000,
+      "value": 40,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777766400000,
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1777680000000,
+      "value": 39,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777593600000,
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777507200000,
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777420800000,
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777334400000,
+      "value": 33,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777248000000,
+      "value": 47,
+      "classification": "Neutral"
+    },
+    {
+      "time": 1777161600000,
+      "value": 33,
+      "classification": "Fear"
+    },
+    {
+      "time": 1777075200000,
+      "value": 31,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776988800000,
+      "value": 39,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776902400000,
+      "value": 46,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776816000000,
+      "value": 32,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776729600000,
+      "value": 33,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776643200000,
+      "value": 29,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776556800000,
+      "value": 27,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776470400000,
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "time": 1776384000000,
+      "value": 21,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1776297600000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1776211200000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1776124800000,
+      "value": 21,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1776038400000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775952000000,
+      "value": 16,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775865600000,
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775779200000,
+      "value": 16,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775692800000,
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775606400000,
+      "value": 17,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775520000000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775433600000,
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775347200000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775260800000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775174400000,
+      "value": 9,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775088000000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1775001600000,
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774915200000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774828800000,
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774742400000,
+      "value": 9,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774656000000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774569600000,
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774483200000,
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774396800000,
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774310400000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774224000000,
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774137600000,
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1774051200000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773964800000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773878400000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773792000000,
+      "value": 26,
+      "classification": "Fear"
+    },
+    {
+      "time": 1773705600000,
+      "value": 28,
+      "classification": "Fear"
+    },
+    {
+      "time": 1773619200000,
+      "value": 23,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773532800000,
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773446400000,
+      "value": 16,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773360000000,
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773273600000,
+      "value": 18,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773187200000,
+      "value": 15,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773100800000,
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1773014400000,
+      "value": 8,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772928000000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772841600000,
+      "value": 12,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772755200000,
+      "value": 18,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772668800000,
+      "value": 22,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772582400000,
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772496000000,
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772409600000,
+      "value": 10,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772323200000,
+      "value": 14,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772236800000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772150400000,
+      "value": 13,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1772064000000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    },
+    {
+      "time": 1771977600000,
+      "value": 11,
+      "classification": "Extreme Fear"
+    }
+  ]
+}
