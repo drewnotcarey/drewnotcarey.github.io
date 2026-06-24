@@ -2,12 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
+
+    <!-- Favicon (multi-size ICO + PNG fallbacks) -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+
+    <!-- Apple touch icon (iOS home screen) -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Web app manifest (PWA install) -->
+    <link rel="manifest" href="/manifest.json" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#06090f" />
+
+    <!-- Open Graph / social media cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TrendScan" />
+    <meta property="og:title" content="TrendScan — Crypto + Tradfi Market Scanner" />
+    <meta property="og:description" content="Multi-source crypto + tradfi market scanner with macro regime monitoring. Auto-fallback across 8 exchanges, no API key required." />
+    <meta property="og:url" content="https://drewnotcarey.github.io/" />
+    <meta property="og:image" content="/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TrendScan — Crypto + Tradfi Market Scanner" />
+    <meta name="twitter:description" content="Multi-source crypto + tradfi market scanner with macro regime monitoring. Auto-fallback across 8 exchanges, no API key required." />
+    <meta name="twitter:image" content="/og-card.png" />
+
     <title>TrendScan</title>
-    <script type="module" crossorigin src="/trendscan.github.io/assets/index-BMTFY2Kt.js"></script>
-    <link rel="stylesheet" crossorigin href="/trendscan.github.io/assets/index-CezArzP6.css">
+    <script type="module" crossorigin src="/assets/index-BEo8xfsb.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DECjjpNZ.css">
   </head>
   <body>
     <div id="root"></div>
