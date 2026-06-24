@@ -107,7 +107,9 @@ export default function FactorMonitor() {
         for (const u of universe) candlesBySymbol[u.symbol] = u.candles;
 
         // 7. Compute spread monitor
-        const spreadMonitor = computeSpreadMonitor(portfoliosByFactor, candlesBySymbol, universe);
+        // Pass array of symbol STRINGS (not objects) — buildEqualWeightSeries expects strings
+        const benchmarkSymbols = universe.map(u => u.symbol);
+        const spreadMonitor = computeSpreadMonitor(portfoliosByFactor, candlesBySymbol, benchmarkSymbols);
 
         // 8. Compute rotation
         const rotation = detectFactorRotation(portfoliosByFactor, candlesBySymbol);

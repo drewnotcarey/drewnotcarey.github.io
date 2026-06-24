@@ -218,8 +218,8 @@ export function computeSpreadMonitor(portfoliosByFactor, candlesBySymbol, benchm
     const factorData = { factor, label: formatFactorLabel(factor) };
 
     for (const h of horizons) {
-      factorData[`rel_${h}d`] = horizonReturnWithStats(relSeries, h) || { ret: 0, z: 0, pctile: 50 };
-      factorData[`spread_${h}d`] = horizonReturnWithStats(spreadSeries, h) || { ret: 0, z: 0, pctile: 50 };
+      factorData[`rel_${h}d`] = horizonReturnWithStats(relSeries, h) || { ret: null, z: null, pctile: null };
+      factorData[`spread_${h}d`] = horizonReturnWithStats(spreadSeries, h) || { ret: null, z: null, pctile: null };
     }
 
     // YTD return (no z-score)
@@ -243,7 +243,26 @@ export function computeSpreadMonitor(portfoliosByFactor, candlesBySymbol, benchm
     result[factor] = factorData;
   }
 
+  detectIdenticalQuintiles(portfoliosByFactor);
   return result;
+}
+
+// Diagnostic: check if multiple factors produce identical Q5/Q1 assignments
+function detectIdenticalQuintiles(portfoliosByFactor) {
+  const factors = Object.keys(portfoliosByFactor);
+  const q5ByKey = {};
+  for (const f of factors) {
+    const key = JSON.stringify([...portfoliosByFactor[f].longOnly].sort());
+    if (!q5ByKey[key]) q5ByKey[key] = [];
+    q5ByKey[key].push(f);
+  }
+  const duplicates = Object.values(q5ByKey).filter(g => g.length > 1);
+  if (duplicates.length > 0) {
+    console.warn('[factorEngine] WARNING: Identical Q5 quintiles detected across factors:',
+      duplicates.map(g => g.join(' + ')).join(', '),
+      '\nThis means the factor scores are producing the same ranking — check if candle data differs between assets.');
+  }
+  return duplicates;
 }
 
 function formatFactorLabel(factor) {

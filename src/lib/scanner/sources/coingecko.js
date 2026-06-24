@@ -209,18 +209,23 @@ async function loadIdMap() {
   if (_idCache) return _idCache;
   try {
     const res = await fetch(`${BASE}/coins/list`);
-    if (!res.ok) return SYMBOL_TO_ID;
+    if (!res.ok) {
+      _idCache = SYMBOL_TO_ID;
+      return _idCache;
+    }
     const list = await res.json();
-    _idCache = {};
+    const apiMap = {};
     // Pick the first match per symbol (CoinGecko lists multiple per symbol)
     for (const c of list) {
       const sym = c.symbol.toUpperCase();
-      if (!_idCache[sym]) _idCache[sym] = c.id;
+      if (!apiMap[sym]) apiMap[sym] = c.id;
     }
-    // Merge with hard-coded overrides (which take precedence for accuracy)
-    return { ..._idCache, ...SYMBOL_TO_ID };
+    // Cache the MERGED result (SYMBOL_TO_ID overrides take precedence)
+    _idCache = { ...apiMap, ...SYMBOL_TO_ID };
+    return _idCache;
   } catch {
-    return SYMBOL_TO_ID;
+    _idCache = SYMBOL_TO_ID;
+    return _idCache;
   }
 }
 
