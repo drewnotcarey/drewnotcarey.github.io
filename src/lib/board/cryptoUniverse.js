@@ -6,7 +6,6 @@ export const CRYPTO_UNIVERSE = [
   // AI Infrastructure / GPU Layer
   { symbol: 'RENDER', name: 'Render Network',    theme: 'AI & Compute',      tier: 'Core',    subtheme: 'GPU/Compute' },
   { symbol: 'FET',    name: 'Fetch.ai',          theme: 'AI & Compute',      tier: 'Core',    subtheme: 'AI Protocol' },
-  { symbol: 'AGIX',   name: 'SingularityNET',    theme: 'AI & Compute',      tier: 'Active',  subtheme: 'AI Protocol' },
   { symbol: 'NMR',    name: 'Numeraire',          theme: 'AI & Compute',      tier: 'Active',  subtheme: 'Data Marketplace' },
   { symbol: 'OCEAN',  name: 'Ocean Protocol',     theme: 'AI & Compute',      tier: 'Active',  subtheme: 'Data Marketplace' },
   { symbol: 'GRT',    name: 'The Graph',          theme: 'AI & Compute',      tier: 'Core',    subtheme: 'Data Marketplace' },
@@ -17,6 +16,8 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'IO',     name: 'io.net',             theme: 'AI & Compute',      tier: 'Active',  subtheme: 'GPU/Compute' },
   { symbol: 'AKT',    name: 'Akash Network',      theme: 'AI & Compute',      tier: 'Active',  subtheme: 'GPU/Compute' },
   { symbol: 'VVV',    name: 'Venice Token',       theme: 'AI & Compute',      tier: 'Active',  subtheme: 'AI Agent' },
+  { symbol: 'GRASS',  name: 'Grass',              theme: 'AI & Compute',      tier: 'Active',  subtheme: 'Data Layer' },
+  { symbol: 'LIT',    name: 'Lit Protocol',       theme: 'AI & Compute',      tier: 'Active',  subtheme: 'Decryption' },
 
   // Layer 1s
   { symbol: 'BTC',    name: 'Bitcoin',            theme: 'Layer 1',           tier: 'Core',    subtheme: 'Bitcoin' },
@@ -38,6 +39,8 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'INJ',    name: 'Injective',          theme: 'Layer 1',           tier: 'Active',  subtheme: 'DeFi L1' },
   { symbol: 'SEI',    name: 'Sei',                theme: 'Layer 1',           tier: 'Active',  subtheme: 'Smart Contract L1' },
   { symbol: 'TIA',    name: 'Celestia',           theme: 'Layer 1',           tier: 'Active',  subtheme: 'Modular L1' },
+  { symbol: 'MET',    name: 'Meteora',            theme: 'Layer 1',           tier: 'Active',  subtheme: 'DeFi L1' },
+  { symbol: 'BIO',    name: 'Bio Protocol',       theme: 'Layer 1',           tier: 'Active',  subtheme: 'DeSci L1' },
 
   // Layer 2 / Scaling
   { symbol: 'POL',    name: 'Polygon (POL)',       theme: 'Layer 2',           tier: 'Core',    subtheme: 'Rollup' },
@@ -62,7 +65,6 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'PENDLE', name: 'Pendle',             theme: 'DeFi',              tier: 'Active',  subtheme: 'Lending' },
   { symbol: 'JUP',    name: 'Jupiter',            theme: 'DeFi',              tier: 'Active',  subtheme: 'DEX' },
   { symbol: 'COMP',   name: 'Compound',           theme: 'DeFi',              tier: 'Active',  subtheme: 'Lending' },
-  { symbol: 'BAL',    name: 'Balancer',           theme: 'DeFi',              tier: 'Watch',   subtheme: 'DEX' },
   { symbol: 'DYDX',   name: 'dYdX',               theme: 'DeFi',              tier: 'Active',  subtheme: 'Derivatives' },
   { symbol: 'ENA',    name: 'Ethena',             theme: 'DeFi',              tier: 'Core',    subtheme: 'Stablecoin' },
   { symbol: 'ONDO',   name: 'Ondo Finance',       theme: 'DeFi',              tier: 'Core',    subtheme: 'RWA' },
@@ -75,6 +77,7 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'SYRUP',  name: 'Maple Finance (Syrup)', theme: 'DeFi',           tier: 'Active',  subtheme: 'Lending' },
   { symbol: 'FLUID',  name: 'Fluid (prev. Instadapp)', theme: 'DeFi',         tier: 'Active',  subtheme: 'Lending' },
   { symbol: 'STBL',   name: 'STBL (RWA Stablecoin)', theme: 'DeFi',            tier: 'Watch',   subtheme: 'RWA' },
+  { symbol: 'DUST',   name: 'Dust Protocol',      theme: 'DeFi',              tier: 'Active',  subtheme: 'Lending' },
 
   // Infrastructure / Oracles / Data
   { symbol: 'LINK',   name: 'Chainlink',          theme: 'Infrastructure',    tier: 'Core',    subtheme: 'Oracle' },
@@ -83,8 +86,7 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'BAND',   name: 'Band Protocol',      theme: 'Infrastructure',    tier: 'Watch',   subtheme: 'Oracle' },
   { symbol: 'API3',   name: 'API3',               theme: 'Infrastructure',    tier: 'Watch',   subtheme: 'Oracle' },
   { symbol: 'PYTH',   name: 'Pyth Network',       theme: 'Infrastructure',    tier: 'Active',  subtheme: 'Oracle' },
-  { symbol: 'STRAX',  name: 'Stratis',            theme: 'Infrastructure',    tier: 'Watch',   subtheme: 'Oracle' },
-  { symbol: 'LIT',    name: 'Lighter',            theme: 'Infrastructure',    tier: 'Active',  subtheme: 'Oracle' },
+  { symbol: 'W',      name: 'Wormhole',           theme: 'Infrastructure',    tier: 'Active',  subtheme: 'Bridge' },
 
   // Gaming & Metaverse
   { symbol: 'AXS',    name: 'Axie Infinity',      theme: 'Gaming',            tier: 'Core',    subtheme: 'Gaming' },
@@ -96,7 +98,6 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'BEAM',   name: 'Beam',               theme: 'Gaming',            tier: 'Active',  subtheme: 'Gaming' },
   { symbol: 'RON',    name: 'Ronin',              theme: 'Gaming',            tier: 'Active',  subtheme: 'Gaming' },
   { symbol: 'YGG',    name: 'Yield Guild Games',  theme: 'Gaming',            tier: 'Watch',   subtheme: 'Gaming' },
-  { symbol: 'PENGU',  name: 'Pudgy Penguins',     theme: 'Gaming',            tier: 'Active',  subtheme: 'Gaming' },
 
   // Meme & Narrative
   { symbol: 'DOGE',   name: 'Dogecoin',           theme: 'Meme',              tier: 'Core',    subtheme: 'Meme' },
@@ -112,6 +113,7 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'SPX',    name: 'SPX6900',            theme: 'Meme',              tier: 'Active',  subtheme: 'Meme' },
   { symbol: 'MOG',    name: 'Mog Coin',           theme: 'Meme',              tier: 'Active',  subtheme: 'Meme' },
   { symbol: 'USELESS', name: 'Useless Coin',      theme: 'Meme',              tier: 'Active',  subtheme: 'Meme' },
+  { symbol: 'PENGU',  name: 'Pudgy Penguins',     theme: 'Meme',              tier: 'Active',  subtheme: 'Meme' },
 
   // RWA & Payments
   { symbol: 'XLM',    name: 'Stellar',            theme: 'RWA & Payments',    tier: 'Core',    subtheme: 'Payments' },
@@ -131,7 +133,6 @@ export const CRYPTO_UNIVERSE = [
   { symbol: 'OKB',    name: 'OKB',                theme: 'Exchange Tokens',   tier: 'Core',    subtheme: 'CEX Token' },
   { symbol: 'CRO',    name: 'Cronos',             theme: 'Exchange Tokens',   tier: 'Active',  subtheme: 'CEX Token' },
   { symbol: 'KCS',    name: 'KuCoin Token',       theme: 'Exchange Tokens',   tier: 'Watch',   subtheme: 'CEX Token' },
-  { symbol: 'FTT',    name: 'FTX Token',          theme: 'Exchange Tokens',   tier: 'Watch',   subtheme: 'CEX Token' },
   { symbol: 'BGB',    name: 'Bitget Token',       theme: 'Exchange Tokens',   tier: 'Active',  subtheme: 'CEX Token' },
   { symbol: 'GT',     name: 'GateToken',          theme: 'Exchange Tokens',   tier: 'Active',  subtheme: 'CEX Token' },
   { symbol: 'LEO',    name: 'UNUS SED LEO',       theme: 'Exchange Tokens',   tier: 'Core',    subtheme: 'CEX Token' },
