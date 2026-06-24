@@ -174,8 +174,14 @@ export async function fetchCandles(symbol, timeframe = '1D', limit = 300) {
 }
 
 /**
- * Fetch current market data (price, market cap, 24h volume) for many symbols in 1-2 calls.
- * Used by the scanner as a parallel data source alongside OHLC.
+ * Fetch current market data (price, market cap, 24h volume) for many symbols.
+ *
+ * Fallback chain (in priority order):
+ *   1. CoinGecko /coins/markets (live, fresh, but heavily rate-limited → 429)
+ *   2. Pre-baked /snapshot.json (from daily GitHub Action — up to 24h stale but always available)
+ *   3. CoinCap /v2/assets (live backup, no key, CORS-enabled)
+ *
+ * Used by the scanner and FactorMonitor to get market cap + volume for ranking.
  */
 let _marketCache = null;
 let _marketCacheTime = 0;
@@ -186,15 +192,57 @@ export async function fetchMarketData(symbols = []) {
   if (_marketCache && now - _marketCacheTime < MARKET_TTL_MS) {
     return filterBySymbols(_marketCache, symbols);
   }
+
+  // Try 1: CoinGecko live (most fresh, but rate-limited)
+  let marketMap = await tryCoinGeckoMarkets();
+  if (Object.keys(marketMap).length >= 10) {
+    _marketCache = marketMap;
+    _marketCacheTime = now;
+    return filterBySymbols(_marketCache, symbols);
+  }
+
+  // Try 2: Pre-baked snapshot.json (always available — built daily by CI)
+  if (!marketMap || Object.keys(marketMap).length === 0) {
+    marketMap = await trySnapshotMarkets();
+  } else {
+    // Merge: live data takes precedence, snapshot fills gaps
+    const snapshotMap = await trySnapshotMarkets();
+    for (const [sym, data] of Object.entries(snapshotMap)) {
+      if (!marketMap[sym]) marketMap[sym] = data;
+    }
+  }
+  if (Object.keys(marketMap).length >= 10) {
+    _marketCache = marketMap;
+    _marketCacheTime = now;
+    return filterBySymbols(_marketCache, symbols);
+  }
+
+  // Try 3: CoinCap backup (no key, CORS-enabled)
+  if (!marketMap || Object.keys(marketMap).length === 0) {
+    marketMap = await tryCoinCapMarkets();
+  } else {
+    const coincapMap = await tryCoinCapMarkets();
+    for (const [sym, data] of Object.entries(coincapMap)) {
+      if (!marketMap[sym]) marketMap[sym] = data;
+    }
+  }
+  if (Object.keys(marketMap).length > 0) {
+    _marketCache = marketMap;
+    _marketCacheTime = now;
+  }
+  return filterBySymbols(_marketCache || marketMap, symbols);
+}
+
+async function tryCoinGeckoMarkets() {
   try {
-    // Fetch top 250 by market cap
     const url = `${BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false`;
     const res = await fetch(url);
-    if (!res.ok) return _marketCache ? filterBySymbols(_marketCache, symbols) : {};
+    if (!res.ok) return {};
     const arr = await res.json();
-    _marketCache = {};
+    if (!Array.isArray(arr)) return {};
+    const out = {};
     for (const c of arr) {
-      _marketCache[c.symbol.toUpperCase()] = {
+      out[c.symbol.toUpperCase()] = {
         price: c.current_price,
         marketCap: c.market_cap || 0,
         volume24h: c.total_volume || 0,
@@ -202,10 +250,53 @@ export async function fetchMarketData(symbols = []) {
         change24h: c.price_change_percentage_24h || 0,
       };
     }
-    _marketCacheTime = now;
-    return filterBySymbols(_marketCache, symbols);
+    return out;
   } catch {
-    return _marketCache ? filterBySymbols(_marketCache, symbols) : {};
+    return {};
+  }
+}
+
+async function trySnapshotMarkets() {
+  try {
+    const res = await fetch('/snapshot.json');
+    if (!res.ok) return {};
+    const snap = await res.json();
+    const top = snap?.coingecko_top || {};
+    const out = {};
+    for (const [sym, data] of Object.entries(top)) {
+      out[sym.toUpperCase()] = {
+        price: data.price,
+        marketCap: data.marketCap || 0,
+        volume24h: data.volume24h || 0,
+        marketCapRank: data.marketCapRank || 999999,
+        change24h: data.change24h || 0,
+      };
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+async function tryCoinCapMarkets() {
+  try {
+    const res = await fetch('https://api.coincap.io/v2/assets?limit=200');
+    if (!res.ok) return {};
+    const d = await res.json();
+    const arr = d?.data || [];
+    const out = {};
+    for (const c of arr) {
+      out[c.symbol.toUpperCase()] = {
+        price: parseFloat(c.priceUsd) || 0,
+        marketCap: parseFloat(c.marketCapUsd) || 0,
+        volume24h: parseFloat(c.volumeUsd24Hr) || 0,
+        marketCapRank: parseInt(c.rank, 10) || 999999,
+        change24h: parseFloat(c.changePercent24Hr) || 0,
+      };
+    }
+    return out;
+  } catch {
+    return {};
   }
 }
 

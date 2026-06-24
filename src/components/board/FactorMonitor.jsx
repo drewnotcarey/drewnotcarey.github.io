@@ -144,7 +144,27 @@ export default function FactorMonitor() {
     return (
       <div className="font-mono text-center py-12 px-5">
         <div className="text-3xl mb-4 opacity-20">⚠</div>
-        <div className="text-sm" style={{ color: 'var(--scanner-red)' }}>{error}</div>
+        <div className="text-sm mb-2" style={{ color: 'var(--scanner-red)' }}>{error}</div>
+        <div className="text-[11px] mb-4" style={{ color: 'var(--scanner-text3)' }}>
+          Market data sources may be rate-limited. Try again in a minute.
+        </div>
+        <button
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+            // Force re-render by toggling state; the useEffect will re-run
+            setTimeout(() => window.location.reload(), 100);
+          }}
+          className="font-mono text-[10px] font-bold tracking-wide px-4 py-2 rounded"
+          style={{
+            background: 'var(--scanner-accent)',
+            color: '#000',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          ↻ RETRY
+        </button>
       </div>
     );
   }
