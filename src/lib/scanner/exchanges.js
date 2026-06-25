@@ -632,5 +632,20 @@ export async function fetchTop300(cgKey) {
 
   return assets
     .slice(0, 300)
-    .filter(a => !STABLECOINS.has(a.symbol) && !WRAPPED.has(a.symbol));
+    .filter(a => {
+      // Filter out known stablecoins and wrapped tokens
+      if (STABLECOINS.has(a.symbol) || WRAPPED.has(a.symbol)) return false;
+      // Heuristic: also filter USD-pegged tokens not in the hardcoded list
+      // (catches new stablecoins like RLUSD, USDG, USAT, etc.)
+      const sym = a.symbol.toUpperCase();
+      if (/^USD[A-Z]?$/.test(sym) || /^[A-Z]USD$/.test(sym) || sym.includes('USD')) {
+        // If the name contains 'dollar', 'stable', or it's priced near $1.00, filter it
+        const nameLower = (a.name || '').toLowerCase();
+        if (nameLower.includes('dollar') || nameLower.includes('stable') ||
+            nameLower.includes('usd') || nameLower.includes('peg')) {
+          return false;
+        }
+      }
+      return true;
+    });
 }
