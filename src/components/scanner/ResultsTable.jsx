@@ -84,15 +84,15 @@ function MiniSparkline({ data, positive }) {
 }
 
 const SORT_OPTIONS = [
-  { key: 'rank', label: 'MCap Rank' },
-  { key: 'change24h', label: '24h Change' },
-  { key: 'pricePct', label: 'Δ Base Trend' },
-  { key: 'emaPct', label: 'Δ MA Spread' },
-  { key: 'volume24h', label: 'VOL 24H' },
-  { key: 'marketCap', label: 'MKTCAP' },
-  { key: 'fundingRate', label: 'Funding' },
-  { key: 'openInterest', label: 'Open Interest' },
-  { key: 'rVol', label: 'rVol' },
+  { key: 'rank', label: 'Rank' },
+  { key: 'change24h', label: '24h Δ' },
+  { key: 'volume24h', label: 'VOL' },
+  { key: 'rVol', label: 'rVOL' },
+  { key: 'marketCap', label: 'MCAP' },
+  { key: 'fundingRate', label: 'FUND' },
+  { key: 'openInterest', label: 'OI' },
+  { key: 'pricePct', label: 'Δ Base' },
+  { key: 'emaPct', label: 'Δ Spread' },
 ];
 
 export default function ResultsTable({ results, settings, isScanning }) {
