@@ -424,6 +424,22 @@ function getIntervalMs(timeframe) {
 // ── 24H CHANGE ───────────────────────────
 export async function fetch24hChange(symbol, exchange, candles) {
   try {
+    // For 'auto' or resolver-based sources, derive 24h change from fetched candles
+    if (!exchange || exchange === 'auto' || exchange === 'massive' ||
+        ['hyperliquid', 'bybit', 'coingecko', 'gate', 'kucoin', 'lighter'].includes(exchange)) {
+      if (candles && candles.length >= 2) {
+        const now = Date.now();
+        const target = now - 24 * 60 * 60 * 1000;
+        let best = candles[0];
+        for (const c of candles) {
+          if (Math.abs(c.ts - target) < Math.abs(best.ts - target)) best = c;
+        }
+        const open24h = best.open;
+        const lastClose = candles[candles.length - 1].close;
+        return ((lastClose - open24h) / open24h) * 100;
+      }
+      return null;
+    }
     if (exchange === 'binance_perps') {
       const res = await fetch(`https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=${symbol}USDT`);
       if (!res.ok) return null;
@@ -513,6 +529,11 @@ export async function fetchCandles(symbol, exchange, timeframe = '4H') {
   if (exchange === 'kraken') return await fetchKrakenCandles(symbol, timeframe);
   if (exchange === 'binance') return await fetchBinanceCandles(symbol, timeframe);
   if (exchange === 'binance_perps') return await fetchBinancePerpsCandles(symbol, timeframe);
+  // New resolver-based sources — route through resolver with preferredSource
+  if (['hyperliquid', 'bybit', 'coingecko', 'gate', 'kucoin'].includes(exchange)) {
+    const { candles } = await resolveCandles(symbol, { timeframe, preferredSource: exchange });
+    return candles;
+  }
   return null;
 }
 

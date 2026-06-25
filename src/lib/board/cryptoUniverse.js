@@ -112,7 +112,6 @@ export const BENCHMARKS = [
   { symbol: 'SOL',    name: 'Solana',     subtheme: 'Smart Contract L1' },
   { symbol: 'BNB',    name: 'BNB Chain',  subtheme: 'Exchange L1' },
   { symbol: 'HYPE',   name: 'Hyperliquid', subtheme: 'Perpetuals L1' },
-  { symbol: 'TOTAL',  name: 'Alt Index',  subtheme: 'Equal Weight' },
 ];
 
 // Style rotation pairs (analogous to IWM/SPY etc.)

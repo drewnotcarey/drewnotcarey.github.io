@@ -222,21 +222,24 @@ export function computeSpreadMonitor(portfoliosByFactor, candlesBySymbol, benchm
       factorData[`spread_${h}d`] = horizonReturnWithStats(spreadSeries, h) || { ret: null, z: null, pctile: null };
     }
 
-    // YTD return (no z-score)
+    // YTD return — approximate using day-of-year index (series are arrays of numbers,
+    // not objects with timestamps, so we estimate: ~365 candles per year)
     if (longSeries.length > 0) {
-      const ytdStart = longSeries.findIndex((_, i) => {
-        const ts = longSeries[i]?.ts;
-        if (!ts) return false;
-        const d = new Date(ts);
-        return d.getFullYear() === new Date().getFullYear();
-      });
+      const currentYear = new Date().getFullYear();
+      const yearStart = new Date(currentYear, 0, 1).getTime();
+      // Estimate how many candles correspond to Jan 1 of current year
+      // (assuming ~1 candle per day; series is ordered oldest→newest)
+      const daysSinceYearStart = Math.floor((Date.now() - yearStart) / 86400000);
+      const ytdStartIdx = Math.max(0, longSeries.length - 1 - daysSinceYearStart);
+      // Only compute YTD if we have data from before Jan 1
+      const hasYtdData = longSeries.length > daysSinceYearStart + 5;
       factorData.rel_ytd = {
-        ret: ytdStart >= 0 ? (longSeries[longSeries.length - 1] / longSeries[ytdStart]) - 1 : 0,
+        ret: hasYtdData ? (longSeries[longSeries.length - 1] / longSeries[ytdStartIdx]) - 1 : null,
       };
       factorData.spread_ytd = {
-        ret: ytdStart >= 0 && spreadSeries[ytdStart]
-          ? (spreadSeries[spreadSeries.length - 1] / spreadSeries[ytdStart]) - 1
-          : 0,
+        ret: hasYtdData && spreadSeries[ytdStartIdx] != null
+          ? (spreadSeries[spreadSeries.length - 1] / spreadSeries[ytdStartIdx]) - 1
+          : null,
       };
     }
 

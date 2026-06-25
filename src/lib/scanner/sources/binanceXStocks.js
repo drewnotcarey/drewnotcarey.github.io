@@ -26,8 +26,8 @@ export function isTradfi(symbol) {
 
 export async function fetchCandles(symbol, timeframe = '1D', limit = 300) {
   const interval = TIMEFRAME_INTERVAL[timeframe] || '1d';
-  // xStocks on Binance use BUSDT suffix (not USDT)
-  const sym = `${symbol.toUpperCase()}BUSDT`;
+  // xStocks on Binance use X suffix + USDT quote (e.g. NVDAXUSDT, TSLAXUSDT)
+  const sym = `${symbol.toUpperCase()}XUSDT`;
   const url = `${BASE}/klines?symbol=${sym}&interval=${interval}&limit=${Math.min(limit, 1000)}`;
 
   try {

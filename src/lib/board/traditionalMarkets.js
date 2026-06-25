@@ -34,7 +34,6 @@ export const TRAD_UNIVERSE = [
   { symbol: 'XLV',  name: 'Healthcare ETF',     category: 'Sector ETFs',  type: 'ETF'   },
   { symbol: 'XLY',  name: 'Consumer Disc ETF',  category: 'Sector ETFs',  type: 'ETF'   },
   { symbol: 'XLP',  name: 'Consumer Stap ETF',  category: 'Sector ETFs',  type: 'ETF'   },
-  { symbol: 'XLE',  name: 'Energy Sector ETF',  category: 'Sector ETFs',  type: 'ETF'   },
 
   // Tech Mega Cap
   { symbol: 'NVDA', name: 'NVIDIA',             category: 'Tech Mega Cap', type: 'Stock' },

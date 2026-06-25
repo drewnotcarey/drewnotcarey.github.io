@@ -84,6 +84,30 @@ export default function MacroTab({ tradData, isLoading, onRefresh }) {
   const [filterCat, setFilterCat] = useState('All');
   const [search, setSearch] = useState('');
 
+  // useMemo MUST be called before any early returns (Rules of Hooks)
+  const assets = tradData?.assets || [];
+  const categories = tradData?.categories || [];
+  const tradRegime = tradData?.tradRegime || { total: 0, pctAbove20: 0, pctAbove50: 0, pctAbove200: 0, avgRet1d: 0, avgRet5d: 0, avgRet20d: 0 };
+  const sourceCounts = tradData?.sourceCounts || {};
+  const fetchedAt = tradData?.fetchedAt || null;
+
+  const filtered = useMemo(() => {
+    return assets.filter(a => {
+      if (filterCat !== 'All' && a.category !== filterCat) return false;
+      if (search && !`${a.symbol} ${a.name}`.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [assets, filterCat, search]);
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      if (sortKey === 'name') return a.name.localeCompare(b.name);
+      if (sortKey === 'rsi14') return (a.rsi14 ?? 200) - (b.rsi14 ?? 200);
+      if (sortKey === 'pctFrom52wHigh') return (a.pctFrom52wHigh ?? 999) - (b.pctFrom52wHigh ?? 999);
+      return (b[sortKey] ?? -99) - (a[sortKey] ?? -99);
+    });
+  }, [filtered, sortKey]);
+
   if (isLoading) {
     return (
       <div className="font-mono text-center py-20 px-5">
@@ -113,27 +137,7 @@ export default function MacroTab({ tradData, isLoading, onRefresh }) {
     );
   }
 
-  const { assets, categories, tradRegime, sourceCounts, fetchedAt } = tradData;
-
   const categories_list = ['All', ...categories.map(c => c.name)];
-
-  const filtered = useMemo(() => {
-    return assets.filter(a => {
-      if (filterCat !== 'All' && a.category !== filterCat) return false;
-      if (search && !`${a.symbol} ${a.name}`.toLowerCase().includes(search.toLowerCase())) return false;
-      return true;
-    });
-  }, [assets, filterCat, search]);
-
-  const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => {
-      if (sortKey === 'name') return a.name.localeCompare(b.name);
-      if (sortKey === 'rsi14') return (a.rsi14 ?? 200) - (b.rsi14 ?? 200);  // ascending for RSI
-      if (sortKey === 'pctFrom52wHigh') return (a.pctFrom52wHigh ?? 999) - (b.pctFrom52wHigh ?? 999);  // ascending
-      // Returns: descending (best first)
-      return (b[sortKey] ?? -99) - (a[sortKey] ?? -99);
-    });
-  }, [filtered, sortKey]);
 
   return (
     <div className="font-mono px-5 md:px-8 py-5 space-y-6">

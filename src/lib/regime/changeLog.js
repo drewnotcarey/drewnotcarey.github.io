@@ -115,19 +115,22 @@ export function computeChanges(current, previous) {
     changes.push(`Regime shifted: ${previous.quadrant} → ${current.quadrant}`);
   }
 
-  // 2. Per-axis z-score breaches (cross ±2σ)
+  // 2. Per-axis nowcast breaches (nowcast is 0-100 scale; 50 = neutral)
+  // "Extreme" threshold: nowcast >= 70 (bullish extreme) or <= 30 (bearish extreme)
   for (const axis of ['growth', 'inflation', 'liquidityData']) {
     const cur = current[axis]?.nowcast;
     const prev = previous[axis]?.nowcast;
     if (cur == null || prev == null) continue;
 
     const axisName = axis === 'liquidityData' ? 'liquidity' : axis;
+    const curExtreme = cur >= 70 || cur <= 30;
+    const prevExtreme = prev >= 70 || prev <= 30;
 
-    if (Math.abs(cur) >= 2 && Math.abs(prev) < 2) {
-      const direction = cur > 0 ? '+' : '';
-      changes.push(`${axisName} crossed ${direction}2σ (now ${cur.toFixed(1)}σ)`);
-    } else if (Math.abs(cur) < 2 && Math.abs(prev) >= 2) {
-      changes.push(`${axisName} back inside 2σ (was ${prev.toFixed(1)}σ)`);
+    if (curExtreme && !prevExtreme) {
+      const direction = cur >= 70 ? 'bullish extreme' : 'bearish extreme';
+      changes.push(`${axisName} entered ${direction} (nowcast ${cur.toFixed(1)})`);
+    } else if (!curExtreme && prevExtreme) {
+      changes.push(`${axisName} back to neutral (was ${prev.toFixed(1)})`);
     }
   }
 

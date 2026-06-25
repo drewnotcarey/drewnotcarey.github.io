@@ -67,7 +67,8 @@ export default function MacroCharts({ regime }) {
   const { history = {}, btcPrice = [], quadrant = 'FLUX' } = regime;
 
   // Generate mock history if not available (for demo)
-  const chartData = history.dates?.length > 0
+  const hasHistory = history.dates?.length > 0
+  const chartData = hasHistory
     ? history.dates.map((date, i) => ({
         date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         growth: history.growthNowcast?.[i] ?? 50,
@@ -75,7 +76,7 @@ export default function MacroCharts({ regime }) {
         liquidity: history.liquidityNowcast?.[i] ?? 50,
         btc: btcPrice[i] ?? null,
       }))
-    : generateMockHistory(90);
+    : null;  // History not yet available — shows 'collecting data' message
 
   // BTC chart data (last 180 days)
   const btcChartData = btcPrice.length > 0

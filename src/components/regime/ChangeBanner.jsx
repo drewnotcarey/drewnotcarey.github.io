@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { diffAndPersist, timeAgo, clearSnapshot } from '@/lib/regime/changeLog';
+import { diffAndPersist, timeAgo, getLastSnapshotTime, clearSnapshot } from '@/lib/regime/changeLog';
 
 export default function ChangeBanner({ regime }) {
   const [changes, setChanges] = useState([]);
@@ -16,10 +16,11 @@ export default function ChangeBanner({ regime }) {
 
   useEffect(() => {
     if (!regime) return;
-    // Compute changes vs previous snapshot, then save current as the new "previous"
+    // Capture the previous timestamp BEFORE diffAndPersist overwrites it
+    const prevTs = getLastSnapshotTime();
     const newChanges = diffAndPersist(regime);
     setChanges(newChanges);
-    setLastVisit(timeAgo(regime._lastVisitTs));
+    setLastVisit(timeAgo(prevTs));
   }, [regime]);
 
   if (dismissed || changes.length === 0) return null;

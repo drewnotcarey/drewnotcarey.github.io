@@ -29,8 +29,7 @@ export const MMM_TRAD_UNIVERSE = [
   { symbol: 'XLYx',  krakenPair: 'XLYxUSD',  name: 'Cons. Disc.',  category: 'Sectors',        signal: 'XLY'  },
   { symbol: 'XLPx',  krakenPair: 'XLPxUSD',  name: 'Cons. Stap.',  category: 'Sectors',        signal: 'XLP'  },
   { symbol: 'XLEx',  krakenPair: 'XLExUSD',  name: 'Energy',       category: 'Sectors',        signal: 'XLE'  },
-  { symbol: 'XLEx',  krakenPair: 'XLExUSD',  name: 'Energy',       category: 'Sectors',        signal: 'XLE'  },
-  { symbol: 'XLVx',  krakenPair: 'XLVxUSD',  name: 'Healthcare',    category: 'Sectors',        signal: 'XLV'  },
+    { symbol: 'XLVx',  krakenPair: 'XLVxUSD',  name: 'Healthcare',    category: 'Sectors',        signal: 'XLV'  },
   { symbol: 'XLIx',  krakenPair: 'XLIxUSD',  name: 'Industrials',  category: 'Sectors',        signal: 'XLI'  },
   { symbol: 'XLB',  name: 'Materials',       category: 'Sectors',        signal: 'XLB'  },
   { symbol: 'XLRE', name: 'Real Estate',     category: 'Sectors',        signal: 'XLRE' },
@@ -378,6 +377,7 @@ function computeLiquidityDashboard(assetMetrics) {
   const tlt = assetMetrics['TLTx'] || assetMetrics['TLT'];
   const gld = assetMetrics['GLDx'] || assetMetrics['GLD'];
   const hyg = assetMetrics['HYGx'] || assetMetrics['HYG'];
+    const lqd = assetMetrics['LQDx'] || assetMetrics['LQD'];
 
   // Risk-On: Equities up, Bonds down, High Yield up
   if (spy?.aboveMa50) signals.push({ name: 'Risk-On: SPY > MA50', on: spy.aboveMa50, score: spy.score });

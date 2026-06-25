@@ -156,7 +156,7 @@ export const KNOWN_MARKET_IDS = {
   BTC: 1, ETH: 0, SOL: 2,
   SPY: 128, QQQ: 129, DIA: 152, IWM: 153,
   TSLA: 112, NVDA: 110, AAPL: 113, AMZN: 114, MSFT: 115, GOOGL: 116, META: 117,
-  HOOD: 108, COIN: 109, MSTR: 122, PLTR: 137, INTC: 138, AMD: 138, MU: 164,
+  HOOD: 108, COIN: 109, MSTR: 122, PLTR: 137, AMD: 138, MU: 164,  // INTC removed (duplicate market_id — resolved via API)
   ORCL: 165, GME: 176, BABA: 177, TSM: 168, RKLB: 186, DELL: 187,
   US500: 180, US100: 181,  // S&P 500 + Nasdaq 100 indices
   XAU: 92, XAG: 93, XCU: 136, XPT: 147, XPD: 146,  // gold, silver, copper, platinum, palladium

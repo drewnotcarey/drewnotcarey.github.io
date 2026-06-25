@@ -244,7 +244,8 @@ export default function MacroRegime() {
 
     // Total signal count
     const totalSignals = growthSignals.length + inflationSignals.length + liquiditySignals.length;
-    const fredSignals = fredAvailable ? totalSignals : growthSignals.filter(s => !s.raw?.includes?.('FRED') || true).length;
+    // When FRED is unavailable, count only signals that don't require FRED data
+    const fredSignals = fredAvailable ? totalSignals : growthSignals.filter(s => !s.requiresFred).length;
 
     return {
       quadrant,
@@ -280,12 +281,35 @@ export default function MacroRegime() {
       btcPrice,
       lastUpdated: new Date().toISOString(),
     };
+
+  // Persist regime quadrant history to localStorage for rotation detection
+  // (RegimeCard reads 'trendscan_regime_history' for flip-flag logic)
+  try {
+    const historyKey = 'trendscan_regime_history';
+    const existing = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    const today = new Date().toISOString().split('T')[0];
+    if (!existing.find(h => h.date === today)) {
+      existing.push({
+        date: today,
+        quadrant: regime.quadrant,
+        growth: regime.growth?.label,
+        inflation: regime.inflation?.label,
+        liquidity: regime.liquidityData?.label,
+      });
+      const pruned = existing.slice(-90);
+      localStorage.setItem(historyKey, JSON.stringify(pruned));
+    }
+  } catch (e) {
+    console.warn('[MacroRegime] history persist failed:', e.message);
+  }
   }, [rawData]);
 
   // Seasonality (from Ken French data in snapshot)
   const seasonality = useMemo(() => {
-    if (!rawData?.kenFrench) return null;
-    return computeSeasonality(rawData.kenFrench);
+    // Field is 'ken_french' in snapshot.json (snake_case from build_snapshot.js)
+    const kf = rawData?.ken_french || rawData?.kenFrench;
+    if (!kf || !kf.length) return null;
+    return computeSeasonality(kf);
   }, [rawData]);
 
   // Loading state

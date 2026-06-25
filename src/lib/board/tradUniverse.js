@@ -22,8 +22,7 @@ export const TRAD_UNIVERSE = [
   { symbol: 'XLB',  name: 'Materials',               category: 'Sectors',      type: 'ETF' },
   { symbol: 'XLRE', name: 'Real Estate',             category: 'Sectors',      type: 'ETF' },
   { symbol: 'XLU',  name: 'Utilities',               category: 'Sectors',      type: 'ETF' },
-  { symbol: 'XLB',  name: 'Materials',               category: 'Sectors',      type: 'ETF' },
-  { symbol: 'XLC',  name: 'Communication Services',  category: 'Sectors',      type: 'ETF' },
+    { symbol: 'XLC',  name: 'Communication Services',  category: 'Sectors',      type: 'ETF' },
   { symbol: 'XLI',  name: 'Industrials',             category: 'Sectors',      type: 'ETF' },
 
   // ── STYLES ───────────────────────────────────────────────────────────────────

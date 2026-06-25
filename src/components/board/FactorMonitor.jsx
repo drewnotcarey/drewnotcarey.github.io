@@ -66,7 +66,7 @@ export default function FactorMonitor() {
         setLoading(true);
         setError(null);
 
-        // 1. Fetch top 30 crypto by market cap (smaller than 100 for speed)
+        // 1. Fetch top 100 crypto by market cap
         const marketData = await fetchMarketData([]);
         const topSymbols = Object.entries(marketData)
           .sort((a, b) => b[1].marketCap - a[1].marketCap)
@@ -319,7 +319,7 @@ export default function FactorMonitor() {
 
       {/* Methodology footer */}
       <div className="text-[8px] leading-relaxed pt-3 border-t" style={{ borderColor: 'var(--scanner-border2)', color: 'var(--scanner-text3)', opacity: 0.6 }}>
-        <strong>Methodology:</strong> Top 30 by market cap · quintile portfolios rebalanced monthly ·
+        <strong>Methodology:</strong> Top 100 by market cap · quintile portfolios rebalanced monthly ·
         long-only (Q5, equal-weighted) · spread (Q5 − Q1, equal-weighted) ·
         z-scores vs trailing 252 overlapping h-day windows ·
         |z| ≥ 2 highlighted · Factor scores winsorized at 2.5%/97.5% then z-scored ·

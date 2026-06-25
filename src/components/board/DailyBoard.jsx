@@ -217,20 +217,20 @@ function StyleRotation({ styleRotation }) {
             <div className="flex justify-between">
               <div>
                 <div className="text-[7.5px] uppercase tracking-wider" style={{ color: 'var(--scanner-text3)' }}>1D</div>
-                <span className="text-[11px] font-semibold tabular-nums" style={{ color: retColor(pair.ret1d != null ? pair.ret1d / 100 : null) }}>
-                  {pair.ret1d != null ? (pair.ret1d >= 0 ? '+' : '') + pair.ret1d.toFixed(2) + '%' : '—'}
+                <span className="text-[11px] font-semibold tabular-nums" style={{ color: retColor(pair.ret1d) }}>
+                  {fmtPct(pair.ret1d)}
                 </span>
               </div>
               <div>
                 <div className="text-[7.5px] uppercase tracking-wider" style={{ color: 'var(--scanner-text3)' }}>5D</div>
-                <span className="text-[11px] font-semibold tabular-nums" style={{ color: retColor(pair.ret5d != null ? pair.ret5d / 100 : null) }}>
-                  {pair.ret5d != null ? (pair.ret5d >= 0 ? '+' : '') + pair.ret5d.toFixed(2) + '%' : '—'}
+                <span className="text-[11px] font-semibold tabular-nums" style={{ color: retColor(pair.ret5d) }}>
+                  {fmtPct(pair.ret5d)}
                 </span>
               </div>
               <div>
                 <div className="text-[7.5px] uppercase tracking-wider" style={{ color: 'var(--scanner-text3)' }}>20D</div>
-                <span className="text-[11px] font-semibold tabular-nums" style={{ color: retColor(pair.ret20d != null ? pair.ret20d / 100 : null) }}>
-                  {pair.ret20d != null ? (pair.ret20d >= 0 ? '+' : '') + pair.ret20d.toFixed(2) + '%' : '—'}
+                <span className="text-[11px] font-semibold tabular-nums" style={{ color: retColor(pair.ret20d) }}>
+                  {fmtPct(pair.ret20d)}
                 </span>
               </div>
             </div>

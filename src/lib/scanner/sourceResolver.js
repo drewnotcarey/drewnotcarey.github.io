@@ -75,7 +75,7 @@ const TRADFI_SOURCES = [
     supports: async (s) => lighter.isSupported(s) },
   // Binance xStocks (NVDA/TSLA backup)
   { id: 'binance_xstocks', tier: 2, fetch: binanceXStocks.fetchCandles,
-    supports: (s) => binanceXStocks.isTradfi?.(s) || OKX_TRADFI.has(s.toUpperCase()) && false },
+    supports: (s) => binanceXStocks.isTradfi?.(s) ?? false },
   // Massive/Polygon free tier — limited (only /prev works reliably for most assets)
   // Keep as last resort; useful for tickers not on any exchange (obscure stocks/ETFs)
   { id: 'massive',         tier: 3, fetch: massive.fetchCandles,

@@ -110,8 +110,6 @@ const SYMBOL_TO_ID = {
   LRC: 'loopring',
   BAL: 'balancer',
   SNT: 'status',
-  MANA: 'decentraland',
-  OCEAN: 'ocean-protocol',
 
   // ─── Added 2026-06: tokens missing from the original map ───────────────
   // Without these, CoinGecko tries /coins/list (rate-limited) and picks the
@@ -210,8 +208,9 @@ async function loadIdMap() {
   try {
     const res = await fetch(`${BASE}/coins/list`);
     if (!res.ok) {
-      _idCache = SYMBOL_TO_ID;
-      return _idCache;
+      // Don't cache on failure — return fallback without setting _idCache
+      // so the next call can retry
+      return SYMBOL_TO_ID;
     }
     const list = await res.json();
     const apiMap = {};
@@ -224,8 +223,8 @@ async function loadIdMap() {
     _idCache = { ...apiMap, ...SYMBOL_TO_ID };
     return _idCache;
   } catch {
-    _idCache = SYMBOL_TO_ID;
-    return _idCache;
+    // Don't cache on error — allow retry
+    return SYMBOL_TO_ID;
   }
 }
 
