@@ -173,10 +173,10 @@ export default function ResultsTable({ results, settings, isScanning }) {
                   { key: 'pricePct', label: 'Δ Base', right: true },
                   { key: 'emaPct', label: 'Δ Spread', right: true },
                   { key: 'volume24h', label: 'VOL', right: true },
+                  { key: 'rVol', label: 'rVOL', right: true },
                   { key: 'marketCap', label: 'MCAP', right: true },
                   { key: 'fundingRate', label: 'FUND', right: true },
                   { key: 'openInterest', label: 'OI', right: true },
-                  { key: 'rVol', label: 'rVOL', right: true },
                 ].map((col, i) => (
                   <th
                     key={i}
@@ -279,6 +279,18 @@ function ResultRow({ row, index, maxPricePct, maxEmaPct }) {
         </span>
       </td>
 
+      {/* RELATIVE VOLUME (rVol = current / 20d SMA) */}
+      <td className="py-2 px-2.5 text-right">
+        <span className="text-[11px] font-semibold tabular-nums" style={{
+          color: row.rVol == null ? 'var(--scanner-text3)' :
+                 row.rVol >= 2 ? 'var(--scanner-accent)' :
+                 row.rVol >= 1.5 ? 'var(--scanner-green)' :
+                 row.rVol < 0.5 ? 'var(--scanner-text3)' : 'var(--scanner-text2)'
+        }}>
+          {fmtRVol(row.rVol)}
+        </span>
+      </td>
+
       {/* MKTCAP */}
       <td className="py-2 px-2.5 text-right">
         <span className="text-[11px] font-semibold tabular-nums" style={{ color: 'var(--scanner-text2)' }}>
@@ -301,18 +313,6 @@ function ResultRow({ row, index, maxPricePct, maxEmaPct }) {
       <td className="py-2 px-2.5 text-right">
         <span className="text-[11px] font-semibold tabular-nums" style={{ color: 'var(--scanner-text2)' }}>
           {fmtOI(row.openInterest)}
-        </span>
-      </td>
-
-      {/* RELATIVE VOLUME (rVol = current / 20d SMA) */}
-      <td className="py-2 px-2.5 text-right">
-        <span className="text-[11px] font-semibold tabular-nums" style={{
-          color: row.rVol == null ? 'var(--scanner-text3)' :
-                 row.rVol >= 2 ? 'var(--scanner-accent)' :
-                 row.rVol >= 1.5 ? 'var(--scanner-green)' :
-                 row.rVol < 0.5 ? 'var(--scanner-text3)' : 'var(--scanner-text2)'
-        }}>
-          {fmtRVol(row.rVol)}
         </span>
       </td>
     </tr>

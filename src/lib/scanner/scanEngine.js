@@ -101,7 +101,10 @@ async function analyzeAsset(asset, settings, cgMarketData, hlTickers) {
 
     // Hyperliquid per-asset data (funding, open interest) — only if available
     // hlTickers is a Map (from fetchAllTickers) — use .get()
-    const hlData = hlTickers?.get(asset.symbol) || null;
+    const hlData = hlTickers instanceof Map ? hlTickers.get(asset.symbol) : null;
+    if (asset.symbol === 'BTC') {
+      console.log('[scanEngine] BTC hlData:', hlData, '| hlTickers type:', typeof hlTickers, 'isMap:', hlTickers instanceof Map);
+    }
 
     return {
       ...asset,
@@ -162,9 +165,18 @@ export async function runScan(settings, onProgress) {
     onProgress({ phase: 'fetching_market_data', message: 'Fetching Hyperliquid funding + open interest…' });
     try {
       hlTickers = await fetchHyperliquidTickers();
+      console.log('[scanEngine] Hyperliquid tickers fetched:', {
+        type: typeof hlTickers,
+        isMap: hlTickers instanceof Map,
+        size: hlTickers?.size ?? 'n/a',
+        btcEntry: hlTickers?.get?.('BTC') || 'no BTC',
+        sampleKeys: hlTickers instanceof Map ? [...hlTickers.keys()].slice(0, 5) : 'not a Map',
+      });
     } catch (e) {
-      console.warn('Hyperliquid ticker fetch failed:', e.message);
+      console.warn('[scanEngine] Hyperliquid ticker fetch failed:', e.message);
     }
+  } else {
+    console.log('[scanEngine] Exchange is', settings.exchange, '— skipping HL tickers');
   }
 
   onProgress({
