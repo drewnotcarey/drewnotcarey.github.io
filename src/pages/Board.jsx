@@ -72,6 +72,14 @@ export default function Board() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-refresh tradData every 5 minutes (so Macro tab stays current)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      runTradAnalysis();
+    }, 5 * 60 * 1000);  // 5 minutes
+    return () => clearInterval(interval);
+  }, [runTradAnalysis]);
+
   // API key modal trigger removed — 'auto' default uses free sources.
   // Kept the ref so existing MassiveApiKeyInput component still imports cleanly;
   // will be triggered manually if user picks 'massive' exchange (now aliased to 'auto').
@@ -197,7 +205,7 @@ export default function Board() {
           {activeTab === 3 && <MomentumScanTab momentumScan={momentumScan} />}
           {activeTab === 4 && <MomentumTab cleanMomentum={cleanMomentum} />}
           {activeTab === 5 && <ExtensionTab tooHot={tooHot} fading={fading} />}
-          {activeTab === 6 && <MacroTab tradData={tradData} isLoading={tradLoading} />}
+          {activeTab === 6 && <MacroTab tradData={tradData} isLoading={tradLoading} onRefresh={runTradAnalysis} />}
           {activeTab === 7 && <FactorMonitor />}
         </>
       )}
