@@ -238,6 +238,49 @@ async function fetchKenFrench() {
   }
 }
 
+// ─── CBOE Put/Call Ratios (free CSV, no key) ─────────────────────────────────
+// Source: https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/
+// Tracks equity, index, and total market put/call ratios — a key sentiment indicator.
+
+async function fetchCBOEPutCall() {
+  console.log('── CBOE put/call ratios ──');
+  const series = {
+    equity: 'https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/equitypc.csv',
+    index:  'https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/indexpc.csv',
+    total:  'https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/totalpc.csv',
+  };
+  const out = {};
+  for (const [name, url] of Object.entries(series)) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) { console.warn(`  ✗ CBOE ${name}: HTTP ${res.status}`); continue; }
+      const text = await res.text();
+      // CBOE CSV format: header row, then data rows with date, put volume, call volume, total, P/C ratio
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) continue;
+      // Parse header to find column indices
+      const header = lines[0].split(',');
+      // Take last 30 rows for recent trend
+      const dataLines = lines.slice(-30);
+      const parsed = dataLines.map(line => {
+        const parts = line.split(',');
+        return {
+          date: parts[0],
+          putVolume: parseFloat(parts[1]) || 0,
+          callVolume: parseFloat(parts[2]) || 0,
+          total: parseFloat(parts[3]) || 0,
+          ratio: parseFloat(parts[4]) || 0,
+        };
+      }).filter(d => d.date && d.ratio > 0);
+      out[name] = parsed;
+      console.log(`  ✓ CBOE ${name}: ${parsed.length} days, latest ratio: ${parsed[parsed.length-1]?.ratio?.toFixed(3)}`);
+    } catch (e) {
+      console.warn(`  ✗ CBOE ${name}: ${e.message}`);
+    }
+  }
+  return out;
+}
+
 // ─── Fear & Greed (free) ─────────────────────────────────────────────────────
 
 async function fetchFearGreed() {
@@ -265,11 +308,12 @@ async function main() {
   console.log(`FRED_API_KEY: ${FRED_API_KEY ? '✓ set' : '✗ not set'}`);
   console.log('');
 
-  const [fred, coingecko, fearGreed, kenFrench] = await Promise.all([
+  const [fred, coingecko, fearGreed, kenFrench, cboe] = await Promise.all([
     fetchAllFred(),
     fetchCoinGeckoTop(),
     fetchFearGreed(),
     fetchKenFrench(),
+    fetchCBOEPutCall(),
   ]);
 
   const snapshot = {
@@ -278,6 +322,7 @@ async function main() {
     coingecko_top: coingecko,
     fear_greed: fearGreed,
     ken_french: kenFrench,
+    cboe_put_call: cboe,
   };
 
   // Stats
@@ -287,6 +332,7 @@ async function main() {
   console.log(`  FRED series populated:  ${fredCount}/${Object.keys(FRED_SERIES).length}`);
   console.log(`  CoinGecko coins:        ${Object.keys(coingecko).length}`);
   console.log(`  Fear & Greed days:      ${fearGreed.length}`);
+  console.log(`  CBOE P/C series:        ${Object.keys(cboe).length}`);
   console.log(`  Ken French months:      ${kenFrench.length}`);
   console.log(`  Total size:             ${JSON.stringify(snapshot).length.toLocaleString()} bytes`);
 
