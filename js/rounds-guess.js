@@ -56,14 +56,16 @@ function guessIntro(){
   }[round.stimulus];
   return {
     title: 'Guess & Bet',
-    note: 'This round: <b>' + name + '</b>' + (round.stimulus === 'duration' ? '' : ' · on screen for about <b>' + secs + 's</b>'),
+    note: 'This round: <b>' + name + '</b>' + (round.stimulus === 'duration' ? '' : ' · on screen for about <b>' + secs + 's</b>') + ' · <b>payout \u00d7 your chance &gt; 1 = +EV</b>',
     cta: 'Start — Show It',
     fine: 'The viewing clock starts the moment you press Start.',
     steps: [
       ['Watch the flash', what],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact.'],
       ['Read the board', 'Your guess joins four rival guesses. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value.'],
-      ['Bet the value, not the favorite', 'Estimate each slot\u2019s real chance of winning. When (your chance) \u00d7 (payout) is more than 1.0, the bet is <b>+EV</b> — worth making. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
+      ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
+      ['A worked example', 'A slot paying <b>3\u00d7</b> implies the market rates its win chance at about <b>33%</b> (1 \u00f7 3 \u2248 0.33). If your read is that the real chance is <b>higher than 33%</b> — say 40% — then 0.40 \u00d7 3 = <b>1.2 &gt; 1</b>: the slot is +EV and worth betting. If you think it\u2019s lower, the slot is overpriced and the edge belongs elsewhere.'],
+      ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
       ['Rate your confidence', 'Pick 1\u20135 for how sure you are your slot wins. Honest ratings are scored: you\u2019re calibrated when your 70% calls come true about 70% of the time.']
     ]
   };
@@ -316,10 +318,23 @@ function buildMarket(){
 }
 
 /* ---------------- board UI ---------------- */
+/* per-slot edge indicator (hints only): model chance vs market-implied
+   chance, colored green (+EV) or red (−EV) */
+function edgeHTML(s){
+  const m  = Math.round(s.pModel * 100);
+  const im = Math.round(s.implied * 100);
+  const e  = Math.round((s.pModel - s.implied) * 100);
+  const pos = s.ev > 0;
+  return '<span class="slot-implied">Model ~' + m + '% · Implied ~' + im + '%</span>' +
+         '<span class="slot-edge ' + (pos ? 'pos' : 'neg') + '">' +
+         (pos ? '▲' : '▼') + ' Edge ' + (e > 0 ? '+' : '') + e + '% · ' +
+         (pos ? '+EV' : '−EV') + '</span>';
+}
+
 function renderBoard(){
   const wrap = $('#slots'); wrap.innerHTML = '';
   const hints = hintsEnabled('guess');
-  $('#boardHintExt').textContent = hints ? ' · market-implied chance ~%' : '';
+  $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') + 'payout × your chance > 1 = +EV';
   round.slots.forEach((s, i) => {
     const el = document.createElement('button');
     el.type = 'button';
@@ -329,7 +344,7 @@ function renderBoard(){
       '<span class="slot-label">' + s.label + '</span>' +
       '<span class="slot-guess">' + s.display + '</span>' +
       '<span class="slot-payout">' + s.payout.toFixed(1) + '×</span>' +
-      (hints ? '<span class="slot-implied">~' + Math.round(s.implied * 100) + '% implied</span>' : '');
+      (hints ? edgeHTML(s) : '');
     el.addEventListener('click', () => {
       round.selected = i;
       $$('.slot').forEach(x => x.classList.remove('selected'));
@@ -383,6 +398,8 @@ function doRevealGuess(){
   const win = s.isWinner;
   const outcome = win ? 1 : 0;
   const brier = Math.pow(round.stated - outcome, 2);
+  const best  = round.slots[round.bestIdx];
+  const fmtEV = v => (v >= 0 ? '+' : '') + v.toFixed(2);
 
   const rec = {
     round_type: 'guess', stimulus: round.stimulus,
@@ -407,12 +424,26 @@ function doRevealGuess(){
     '-EV/win' : "You won, but the odds weren't in your favor. That was luck more than good process.",
     '-EV/loss': "This bet wasn't +EV, and it lost. No punishment — bad luck and bad decisions are different. Focus on the decision next time."
   };
+  /* post-lock edge feedback: reinforce hunting the BEST value, not just any +EV */
+  let edgeNote;
+  if(round.selBest){
+    edgeNote = round.selPositive
+      ? '⭐ Best-value pick — this was the highest-EV slot on the board.'
+      : 'No slot was +EV this round — you still picked the best of a bad board.';
+  } else if(round.selPositive){
+    edgeNote = '+EV call, but a better-value slot existed: <b>' + best.label + ' (' + best.display + ')</b> at ' +
+               best.payout.toFixed(1) + '× carried EV ' + fmtEV(best.ev) + '.';
+  } else {
+    edgeNote = 'The best value was <b>' + best.label + ' (' + best.display + ')</b> at ' +
+               best.payout.toFixed(1) + '× (EV ' + fmtEV(best.ev) + ').';
+  }
   const spec = STIM_SPEC[round.stimulus];
   showReveal({
     heading: 'The true ' + spec.noun + ': <span class="true-value">' + round.trueValue + spec.unit + '</span>',
     detail: round.slots.map((sl, i) =>
       '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + '">' +
-      sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>').join(''),
+      sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>').join('') +
+      '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',
     debrief: msgs[cell],
     good: round.selPositive,
     win: win,

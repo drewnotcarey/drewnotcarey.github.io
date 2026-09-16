@@ -49,9 +49,11 @@ tap.
   tendency, per-round-type sharp-call rates.
 - **Sharp Streak** — consecutive +EV calls; a good bet that loses never
   breaks it.
-- **Hint stripping** — implied probabilities, bust odds, and EV panels fade
-  as calibration tightens (Auto difficulty scales stimuli, bust rules, and
-  clocks with you).
+- **Hint stripping** — per-slot edge indicators (model vs implied chance,
+  green +EV / red −EV), bust odds, and EV panels fade as calibration
+  tightens (Auto difficulty scales stimuli, bust rules, and clocks with
+  you). Every Guess & Bet reveal names the best-value slot, whether or not
+  you picked it.
 
 ## Reward design
 
