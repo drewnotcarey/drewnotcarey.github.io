@@ -35,8 +35,10 @@ tap.
   RMS of relative error), blended with the field's consensus. The briefing
   says it up front: this is a market game, not a test of accuracy — the skill
   is reading and playing the market, and rewards follow the decision, not the
-  outcome. The board reads as a number line: slots sorted low to high with
-  the gap between neighbors marked (tight gaps highlighted), so a guess
+  outcome. The board reads as a number line twice over: the whole field is
+  plotted across the top at true relative spacing (a one-shot view of the
+  market spread), and the slots below sit sorted low to high with the gap
+  between neighbors marked (tight gaps highlighted), so a guess
   boxed in by close rivals — and the thin slice of outcome-space it owns —
   is visible at a glance. Rival guesses and prices are seeded and
   reproducible.

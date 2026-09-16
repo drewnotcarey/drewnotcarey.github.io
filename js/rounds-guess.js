@@ -65,7 +65,7 @@ function guessIntro(){
       ['Watch the flash', what],
       ['Play the market, not the answer', 'This round looks like a test of accuracy — it is really a <b>market game</b>. The point is not answering correctly or picking the slot that ends up closest; it is <b>reading and playing the market</b>: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a lucky win on a \u2212EV slot is still a mistake.'],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact.'],
-      ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The board reads as a <b>number line</b>: slots sit sorted low to high with the gap between neighbors marked — a guess <b>boxed in</b> by tight gaps on both sides owns only the sliver of outcome-space between its rivals, which is why a central-looking slot can carry a huge payout. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
+      ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The board reads as a <b>number line</b>: the whole field is plotted across the top at true spacing, and the slots below sit sorted low to high with the gap between neighbors marked — a guess <b>boxed in</b> by tight gaps on both sides owns only the sliver of outcome-space between its rivals, which is why a central-looking slot can carry a huge payout. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
       ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
       ['A worked example', 'A slot paying <b>3\u00d7</b> implies the market rates its win chance at about <b>33%</b> (1 \u00f7 3 \u2248 0.33). If your read is that the real chance is <b>higher than 33%</b> — say 40% — then 0.40 \u00d7 3 = <b>1.2 &gt; 1</b>: the slot is +EV and worth betting. If you think it\u2019s lower, the slot is overpriced and the edge belongs elsewhere.'],
       ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Your model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. <b>Implied</b> is what the book\u2019s payout says; <b>your model</b> is your own read of the chances. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
@@ -383,6 +383,7 @@ function renderBoard(){
   const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
   const vals  = round.slots.map(s => s.display);
   const range = Math.max(1, Math.max.apply(null, vals) - Math.min.apply(null, vals));
+  renderNumline();
   order.forEach((i, pos) => {
     const s = round.slots[i];
     if(pos > 0){
@@ -407,12 +408,82 @@ function renderBoard(){
       round.selected = i;
       $$('.slot').forEach(x => x.classList.remove('selected'));
       el.classList.add('selected');
+      $$('.nl-pill').forEach(p => p.classList.toggle('sel', +p.dataset.idx === i));
       updateLockUI();
     });
     wrap.appendChild(el);
   });
   renderChips($('#chips'), c => { round.chips = c; updateLockUI(); }, round.chips);
   updateLockUI();
+}
+
+/* market spread plot: every guess pinned at its true relative position
+   along one axis, so the spread — and where the field crowds — reads in
+   a single glance before a single button is read. Dots sit at the exact
+   proportional spot; pill labels carry just identity + value, alternate
+   above/below, and nudge sideways only as far as needed to stay legible
+   when neighbors crowd (two-pass min-gap per side — dots never move).
+   Presentational like the sort: pills carry data-idx purely so the
+   selection can echo on the line; nothing keys off them. */
+let nlLastW = 0;
+function renderNumline(){
+  const nl = $('#numline');
+  nl.innerHTML = '';
+  const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
+  buildNumline(nl, order);
+  if(round.selected >= 0){
+    const p = nl.querySelector('.nl-pill[data-idx="' + round.selected + '"]');
+    if(p) p.classList.add('sel');
+  }
+}
+/* pill spacing is sized to the viewport at build time; a rotation or
+   resize can change the track width enough to re-crowd the labels, so
+   re-plot when the board is out and the width moved a real step */
+window.addEventListener('resize', () => {
+  const nl = $('#numline');
+  if(!round || round.type !== 'guess' || !round.slots || !nl || !nl.firstChild) return;
+  if(Math.abs(window.innerWidth - nlLastW) < 60) return;
+  renderNumline();
+});
+function buildNumline(host, order){
+  const track = document.createElement('div');
+  track.className = 'numline-track';
+  const axis = document.createElement('div');
+  axis.className = 'nl-axis';
+  track.appendChild(axis);
+  const gs = order.map(i => round.slots[i].guess);
+  const lo = Math.min.apply(null, gs), hi = Math.max.apply(null, gs);
+  const pct = g => hi > lo ? (g - lo) / (hi - lo) * 100 : 50;
+  /* pill spacing in % of track: sized so a worst-case pill (~56px, e.g.
+     "BOT 3" + a 4-digit duration) never overlaps on the narrowest track,
+     but doesn't over-fan on wide ones */
+  const trackPx = Math.max(220, Math.min(668, window.innerWidth - 80));
+  const GAP = Math.min(19, Math.max(10, 56 / trackPx * 100));
+  const EDGE = Math.max(4, GAP / 2);
+  nlLastW = window.innerWidth;
+  const c = gs.map(pct);                    /* ideal pill centers */
+  ['above', 'below'].forEach(side => {      /* de-collide each side separately */
+    const ps = [];
+    for(let p = 0; p < order.length; p++) if((p % 2 === 0) === (side === 'above')) ps.push(p);
+    let prev = EDGE - GAP;
+    ps.forEach(p => { c[p] = Math.max(c[p], prev + GAP); prev = c[p]; });
+    let cap = 100 - EDGE;
+    for(let k = ps.length - 1; k >= 0; k--){ c[ps[k]] = Math.min(c[ps[k]], cap); cap = c[ps[k]] - GAP; }
+  });
+  order.forEach((i, p) => {
+    const s = round.slots[i], above = p % 2 === 0;
+    const dot = document.createElement('div');
+    dot.className = 'nl-dot ' + (above ? 'above' : 'below') + (s.isPlayer ? ' player' : '');
+    dot.style.left = pct(s.guess) + '%';
+    track.appendChild(dot);
+    const pill = document.createElement('div');
+    pill.className = 'nl-pill ' + (above ? 'above' : 'below') + (s.isPlayer ? ' player' : '');
+    pill.dataset.idx = i;
+    pill.style.left = c[p] + '%';
+    pill.innerHTML = '<span class="nl-id">' + s.label + '</span><b class="nl-val">' + s.display + '</b>';
+    track.appendChild(pill);
+  });
+  host.appendChild(track);
 }
 function updateLockUI(){
   const ok = round.selected >= 0 && round.chips > 0;
