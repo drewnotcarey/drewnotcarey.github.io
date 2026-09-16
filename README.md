@@ -35,11 +35,13 @@ tap.
   briefing defines this round's bust rule (e.g. "any die showing a 1", or
   "any 1, or any double" at higher difficulty) with its exact per-roll odds.
   Every bank/push call is scored against a computable one-step EV rule.
-- **Reroll Calculus** — five dice, a scoring category, and a clock. The
+- **Five Dice Roll** — five dice, a scoring category, and a clock. The
   briefing spells out how the category scores and how long the clock runs
   before the hand is dealt. Call keep-versus-reroll on any subset; exact EVs
   are enumerated over every possibility, and your call is scored against the
-  best play.
+  best play. Every generated hand carries a real decision — a clear chase or
+  a made hand worth protecting; Random hands (a pure sum) must show a clear
+  chase, since protecting a high Random hand is a non-decision.
 
 ## Theme: the school
 

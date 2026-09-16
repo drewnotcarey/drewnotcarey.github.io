@@ -49,8 +49,8 @@ const ROUND_TYPES = {
             desc:  'Estimate a hidden quantity, then find the mispriced slot on a market of rival guesses' },
   bank:   { label: 'Bank or Push',
             desc:  'Grow a pot of dice past the bust zone — know when to walk away' },
-  reroll: { label: 'Reroll Calculus',
-            desc:  'Five dice, one category, one clock: call keep-versus-reroll against the math' }
+  reroll: { label: 'Five Dice Roll',
+            desc:  'One category, one clock: call keep-versus-reroll against the math' }
 };
 const PRESETS = { easy: 0.3, medium: 1.0, hard: 1.8 };
 

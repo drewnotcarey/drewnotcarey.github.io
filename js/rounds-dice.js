@@ -2,7 +2,7 @@
    School of Thought — dice rounds
    Bank or Push:  grow a pot across rolls that can bust it; every bank/push
                   call is scored against a computable one-step EV rule.
-   Reroll Calculus: five dice + a scoring category + a clock; exact EV
+   Five Dice Roll: five dice + a scoring category + a clock; exact EV
                   enumeration over every keep/reroll subset.
    ========================================================================== */
 'use strict';
@@ -183,7 +183,7 @@ function bankFinish(){
 }
 
 /* ==========================================================================
-   REROLL CALCULUS
+   FIVE DICE ROLL (internal key: 'reroll')
    Five dice, a scoring category, and a clock. The player marks any subset
    to reroll (or keeps all), rates confidence, and locks in. Every subset's
    exact expected score is computable by enumeration; the call is "sharp"
@@ -250,20 +250,28 @@ function bestReroll(hand, cat){
   return best;
 }
 /* generate a hand/category with a real decision in it:
-   either clear upside to chase, or a made hand worth protecting */
+   either clear upside to chase, or a made hand worth protecting.
+   Random (a pure sum) is exempt from the made-hand case — a high Random
+   hand has no reroll tension and a thin edge is a non-decision, so those
+   hands must show a clear chase (upside >= 2.0) or they are skipped. */
 function genRerollSituation(rng){
-  let hand, cat, keep, best;
+  let hand, cat, keep, best, loose = null;
   for(let t = 0; t < 100; t++){
     hand = [0,0,0,0,0].map(() => 1 + ((rng() * 6) | 0));
     cat  = CAT_POOL[(rng() * CAT_POOL.length) | 0];
     keep = scoreHand(hand, cat);
     best = bestReroll(hand, cat);
     const upside = best.ev - keep;
-    const madeHand = keep > 0 && keep >= cat.max * 0.8 && upside < 1.0;
     const valueCase = upside >= 1.5 && best.ev <= cat.max * 0.96;
-    if(madeHand || valueCase) return { hand: hand, cat: cat, keep: keep, best: best };
+    if(!loose && valueCase) loose = { hand: hand, cat: cat, keep: keep, best: best };
+    if(cat.type === 'chance'){
+      if(upside >= 2.0 && best.ev <= cat.max * 0.96) return { hand: hand, cat: cat, keep: keep, best: best };
+    } else {
+      const madeHand = keep > 0 && keep >= cat.max * 0.8 && upside < 1.0;
+      if(madeHand || valueCase) return { hand: hand, cat: cat, keep: keep, best: best };
+    }
   }
-  return { hand: hand, cat: cat, keep: keep, best: best };
+  return loose || { hand: hand, cat: cat, keep: keep, best: best };
 }
 
 function catRuleText(cat){
@@ -304,7 +312,7 @@ function rerollIntro(){
   const cat = round.sit.cat;
   const secs = Math.round(round.timerMs / 1000);
   return {
-    title: 'Reroll Calculus',
+    title: 'Five Dice Roll',
     note: 'Category this round: <b>' + cat.label + '</b> — ' + catRuleText(cat) + ' · max ' + cat.max + ' · decision clock: <b>' + secs + 's</b>',
     cta: 'Start — Deal the Dice',
     fine: 'The clock starts the moment you press Start. Run it out and you keep all five dice by default.',

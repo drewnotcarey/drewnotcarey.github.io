@@ -140,7 +140,7 @@ function typeBreakdownHTML(recs){
     ['+EV calls', a.bank.calls ? pct(a.bank.posCalls / a.bank.calls) : '–'],
     ['Banked total', a.bank.banked]
   ]));
-  if(a.reroll.n) parts.push(tbCard('Reroll Calculus', a.reroll.n, [
+  if(a.reroll.n) parts.push(tbCard('Five Dice Roll', a.reroll.n, [
     ['Sharp calls', pct(a.reroll.sharp)],
     ['Avg edge', signed(a.reroll.edge, 1) + ' pts']
   ]));

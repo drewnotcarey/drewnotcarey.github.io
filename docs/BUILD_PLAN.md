@@ -77,7 +77,7 @@ and outcome, from which long-run skill metrics are derived.
 - The round ends on a bank or a bust. Busting after all-sharp calls gets the
   "well-played, unlucky" framing, never a punishing sting.
 
-### 3.3 Reroll Calculus (keep-vs-reroll round)
+### 3.3 Five Dice Roll (keep-vs-reroll round)
 
 - Five dice and a scoring category from an original dice family: number sums
   (Ones–Sixes), Three/Four of a Kind (sum of all dice), Full House (25),
@@ -85,7 +85,9 @@ and outcome, from which long-run skill metrics are derived.
 - Situations are generated until they contain a real decision: either clear
   upside to chase (best-subset EV at least 1.5 points above the current
   score) or a made hand worth protecting (≥ 80% of category max with no
-  upside).
+  upside). Random (a pure sum) is exempt from the made-hand case — a high
+  Random hand has no reroll tension, so those hands require a clear chase
+  (best-subset EV at least 2.0 points above the current score).
 - The player taps dice to mark any subset for reroll (or keeps all), rates
   confidence that the call beats the alternative, and locks in — on a clock
   (30/22/12 s by difficulty). Timeouts auto-keep and are logged as such.
