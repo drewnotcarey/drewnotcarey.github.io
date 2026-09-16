@@ -139,8 +139,10 @@ function rankUpTone(){
    is a crisp double-tap, a gold best-value call escalates to a triple,
    and a rank-up gets the slow ceremonial pulse. The header toggle (📳)
    fires a test buzz on enable so a player can confirm the device
-   responds. iOS Safari has no Vibration API at all — the button stays
-   dimmed there and the game leans on visuals + audio. */
+   responds. iOS browsers can never vibrate — Apple requires Chrome,
+   Firefox, Edge and Safari on iOS to run its WebKit engine, which has no
+   Vibration API; the button stays dimmed there with a tooltip saying so,
+   and the game leans on visuals + audio. */
 const HAPTIC_OK = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
 function pulseProcess(tier){
   if(settings.haptic && navigator.vibrate)
@@ -549,7 +551,7 @@ function syncToggles(){
   hb.classList.toggle('off', !settings.haptic || !HAPTIC_OK);
   hb.title = HAPTIC_OK
     ? 'Toggle haptics — buzz on Sharp rewards and rank-ups'
-    : 'Haptics unsupported in this browser (iOS Safari has no Vibration API)';
+    : 'No haptics in this browser — every iOS browser (Chrome included) runs Apple\u2019s WebKit, which has no Vibration API';
   hb.setAttribute('aria-label', hb.title);
 }
 function resetBoardControls(){

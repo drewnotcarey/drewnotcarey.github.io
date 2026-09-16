@@ -111,8 +111,10 @@ a test buzz on enable so you can confirm your device responds. Patterns are
 longer than a bare tick so they can actually be felt — a crisp double-tap
 the instant a +EV call is locked, an escalating triple for gold best-value
 calls, and a slow ceremonial pulse for rare rank-ups. Haptics never attach
-to outcome wins or losses. iOS Safari has no Vibration API at all — there
-the button stays dimmed and the game leans on visuals + audio.
+to outcome wins or losses. No iOS browser can vibrate — Apple requires
+Chrome, Firefox, Edge and Safari on iOS to run its WebKit engine, which
+has no Vibration API — so there the button stays dimmed (with a tooltip
+explaining why) and the game leans on visuals + audio.
 
 **Rank-up** is its own moment: a rising school of light particles, a deep
 rising tone, the slow haptic pulse, and one line of flavor.
