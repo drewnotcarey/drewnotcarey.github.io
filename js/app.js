@@ -1,7 +1,9 @@
 /* ==========================================================================
-   EV Gym — core: session flow, reward channels, ledger, hints, tutorial
-   Round logic lives in rounds-guess.js and rounds-dice.js; calibration
-   surfaces in stats.js. Client-only. All data stays in localStorage.
+   School of Thought — core: session flow, reward channels, ledger, hints,
+   tutorial, haptics, ambient current. Round logic lives in rounds-guess.js
+   and rounds-dice.js; calibration surfaces in stats.js; ranks in ranks.js.
+   Client-only. All data stays in localStorage (evgym.* keys, kept from the
+   old name so returning players keep their ledger and streaks).
    ========================================================================== */
 'use strict';
 
@@ -106,12 +108,34 @@ function processChime(tier){       /* unique process-reward timbre */
   tone(1318.51, t, 0.55, 0.16); tone(1975.53, t + 0.08, 0.70, 0.10);
   if(tier === 2){ tone(2637.02, t + 0.18, 0.60, 0.09); tone(3520.00, t + 0.30, 0.75, 0.06); }
 }
-function outcomeSound(muted){
+function outcomeSound(){
   if(!settings.sound) return;
   const c = ac(); if(!c) return; const t = c.currentTime;
-  const v = muted ? 0.045 : 0.13;
-  [523.25, 659.25, 783.99, 1046.50].forEach((f,i)=> tone(f, t + i*0.09, 0.4, v));
+  tone(261.63, t, 0.85, 0.05);                    /* soft pad under the cascade */
+  [523.25, 659.25, 783.99, 1046.50].forEach((f,i)=> tone(f, t + i*0.09, 0.4, 0.13));
 }
+/* deep rising tone — rank-up only, never outcomes */
+function rankUpTone(){
+  if(!settings.sound) return;
+  const c = ac(); if(!c) return; const t = c.currentTime;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(130.81, t);
+  o.frequency.exponentialRampToValueAtTime(523.25, t + 1.1);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.16, t + 0.3);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+  o.connect(g); g.connect(c.destination);
+  o.start(t); o.stop(t + 1.7);
+  tone(659.25, t + 0.65, 0.8, 0.06);
+  tone(987.77, t + 0.9, 0.9, 0.05);
+}
+
+/* ---------------- haptics (Vibration API) ----------------
+   Process reward (+EV lock) and rank-up only — never outcome wins/losses.
+   Unsupported browsers (iOS Safari) degrade silently to visual + audio. */
+function pulseProcess(){ if(navigator.vibrate) navigator.vibrate(15); }
+function pulseRankUp(){ if(navigator.vibrate) navigator.vibrate([30, 40, 30]); }
 
 /* ---------------- session / round state ---------------- */
 let session = null;
@@ -273,6 +297,7 @@ function processReward(el, tier){
   updateStreakUI();
   processChime(tier);
   sharpToast(tier);
+  pulseProcess();
   if(el){
     el.classList.add('glow-btn');
     if(tier === 2) el.classList.add('gold');
@@ -304,7 +329,7 @@ function showReveal(o){
   card.classList.remove('rv-sharp', 'rv-best');
   if(o.accent === 'best')      card.classList.add('rv-best');
   else if(o.accent === 'sharp') card.classList.add('rv-sharp');
-  if(o.win){ outcomeSound(!!o.muted); if(motionOK()) confetti(); }
+  if(o.win && !o.muted){ outcomeSound(); if(motionOK()) winCascade(); }
   showPhase('phase-reveal');
 }
 
@@ -338,26 +363,99 @@ function renderChips(container, onPick, initVal){
   }
 }
 
-/* ---------------- confetti (outcome channel only) ---------------- */
-function confetti(){
+/* ---------------- particles (fx layer) ----------------
+   Outcome win: soft upward particle cascade — clean process only, never a
+   lucky −EV win. Rank-up: a rising school of light (ranks.js calls in). */
+function spawnMotes(o){
   const host = $('#fx');
-  const colors = ['#7ef0d4','#8fb7ff','#ffe08a','#f5a3ff'];
-  for(let i = 0; i < 28; i++){
+  for(let i = 0; i < o.count; i++){
     const p = document.createElement('div');
-    p.className = 'confetti';
-    p.style.background = colors[i % 4];
-    p.style.left = (45 + Math.random() * 10) + '%';
-    p.style.setProperty('--dx', (Math.random() * 240 - 120) + 'px');
-    p.style.animationDelay = (Math.random() * 0.15) + 's';
+    p.className = 'mote';
+    p.style.left = (o.xMin + Math.random() * (o.xMax - o.xMin)) + '%';
+    p.style.bottom = (o.yMin + Math.random() * (o.yMax - o.yMin)) + '%';
+    const s = o.sMin + Math.random() * (o.sMax - o.sMin);
+    p.style.width = s + 'px'; p.style.height = s + 'px';
+    p.style.background = o.colors[i % o.colors.length];
+    p.style.boxShadow = '0 0 ' + Math.round(s * 2) + 'px ' + o.colors[i % o.colors.length] + '88';
+    p.style.setProperty('--rise', (o.riseMin + Math.random() * (o.riseMax - o.riseMin)) + 'vh');
+    p.style.setProperty('--drift', (Math.random() * 2 * o.drift - o.drift).toFixed(0) + 'px');
+    p.style.animationDuration = (o.dMin + Math.random() * (o.dMax - o.dMin)).toFixed(2) + 's';
+    p.style.animationDelay = (Math.random() * o.delay).toFixed(2) + 's';
     host.appendChild(p);
-    setTimeout(() => p.remove(), 1600);
+    setTimeout(() => p.remove(), (o.dMax + o.delay) * 1000 + 400);
   }
+}
+function winCascade(){
+  spawnMotes({ count: 22, colors: ['#8fd8ff','#5eead4','#a5f3fc'],
+    xMin: 16, xMax: 84, yMin: 6, yMax: 30, sMin: 3, sMax: 7,
+    riseMin: 26, riseMax: 60, drift: 34, dMin: 1.5, dMax: 2.6, delay: 0.5 });
+}
+function rankSchool(){
+  spawnMotes({ count: 46, colors: ['#5eead4','#a5f3fc','#7dd3c0','#8fd8ff'],
+    xMin: 2, xMax: 98, yMin: 2, yMax: 26, sMin: 3, sMax: 8,
+    riseMin: 55, riseMax: 95, drift: 46, dMin: 1.9, dMax: 3.2, delay: 0.9 });
+}
+
+/* ---------------- ambient current ----------------
+   Very slow particle drift behind the board — never competes with the
+   decision elements. Pauses with the motion toggle / reduced-motion. */
+let ambientCtl = null;
+function initAmbient(){
+  const cv = $('#ambient'); if(!cv) return;
+  const ctx = cv.getContext('2d');
+  let W = 0, H = 0, parts = [], raf = null, last = 0;
+  function resize(){
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function seed(){
+    parts = [];
+    const n = Math.round(clamp(W * H / 38000, 14, 36));
+    for(let i = 0; i < n; i++) parts.push({
+      x: Math.random() * W, y: Math.random() * H,
+      len: 7 + Math.random() * 15,          /* streak length */
+      sp: 4 + Math.random() * 9,            /* px per second — slow */
+      a: 0.04 + Math.random() * 0.07,       /* faint */
+      ph: Math.random() * 6.28, amp: 5 + Math.random() * 9
+    });
+  }
+  function frame(ts){
+    raf = requestAnimationFrame(frame);
+    if(!last) last = ts;
+    const dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+    ctx.clearRect(0, 0, W, H);
+    for(const p of parts){
+      p.x += p.sp * dt;
+      if(p.x - p.len > W){ p.x = -p.len; p.y = Math.random() * H; }
+      const y = p.y + Math.sin(ts / 1500 + p.ph) * p.amp;
+      const grd = ctx.createLinearGradient(p.x - p.len, 0, p.x, 0);
+      grd.addColorStop(0, 'rgba(94,234,212,0)');
+      grd.addColorStop(1, 'rgba(94,234,212,' + p.a.toFixed(3) + ')');
+      ctx.strokeStyle = grd; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(p.x - p.len, y); ctx.lineTo(p.x, y); ctx.stroke();
+    }
+  }
+  function start(){
+    resize(); seed();
+    if(!raf){ last = 0; raf = requestAnimationFrame(frame); }
+    cv.style.display = '';
+  }
+  function stop(){
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    ctx.clearRect(0, 0, W, H);
+    cv.style.display = 'none';
+  }
+  window.addEventListener('resize', () => { if(raf){ resize(); seed(); } });
+  ambientCtl = { start: start, stop: stop };
+  if(motionOK()) start();
 }
 
 /* ---------------- tutorial ---------------- */
 const TUT = [
   ['Judge the decision, not the result',
-   'A good call can lose and a bad call can win — luck is real. EV Gym trains the habit of separating choice quality from outcome quality.'],
+   'A good call can lose and a bad call can win — luck is real. School of Thought trains the habit of separating choice quality from outcome quality.'],
   ['Two separate rewards',
    'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts.'],
   ['Three ways to train',
@@ -365,7 +463,9 @@ const TUT = [
   ['Briefings before clocks',
    'Every round opens with a briefing: the exact rules, the bust conditions, the clock. Nothing is timed until you press Start — read at your own pace, then play.'],
   ['Grow your crystal',
-   'Every round is logged. The crystal tracks how well your confidence matches reality: say 70% and be right about 70% of the time to make it shine.']
+   'Every round is logged. The crystal tracks how well your confidence matches reality: say 70% and be right about 70% of the time to make it shine.'],
+  ['Rise through the school',
+   'You start as a Minnow. Ranks — Shark, then Whale — grow only with decision quality: sharper calibration and longer streaks of +EV calls. Wins never move them. Lock a +EV call and feel the single pulse; rise a rank and the whole school lights up.']
 ];
 let tutStep = 0;
 function renderTut(){
@@ -396,8 +496,8 @@ function buildDebug(){
     download('evgym-ledger.csv', csv);
   });
   $('#dbgReset').addEventListener('click', () => {
-    if(confirm('Wipe all EV Gym data?')){
-      ['ledger','streak','settings','tutSeen','forcedSeed','diff'].forEach(k => localStorage.removeItem('evgym.' + k));
+    if(confirm('Wipe all School of Thought data?')){
+      ['ledger','streak','settings','tutSeen','forcedSeed','diff','rank'].forEach(k => localStorage.removeItem('evgym.' + k));
       location.reload();
     }
   });
@@ -494,7 +594,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#rerollLockBtn').addEventListener('click', rerollLock);
 
   $('#soundBtn').addEventListener('click', () => { settings.sound = !settings.sound; store.set('settings', settings); syncToggles(); });
-  $('#motionBtn').addEventListener('click', () => { settings.motion = !settings.motion; store.set('settings', settings); syncToggles(); });
+  $('#motionBtn').addEventListener('click', () => {
+    settings.motion = !settings.motion; store.set('settings', settings); syncToggles();
+    if(ambientCtl){ settings.motion ? ambientCtl.start() : ambientCtl.stop(); }
+  });
 
   $('#tutNext').addEventListener('click', () => {
     tutStep += 1;
@@ -505,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else renderTut();
   });
 
-  syncToggles(); updateStreakUI(); updateHUD();
+  syncToggles(); updateStreakUI(); updateHUD(true); initAmbient();
 
   if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
   if(location.search.indexOf('debug') >= 0) buildDebug();

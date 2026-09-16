@@ -1,7 +1,9 @@
-# EV Gym
+# School of Thought
 
 A single-player web game that trains decision quality under uncertainty —
-rewarding **decision quality separately from outcome quality**.
+rewarding **decision quality separately from outcome quality**. You are a
+school of one: the rank you hold grows with how well you think, never with
+how lucky you get.
 
 Built to the spec in [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md).
 
@@ -39,12 +41,62 @@ tap.
   are enumerated over every possibility, and your call is scored against the
   best play.
 
+## Theme: the school
+
+The visual world is deep water — dark blue gradients, cards like dim
+surfaces, and a very slow ambient particle current drifting behind the board
+(never competing with the decision elements; it pauses with the motion
+toggle and respects reduced-motion).
+
+**Ranks — Minnow, Shark, Whale.** Progression is driven only by decision
+quality, never by win rate or rounds played:
+
+- **Shark** — rolling Brier ≤ 0.160 over the last 10+ scored rounds and a
+  best Sharp Streak of 5+.
+- **Whale** — rolling Brier ≤ 0.100 over the last 20+ scored rounds and a
+  best Sharp Streak of 10+.
+
+Ranks never demote. The badge sits in the top HUD beside the Sharp Streak
+and the calibration crystal; hover it to see exactly what the next rank
+needs. The **crystal remains the primary calibration identity** — it
+clarifies (sharper facet lines, stronger internal light) as the rolling
+Brier score improves. Rank icons are minimal single-color geometric
+silhouettes; the rank badge is secondary to the crystal, and rank flavor
+text appears only on rank-up (e.g. "You move with the school now.").
+
+## Reward design
+
+Two independent channels: a ⚡ SHARP process reward fires the moment a +EV
+call is locked (before the reveal); a separate, softer outcome celebration
+(a rising particle cascade) fires only for clean wins. No punishing
+stingers for bad luck on good decisions, and no celebratory effects for
+lucky −EV wins. No real money, no purchases, no random-reinforcement
+tricks.
+
+The process reward is tiered: any +EV call gets the teal ⚡ SHARP treatment,
+while a call that was also the **best value available** (highest-EV slot,
+exact best keep/reroll split) escalates to a gold ⚡⚡ SHARP — BEST VALUE
+toast, a rising chime arpeggio, and a gold glow. Streak counts of 3+ append
+to the toast. Reveals carry badge pills, an at-a-glance EV comparison bar
+(your call vs the best on the board), and debriefs that quote the edge in
+numbers (your price vs the market's).
+
+**Haptics** (Vibration API, where supported — iOS Safari and other
+unsupported browsers degrade gracefully to visual + audio): a short single
+pulse (~15 ms) the instant a +EV call is locked, and a triple pulse for
+rare rank-ups. Haptics never attach to outcome wins or losses.
+
+**Rank-up** is its own moment: a rising school of light particles, a deep
+rising tone, the triple pulse, and one line of flavor.
+
 ## What's tracked
 
 - **Calibration ledger** — every round writes a structured record (localStorage):
   Brier score, reliability diagram, +EV rate, best-EV rate, estimation error.
 - **Calibration Crystal** — ambient skill identity; clarity follows your
   rolling Brier score.
+- **Rank** — Minnow / Shark / Whale, earned through calibration + streaks
+  (see above), persisted in localStorage, never demoted.
 - **Edge report** — chosen EV vs. best available EV, best-value rate, longshot
   tendency, per-round-type sharp-call rates.
 - **Sharp Streak** — consecutive +EV calls; a good bet that loses never
@@ -54,21 +106,6 @@ tap.
   tightens (Auto difficulty scales stimuli, bust rules, and clocks with
   you). Every Guess & Bet reveal names the best-value slot, whether or not
   you picked it.
-
-## Reward design
-
-Two independent channels: a ⚡ SHARP process reward fires the moment a +EV
-call is locked (before the reveal); a separate, muted outcome celebration
-fires only for wins. No punishing stingers for bad luck on good decisions.
-No real money, no purchases, no random-reinforcement tricks.
-
-The process reward is tiered: any +EV call gets the teal ⚡ SHARP treatment,
-while a call that was also the **best value available** (highest-EV slot,
-exact best keep/reroll split) escalates to a gold ⚡⚡ SHARP — BEST VALUE
-toast, a rising chime arpeggio, and a gold glow. Streak counts of 3+ append
-to the toast. Reveals carry badge pills, an at-a-glance EV comparison bar
-(your call vs the best on the board), and debriefs that quote the edge in
-numbers (your price vs the market's).
 
 ## Deploy (GitHub Pages)
 
@@ -80,6 +117,7 @@ Live at https://drewnotcarey.github.io/ once the Actions run completes.
 
 ## Data & privacy
 
-All game data lives in the player's browser (localStorage, `evgym.*` keys).
-No accounts, no tracking, no network calls. The debug panel can export or
-erase everything.
+All game data lives in the player's browser (localStorage, `evgym.*` keys —
+kept from the previous name so returning players keep their ledger, streaks,
+and ranks). No accounts, no tracking, no network calls. The debug panel can
+export or erase everything.

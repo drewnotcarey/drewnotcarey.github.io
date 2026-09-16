@@ -1,6 +1,6 @@
 /* ==========================================================================
-   EV Gym — calibration surfaces: crystal, reliability diagram, summaries,
-   edge report. Reads the ledger; renders into HUD and summary phase.
+   School of Thought — calibration surfaces: crystal, reliability diagram,
+   summaries, edge report. Reads the ledger; renders into HUD and summary.
    ========================================================================== */
 'use strict';
 
@@ -49,7 +49,9 @@ function overallSharpRate(a){
   return total ? good / total : null;
 }
 
-/* ---------------- calibration crystal ---------------- */
+/* ---------------- calibration crystal ----------------
+   Clarity tracks the rolling Brier score: better calibration sharpens the
+   facet lines and strengthens the internal light. */
 function crystalSVG(clarity, uid){
   const blur  = (1 - clarity) * 5;
   const light = 30 + clarity * 40;
@@ -59,16 +61,25 @@ function crystalSVG(clarity, uid){
     '<polygon points="50,4 92,40 50,62 8,40" fill="hsl(190,85%,' + (light+12).toFixed(0) + '%)" opacity="' + (0.45 + clarity*0.5).toFixed(2) + '"/>' +
     '<polygon points="50,62 92,40 78,112 50,112" fill="hsl(205,65%,' + light.toFixed(0) + '%)" opacity="' + (0.45 + clarity*0.45).toFixed(2) + '"/>' +
     '<polygon points="50,62 8,40 22,112 50,112" fill="hsl(175,65%,' + light.toFixed(0) + '%)" opacity="' + (0.45 + clarity*0.45).toFixed(2) + '"/>' +
+    /* internal light core */
+    '<polygon points="50,34 68,48 61,90 39,90 32,48" fill="#cffcf1" opacity="' + (0.08 + clarity*0.42).toFixed(2) + '"/>' +
+    /* facet edges — crisp when sharp, ghosted when murky */
+    '<g stroke="#ffffff" stroke-width="1.1" fill="none" stroke-linejoin="round" opacity="' + (0.06 + clarity*0.5).toFixed(2) + '">' +
+      '<polyline points="8,40 50,62 92,40"/>' +
+      '<polyline points="22,112 50,62 78,112"/>' +
+      '<line x1="50" y1="62" x2="50" y2="112"/>' +
+    '</g>' +
     '</svg>';
 }
 const clarityFromBrier = b => (b == null ? 0.15 : clamp(1 - b / 0.25, 0.05, 1));
 
-function updateHUD(){
+function updateHUD(silent){
   const a = aggregate(ledger);
   $('#crystalMini').innerHTML = crystalSVG(clarityFromBrier(a.brier), 'm');
   $('#calibLabel').textContent = a.brier == null
     ? 'No data yet — play to grow your crystal'
     : 'Brier ' + a.brier.toFixed(3) + ' · lower is better';
+  if(typeof renderRankHUD === 'function') renderRankHUD(silent);
 }
 function updateStreakUI(){
   $('#streakVal').textContent = streak.current;
@@ -178,7 +189,8 @@ function showSummary(mode){
     statCell('Brier' + (sa && sa.brier != null ? ' (session)' : ''), brierSrc == null ? '–' : brierSrc.toFixed(3)) +
     statCell('Rounds logged', a.n) +
     statCell('Sharp calls', pct(overallSharpRate(a))) +
-    statCell('Best streak', streak.best);
+    statCell('Best streak', streak.best) +
+    (typeof currentRank === 'function' ? statCell('Rank', currentRank().name) : '');
   $('#typeBreakdown').innerHTML = typeBreakdownHTML(mode === 'session' ? sessRecs : ledger);
   $('#chartWrap').innerHTML  = reliabilitySVG(a, 560, 320);
   $('#edgeWrap').innerHTML   = edgeTableHTML(a);

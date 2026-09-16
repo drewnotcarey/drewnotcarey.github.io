@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EV Gym — dice rounds
+   School of Thought — dice rounds
    Bank or Push:  grow a pot across rolls that can bust it; every bank/push
                   call is scored against a computable one-step EV rule.
    Reroll Calculus: five dice + a scoring category + a clock; exact EV

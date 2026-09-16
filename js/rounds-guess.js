@@ -1,5 +1,5 @@
 /* ==========================================================================
-   EV Gym — Guess & Bet round
+   School of Thought — Guess & Bet round
    Stimulus variants: dot count, line length, blob area, angle, timed glow.
    Market: synthetic rival guesses (anchor / over / under / herd / outlier /
    compression biases), extremity pricing with favorite-longshot mispricing,

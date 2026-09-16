@@ -1,4 +1,4 @@
-# EV Gym — design document
+# School of Thought — design document
 
 A single-player web game for training decision quality under uncertainty.
 This document is the self-contained spec for the game as built.
@@ -7,7 +7,7 @@ This document is the self-contained spec for the game as built.
 
 ## 1. Purpose
 
-EV Gym trains one mental habit above all others:
+School of Thought trains one mental habit above all others:
 
 > **Judge a decision by its expected value and process, not by how it happened to turn out.**
 
