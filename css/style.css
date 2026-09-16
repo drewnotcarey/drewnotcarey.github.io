@@ -141,8 +141,32 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .score-line{font-size:1.05rem;color:var(--dim);margin-bottom:8px}
 .score-line b{color:var(--teal);font-size:1.3rem}
 #rerollHint{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:.85rem;margin:10px 0}
+#rerollHint .rh-line{display:block}
+#rerollHint .rh-line + .rh-line{margin-top:5px}
+#rerollHint b{color:var(--ink)}
+.rh{font-weight:700}
+.rh-best{color:var(--gold)}
+.rh-pos{color:var(--teal)}
+.rh-neg{color:var(--bad)}
 
 /* ---------- reveal ---------- */
+.rv-sharp{border-color:var(--teal);box-shadow:0 0 34px #2dd4bf22}
+.rv-best{border-color:var(--gold);box-shadow:0 0 34px #ffd16622}
+.reveal-badges{flex-basis:100%;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 8px}
+.rv-badge{display:inline-block;background:#0e2a26ee;border:1px solid var(--teal);color:var(--teal);font-size:.78rem;font-weight:800;padding:4px 14px;border-radius:999px;letter-spacing:.5px}
+.rv-badge.gold{background:#2a2410ee;border-color:var(--gold);color:var(--gold)}
+.ev-bars{flex-basis:100%;margin:8px auto 2px;max-width:420px;display:grid;gap:8px}
+.ev-bar-row{display:grid;grid-template-columns:128px 1fr 48px;align-items:center;gap:10px}
+.ev-bar-label{font-size:.68rem;color:var(--dim);text-align:right;text-transform:uppercase;letter-spacing:.5px}
+.ev-bar-track{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.ev-bar-fill{height:100%;border-radius:4px}
+.ev-bar-fill.you{background:var(--teal)}
+.ev-bar-fill.best{background:var(--gold)}
+.ev-bar-fill.neg{background:var(--bad)}
+.ev-bar-val{font-size:.8rem;font-weight:700}
+.ev-bar-val.you{color:var(--teal)}
+.ev-bar-val.best{color:var(--gold)}
+.ev-bar-val.neg{color:var(--bad)}
 .true-value{color:var(--gold);font-size:1.6em}
 .recap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0}
 .recap-slot{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:.82rem;color:var(--dim)}
@@ -192,8 +216,11 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),60vh) rotate(560deg);opacity:0}}
 #toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) scale(.8);background:#0e2a26ee;border:1px solid var(--teal);color:var(--teal);font-weight:800;padding:10px 22px;border-radius:999px;z-index:80;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;box-shadow:0 0 30px #2dd4bf55}
 #toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+#toast.gold{background:#2a2410ee;border-color:var(--gold);color:var(--gold);box-shadow:0 0 34px #ffd16666}
 .glow-btn{animation:btnGlow 1.2s ease-in-out}
 @keyframes btnGlow{0%,100%{box-shadow:0 0 0 0 #2dd4bf00}30%{box-shadow:0 0 0 5px #2dd4bf88,0 0 34px #2dd4bfcc}}
+.glow-btn.gold{animation-name:btnGlowGold}
+@keyframes btnGlowGold{0%,100%{box-shadow:0 0 0 0 #ffd16600}30%{box-shadow:0 0 0 5px #ffd16699,0 0 38px #ffd166dd}}
 
 /* ---------- footer & debug ---------- */
 .foot{display:flex;gap:14px;justify-content:center;padding:14px;color:var(--dim);font-size:.75rem;border-top:1px solid var(--line);flex-wrap:wrap}

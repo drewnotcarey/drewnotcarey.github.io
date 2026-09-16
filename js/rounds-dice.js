@@ -172,11 +172,13 @@ function bankFinish(){
 
   showReveal({
     heading: busted ? 'Bust at ' + round.pot : 'Banked ' + round.pot,
+    badges: sharp ? ['<span class="rv-badge">⚡ ' + pos + ' of ' + total + ' calls +EV</span>'] : [],
     detail: timeline,
     debrief: deb,
     good: sharp,
     win: !busted,
-    muted: !sharp
+    muted: !sharp,
+    accent: sharp ? 'sharp' : null
   });
 }
 
@@ -346,9 +348,18 @@ function rerollRender(){
     hint.classList.remove('hidden');
     const idxs = Array.from(round.marked);
     const ev = rerollEV(round.sit.hand, idxs, cat);
-    hint.textContent = idxs.length
-      ? 'Reroll ' + idxs.length + (idxs.length === 1 ? ' die' : ' dice') + ' → expected score ' + ev.toFixed(1)
-      : 'Keep all five → ' + round.sit.keep + ' for sure';
+    const best = round.sit.best;
+    const gap = best.ev - ev;
+    const line1 = idxs.length
+      ? 'Reroll ' + idxs.length + (idxs.length === 1 ? ' die' : ' dice') + ' → expected score <b>' + ev.toFixed(1) + '</b>'
+      : 'Keep all five → <b>' + round.sit.keep + '</b> for sure';
+    const bTxt = 'best play ' + best.ev.toFixed(1) +
+      (best.subset.length ? ' (reroll ' + best.subset.length + (best.subset.length === 1 ? ' die' : ' dice') + ')' : ' (keep all)');
+    let line2;
+    if(gap <= 0.05)      line2 = '<span class="rh rh-best">⭐ this is the best play</span>';
+    else if(gap <= 0.5)  line2 = '<span class="rh rh-pos">✓ sharp — within 0.5 of ' + bTxt + '</span>';
+    else                 line2 = '<span class="rh rh-neg">▼ ' + gap.toFixed(1) + ' short of ' + bTxt + '</span>';
+    hint.innerHTML = '<span class="rh-line">' + line1 + '</span><span class="rh-line">' + line2 + '</span>';
   } else hint.classList.add('hidden');
   renderChips($('#rerollChips'), c => { round.chips = c; rerollUpdateLock(); }, round.chips);
   rerollUpdateLock();
@@ -369,8 +380,9 @@ function rerollLock(){
   round.chosenIdxs = idxs;
   round.chosenEV = idxs.length ? rerollEV(round.sit.hand, idxs, round.sit.cat) : round.sit.keep;
   round.sharp = round.chosenEV >= round.sit.best.ev - 0.5;
+  round.exactBest = round.chosenEV >= round.sit.best.ev - 0.05;
   round.stated = CHIPS[round.chips - 1];
-  if(round.sharp) processReward($('#rerollLockBtn'));
+  if(round.sharp) processReward($('#rerollLockBtn'), round.exactBest ? 2 : 1);
   else breakStreak();
 
   if(idxs.length){
@@ -408,8 +420,9 @@ function rerollTimeout(){
   round.chosenIdxs = [];
   round.chosenEV = round.sit.keep;
   round.sharp = round.chosenEV >= round.sit.best.ev - 0.5;
+  round.exactBest = round.chosenEV >= round.sit.best.ev - 0.05;
   round.stated = null; round.chips = 0;
-  if(round.sharp) processReward(null);
+  if(round.sharp) processReward(null, round.exactBest ? 2 : 1);
   else breakStreak();
   const hand = round.sit.hand.slice();
   round.sit.best.subset.forEach(i => hand[i] = 1 + ((round.rng() * 6) | 0));
@@ -445,6 +458,13 @@ function rerollFinish(){
   const evLine =
     'Your call: EV <b>' + round.chosenEV.toFixed(1) + '</b> · best play: <b>' + s.best.ev.toFixed(1) + '</b> (' +
     (s.best.subset.length ? 'reroll ' + s.best.subset.length + (s.best.subset.length === 1 ? ' die' : ' dice') : 'keep all') + ')';
+  const badges = [];
+  if(round.sharp) badges.push('<span class="rv-badge">⚡ sharp call</span>');
+  if(round.sharp && round.exactBest) badges.push('<span class="rv-badge gold">⭐ best play</span>');
+  const bars = evBarsHTML(round.exactBest
+    ? [{ label: 'Your call — best play', value: +round.chosenEV.toFixed(2), cls: 'best' }]
+    : [{ label: 'Your call', value: +round.chosenEV.toFixed(2), cls: 'you' },
+       { label: 'Best play', value: +s.best.ev.toFixed(2), cls: 'best' }]);
 
   let deb;
   if(round.timeout)      deb = 'Time ran out, so you kept by default. ' +
@@ -456,12 +476,15 @@ function rerollFinish(){
 
   showReveal({
     heading: round.kept ? 'Kept ' + round.finalScore + ' pts' : 'Rerolled to ' + round.finalScore + ' pts',
+    badges: badges,
     detail: diceLine +
             '<div class="tb-line">' + altLine + '</div>' +
-            '<div class="tb-line" style="margin-top:6px">' + evLine + '</div>',
+            '<div class="tb-line" style="margin-top:6px">' + evLine + '</div>' +
+            bars,
     debrief: deb,
     good: round.sharp,
     win: win,
-    muted: !round.sharp
+    muted: !round.sharp,
+    accent: round.sharp ? (round.exactBest ? 'best' : 'sharp') : null
   });
 }

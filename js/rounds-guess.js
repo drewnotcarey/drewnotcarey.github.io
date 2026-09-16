@@ -381,8 +381,9 @@ function lockIn(){
 }
 
 function confirmBet(){
-  /* decision quality is judged NOW, before the reveal */
-  if(round.selPositive) processReward($('.slot[data-idx="' + round.selected + '"]'));
+  /* decision quality is judged NOW, before the reveal — and the best-value
+     pick on the board earns the gold tier */
+  if(round.selPositive) processReward($('.slot[data-idx="' + round.selected + '"]'), round.selBest ? 2 : 1);
   else breakStreak();
   /* return to the board (glow needs the slot); swap actions for reveal */
   $('#lockBtn').classList.add('hidden');
@@ -418,9 +419,10 @@ function doRevealGuess(){
   finishRound(rec);
 
   const cell = (round.selPositive ? '+EV' : '-EV') + '/' + (win ? 'win' : 'loss');
+  const m  = Math.round(s.pModel * 100), im = Math.round(s.implied * 100);
   const msgs = {
-    '+EV/win' : 'Sharp decision and good result. You found value — this is the best cell.',
-    '+EV/loss': 'Sharp decision, unlucky result. This bet was worth making. Your Sharp Streak continues.',
+    '+EV/win' : 'You priced this slot at ~' + m + '% against the market\u2019s ~' + im + '% — the edge was real and it landed. This is the best cell.',
+    '+EV/loss': 'You priced this slot at ~' + m + '% against the market\u2019s ~' + im + '%. That edge pays over the long run, not on every roll — your Sharp Streak knows the difference.',
     '-EV/win' : "You won, but the odds weren't in your favor. That was luck more than good process.",
     '-EV/loss': "This bet wasn't +EV, and it lost. No punishment — bad luck and bad decisions are different. Focus on the decision next time."
   };
@@ -438,15 +440,25 @@ function doRevealGuess(){
                best.payout.toFixed(1) + '× (EV ' + fmtEV(best.ev) + ').';
   }
   const spec = STIM_SPEC[round.stimulus];
+  const badges = [];
+  if(round.selPositive) badges.push('<span class="rv-badge">⚡ +EV call</span>');
+  if(round.selPositive && round.selBest) badges.push('<span class="rv-badge gold">⭐ best value on board</span>');
+  const bars = evBarsHTML(round.selBest
+    ? [{ label: 'Your call — best on board', value: +round.selEV.toFixed(2), cls: 'best' }]
+    : [{ label: 'Your call',  value: +round.selEV.toFixed(2), cls: 'you' },
+       { label: 'Best on board', value: +best.ev.toFixed(2), cls: 'best' }]);
   showReveal({
     heading: 'The true ' + spec.noun + ': <span class="true-value">' + round.trueValue + spec.unit + '</span>',
+    badges: badges,
     detail: round.slots.map((sl, i) =>
       '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + '">' +
       sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>').join('') +
+      bars +
       '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',
     debrief: msgs[cell],
     good: round.selPositive,
     win: win,
-    muted: !round.selPositive
+    muted: !round.selPositive,
+    accent: round.selPositive ? (round.selBest ? 'best' : 'sharp') : null
   });
 }

@@ -100,10 +100,11 @@ function tone(freq, t0, dur, vol){
   o.connect(g); g.connect(c.destination);
   o.start(t0); o.stop(t0 + dur + 0.05);
 }
-function processChime(){           /* unique process-reward timbre */
+function processChime(tier){       /* unique process-reward timbre */
   if(!settings.sound) return;
   const c = ac(); if(!c) return; const t = c.currentTime;
   tone(1318.51, t, 0.55, 0.16); tone(1975.53, t + 0.08, 0.70, 0.10);
+  if(tier === 2){ tone(2637.02, t + 0.18, 0.60, 0.09); tone(3520.00, t + 0.30, 0.75, 0.06); }
 }
 function outcomeSound(muted){
   if(!settings.sound) return;
@@ -254,23 +255,28 @@ function adaptSkill(type){
 }
 
 /* ---------------- reward channels ---------------- */
-function sharpToast(){
+function sharpToast(tier){
   const t = $('#toast');
+  t.textContent = tier === 2 ? '⚡⚡ SHARP — BEST VALUE' : '⚡ SHARP — +EV call';
+  if(streak.current >= 3) t.textContent += ' · ×' + streak.current;
+  t.classList.toggle('gold', tier === 2);
   t.classList.add('show');
   clearTimeout(sharpToast._id);
-  sharpToast._id = setTimeout(() => t.classList.remove('show'), 1500);
+  sharpToast._id = setTimeout(() => t.classList.remove('show'), tier === 2 ? 2100 : 1500);
 }
-/* Process reward: fires the moment a +EV call is locked, before any reveal */
-function processReward(el){
+/* Process reward: fires the moment a +EV call is locked, before any reveal.
+   tier 2 = the call was also the best value available (gold treatment). */
+function processReward(el, tier){
   streak.current += 1;
   streak.best = Math.max(streak.best, streak.current);
   store.set('streak', streak);
   updateStreakUI();
-  processChime();
-  sharpToast();
+  processChime(tier);
+  sharpToast(tier);
   if(el){
     el.classList.add('glow-btn');
-    setTimeout(() => el.classList.remove('glow-btn'), 1300);
+    if(tier === 2) el.classList.add('gold');
+    setTimeout(() => { el.classList.remove('glow-btn'); el.classList.remove('gold'); }, 1300);
   }
 }
 /* Only a -EV decision breaks the streak — bad luck never does */
@@ -287,13 +293,33 @@ function streakNoteDefault(){
 }
 function showReveal(o){
   $('#revealHeading').innerHTML = o.heading || '–';
-  $('#recap').innerHTML = o.detail || '';
+  $('#recap').innerHTML =
+    (o.badges && o.badges.length ? '<div class="reveal-badges">' + o.badges.join('') + '</div>' : '') +
+    (o.detail || '');
   const deb = $('#debrief');
   deb.textContent = o.debrief || '';
   deb.className = 'debrief ' + (o.good ? 'good' : 'muted');
   $('#streakNote').textContent = o.streakNote || streakNoteDefault();
+  const card = $('#phase-reveal .card');
+  card.classList.remove('rv-sharp', 'rv-best');
+  if(o.accent === 'best')      card.classList.add('rv-best');
+  else if(o.accent === 'sharp') card.classList.add('rv-sharp');
   if(o.win){ outcomeSound(!!o.muted); if(motionOK()) confetti(); }
   showPhase('phase-reveal');
+}
+
+/* compact EV comparison bars for reveal screens */
+function evBarsHTML(rows){
+  const scale = Math.max.apply(null, rows.map(r => Math.abs(r.value)).concat([0.35]));
+  return '<div class="ev-bars">' + rows.map(r => {
+    const w   = Math.max(4, Math.round(Math.abs(r.value) / scale * 100));
+    const neg = r.value < 0;
+    return '<div class="ev-bar-row">' +
+      '<span class="ev-bar-label">' + r.label + '</span>' +
+      '<div class="ev-bar-track"><div class="ev-bar-fill ' + (neg ? 'neg' : r.cls) + '" style="width:' + w + '%"></div></div>' +
+      '<span class="ev-bar-val ' + (neg ? 'neg' : r.cls) + '">' + (r.value >= 0 ? '+' : '') + r.value.toFixed(2) + '</span>' +
+    '</div>';
+  }).join('') + '</div>';
 }
 
 /* ---------------- shared confidence-chip row ---------------- */

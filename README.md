@@ -62,6 +62,14 @@ call is locked (before the reveal); a separate, muted outcome celebration
 fires only for wins. No punishing stingers for bad luck on good decisions.
 No real money, no purchases, no random-reinforcement tricks.
 
+The process reward is tiered: any +EV call gets the teal ⚡ SHARP treatment,
+while a call that was also the **best value available** (highest-EV slot,
+exact best keep/reroll split) escalates to a gold ⚡⚡ SHARP — BEST VALUE
+toast, a rising chime arpeggio, and a gold glow. Streak counts of 3+ append
+to the toast. Reveals carry badge pills, an at-a-glance EV comparison bar
+(your call vs the best on the board), and debriefs that quote the edge in
+numbers (your price vs the market's).
+
 ## Deploy (GitHub Pages)
 
 Plain static site — no build step. The
