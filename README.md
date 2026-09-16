@@ -37,11 +37,19 @@ tap.
   is reading and playing the market, and rewards follow the decision, not the
   outcome. The board reads as a number line twice over: the whole field is
   plotted across the top at true relative spacing (a one-shot view of the
-  market spread), and the slots below sit sorted low to high with the gap
+  market spread — every label tethered to its dot by a leader line that
+  follows the label, so a crowded, shifted tag can never be mistaken for a
+  neighbor's; selecting a bet lights its dot and tether along with the
+  button), and the slots below sit sorted low to high with the gap
   between neighbors marked (tight gaps highlighted), so a guess
   boxed in by close rivals — and the thin slice of outcome-space it owns —
-  is visible at a glance. Rival guesses and prices are seeded and
-  reproducible.
+  is visible at a glance. Every value in the market — the hidden truth,
+  your estimate, and all six rival guesses — lands on the same
+  round-number grid your slider snaps to (multiples of 5 for blob area,
+  25 ms for glow duration, whole numbers otherwise), so what the board
+  displays is exactly what each bet is; exact ties can happen, split the
+  win, and fan apart as separate dots on the line. Rival guesses and
+  prices are seeded and reproducible.
 - **Bank or Push** — grow a pot across dice rolls that can bust it. The
   briefing defines this round's bust rule (e.g. "any die showing a 1", or
   "any 1, or any double" at higher difficulty) with its exact per-roll odds.
