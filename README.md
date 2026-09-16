@@ -60,8 +60,10 @@ Ranks never demote. The badge sits in the top HUD beside the Sharp Streak
 and the calibration crystal; hover it to see exactly what the next rank
 needs. The **crystal remains the primary calibration identity** — it
 clarifies (sharper facet lines, stronger internal light) as the rolling
-Brier score improves. Rank icons are minimal single-color geometric
-silhouettes; the rank badge is secondary to the crystal, and rank flavor
+Brier score improves. Rank badges are low-poly aquatic cutouts (minnow,
+shark, whale-shield) in the deep-water teal palette — the same art family
+as the whale brand mark in the header; the rank badge is secondary to the
+crystal, and rank flavor
 text appears only on rank-up (e.g. "You move with the school now.").
 
 ## Reward design

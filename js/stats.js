@@ -190,7 +190,8 @@ function showSummary(mode){
     statCell('Rounds logged', a.n) +
     statCell('Sharp calls', pct(overallSharpRate(a))) +
     statCell('Best streak', streak.best) +
-    (typeof currentRank === 'function' ? statCell('Rank', currentRank().name) : '');
+    (typeof currentTier === 'function' && typeof rankBadgeHTML === 'function'
+       ? statCell('Rank', rankBadgeHTML(currentTier()) + currentRank().name) : '');
   $('#typeBreakdown').innerHTML = typeBreakdownHTML(mode === 'session' ? sessRecs : ledger);
   $('#chartWrap').innerHTML  = reliabilitySVG(a, 560, 320);
   $('#edgeWrap').innerHTML   = edgeTableHTML(a);

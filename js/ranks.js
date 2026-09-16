@@ -8,31 +8,15 @@
 'use strict';
 
 const RANKS = [
-  { key: 'minnow', name: 'Minnow', color: '#7DD3C0', flavor: 'Small, quick, watching the current.' },
-  { key: 'shark',  name: 'Shark',  color: '#5EEAD4', flavor: 'You move with the school now.' },
-  { key: 'whale',  name: 'Whale',  color: '#A5F3FC', flavor: 'The deep answers to you now.' }
+  { key: 'minnow', name: 'Minnow', color: '#7DD3C0', badge: 'img/rank-minnow.png', flavor: 'Small, quick, watching the current.' },
+  { key: 'shark',  name: 'Shark',  color: '#5EEAD4', badge: 'img/rank-shark.png',  flavor: 'You move with the school now.' },
+  { key: 'whale',  name: 'Whale',  color: '#A5F3FC', badge: 'img/rank-whale.png',  flavor: 'The deep answers to you now.' }
 ];
 
-/* minimal geometric silhouettes — single color (currentColor), no cartoons */
-function rankSVG(tier){
-  if(tier === 1){   /* shark: angular body, dorsal fin, notched tail */
-    return '<svg viewBox="0 0 64 40" aria-hidden="true">' +
-      '<polygon points="16,20 2,8 8,20 2,32" fill="currentColor"/>' +
-      '<polygon points="16,20 30,12 38,14 44,4 48,14 58,17 62,20 58,23 48,26 44,27 40,34 34,24 26,26" fill="currentColor"/>' +
-      '</svg>';
-  }
-  if(tier === 2){   /* whale: large slow form, fluke, ventral fin */
-    return '<svg viewBox="0 0 64 40" aria-hidden="true">' +
-      '<ellipse cx="28" cy="21" rx="24" ry="12" fill="currentColor"/>' +
-      '<polygon points="50,21 62,9 57,21 62,33" fill="currentColor"/>' +
-      '<polygon points="24,31 30,39 17,37" fill="currentColor"/>' +
-      '</svg>';
-  }
-  /* minnow: small quick ellipse + triangular tail */
-  return '<svg viewBox="0 0 64 40" aria-hidden="true">' +
-    '<ellipse cx="26" cy="20" rx="16" ry="8" fill="currentColor"/>' +
-    '<polygon points="40,20 56,10 56,30" fill="currentColor"/>' +
-    '</svg>';
+/* badge art — low-poly aquatic silhouettes (img/, decorative: the rank name
+   is always rendered as text alongside, so the images carry an empty alt) */
+function rankBadgeHTML(tier){
+  return '<img src="' + RANKS[tier].badge + '" alt="" draggable="false">';
 }
 
 /* ---------------- metrics: decision quality only ---------------- */
@@ -57,7 +41,10 @@ function computeTier(m){
   return 0;
 }
 function currentRank(){
-  return RANKS[clamp(store.get('rank', { tier: 0 }).tier || 0, 0, 2)];
+  return RANKS[currentTier()];
+}
+function currentTier(){
+  return clamp(store.get('rank', { tier: 0 }).tier || 0, 0, 2);
 }
 
 function rankTooltip(m, tier){
@@ -84,7 +71,7 @@ function renderRankHUD(silent){
   const hud = $('#rankHud');
   hud.className = 'hud-item rank-hud r' + tier;
   hud.title = rankTooltip(m, tier);
-  hud.innerHTML = '<span class="rank-ic">' + rankSVG(tier) + '</span><b>' + RANKS[tier].name + '</b>';
+  hud.innerHTML = '<span class="rank-ic">' + rankBadgeHTML(tier) + '</span><b>' + RANKS[tier].name + '</b>';
   if(rose >= 0 && !silent) rankUp(rose);
 }
 
@@ -99,7 +86,7 @@ function rankUp(tier){
   const t = $('#rankToast');
   t.innerHTML =
     '<span class="rt-label">Rank up</span>' +
-    '<span class="rt-fish" style="color:' + r.color + '">' + rankSVG(tier) + '</span>' +
+    '<span class="rt-fish">' + rankBadgeHTML(tier) + '</span>' +
     '<span class="rt-name" style="color:' + r.color + '">' + r.name + '</span>' +
     '<span class="rt-flavor">' + r.flavor + '</span>';
   t.style.borderColor = r.color;
