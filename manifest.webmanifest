@@ -1,0 +1,12 @@
+{
+  "name": "EV Gym",
+  "short_name": "EV Gym",
+  "description": "Train probabilistic reasoning: reward the decision, not the result.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1120",
+  "theme_color": "#0d1120",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

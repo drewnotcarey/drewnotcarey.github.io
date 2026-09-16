@@ -1,24 +1,159 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=https://trend-scan.github.io/" />
-    <meta name="robots" content="noindex">
-    <link rel="canonical" href="https://trend-scan.github.io/" />
-    <title>TrendScan — Moved</title>
-    <script>
-      // Immediate redirect for browsers that ignore meta refresh
-      window.location.replace('https://trend-scan.github.io/');
-    </script>
-    <style>
-      body { font-family: monospace; background: #06090f; color: #e7edf6; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-      a { color: #f5c842; }
-    </style>
-  </head>
-  <body>
-    <div style="text-align: center;">
-      <p>TrendScan has moved to <a href="https://trend-scan.github.io/">trend-scan.github.io</a></p>
-      <p>Redirecting…</p>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EV Gym — Train Your Judgment</title>
+<meta name="description" content="A game that trains probabilistic reasoning: reward the decision, not the result.">
+<meta name="theme-color" content="#0d1120">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">◆</span> EV&nbsp;Gym
+  </div>
+  <div class="hud">
+    <div class="hud-item" id="streakHud" title="Consecutive +EV decisions — a good bet that loses does NOT break it">
+      ⚡ Sharp Streak <b id="streakVal">0</b><span class="best" id="streakBest"></span>
     </div>
-  </body>
+    <div class="hud-item crystal-hud" id="crystalMini" title="Calibration crystal"></div>
+    <div class="hud-item calib" id="calibLabel"></div>
+    <button class="icon-btn" id="soundBtn" title="Toggle sound" aria-label="Toggle sound">🔔</button>
+    <button class="icon-btn" id="motionBtn" title="Toggle animations" aria-label="Toggle animations">✨</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section class="phase active" id="phase-home">
+    <div class="card hero">
+      <h1>Reward the decision,<br>not the result.</h1>
+      <p class="tagline">Estimate. Read the odds. Bet where the value is — get rewarded for a sharp bet <em>before</em> you know if it won.</p>
+      <div class="home-controls">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button class="btn primary big" id="startBtn">Start Session</button>
+        <button class="btn ghost" id="statsBtn">Your Calibration</button>
+      </div>
+      <p class="fineprint">8 rounds per session · no money, no stakes, just judgment · every round is logged to your private on-device ledger</p>
+    </div>
+  </section>
+
+  <!-- STIMULUS -->
+  <section class="phase" id="phase-stim">
+    <div class="card">
+      <div class="round-label" id="roundLabel">Round 1 of 8</div>
+      <h2>How many dots?</h2>
+      <div class="stim-wrap">
+        <canvas id="stimCanvas" width="520" height="340"></canvas>
+        </div>
+      <div class="stim-bar"><div id="stimBar"></div></div>
+    </div>
+  </section>
+
+  <!-- GUESS -->
+  <section class="phase" id="phase-guess">
+    <div class="card">
+      <div class="round-label" id="guessRoundLabel"></div>
+      <h2>How many dots did you see?</h2>
+      <div class="guess-row">
+        <input type="range" id="guessSlider" min="5" max="130" value="65">
+        <div class="guess-value" id="guessValue">65</div>
+      </div>
+      <button class="btn primary" id="guessBtn">Lock Guess</button>
+      <p class="fineprint">Your guess becomes one of the bettable slots.</p>
+    </div>
+  </section>
+
+  <!-- BOARD -->
+  <section class="phase" id="phase-board">
+    <div class="card wide">
+      <h2>The board</h2>
+      <p class="hint">Which slot is worth betting on? Payout × · market-implied chance ~%</p>
+      <div class="slots" id="slots"></div>
+      <div class="confidence-row">
+        <span class="conf-label">Confidence</span>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="lock-preview" id="lockPreview">Select a slot and confidence</div>
+      <div class="board-actions">
+        <button class="btn primary" id="lockBtn" disabled>Review Bet</button>
+        <button class="btn primary hidden" id="revealBtn">Reveal</button>
+      </div>
+      <div class="sharp-badge hidden" id="sharpBadge">⚡ SHARP — +EV decision locked in</div>
+    </div>
+  </section>
+
+  <!-- LOCK-IN SUMMARY -->
+  <section class="phase" id="phase-lock">
+    <div class="card">
+      <h2>Bet summary</h2>
+      <div class="lock-summary" id="lockSummary"></div>
+      <div class="row">
+        <button class="btn ghost" id="backToBoard">Back</button>
+        <button class="btn primary" id="confirmBet">Lock In</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="phase" id="phase-reveal">
+    <div class="card">
+      <h2>The true count: <span class="true-value" id="trueValue">–</span></h2>
+      <div class="recap" id="recap"></div>
+      <p class="debrief" id="debrief"></p>
+      <p class="streak-note" id="streakNote"></p>
+      <button class="btn primary" id="nextBtn">Next Round</button>
+    </div>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="phase" id="phase-summary">
+    <div class="card wide">
+      <h2>Session summary</h2>
+      <div class="summary-grid">
+        <div class="crystal-big" id="crystalBig"></div>
+        <div class="stats">
+          <div class="stat"><span>Brier score</span><b id="sumBrier">–</b></div>
+          <div class="stat"><span>+EV decisions</span><b id="sumPos">–</b></div>
+          <div class="stat"><span>Best value found</span><b id="sumBest">–</b></div>
+          <div class="stat"><span>Estimation error</span><b id="sumErr">–</b></div>
+        </div>
+      </div>
+      <h3>Reliability — when you say 70%, are you right 70% of the time?</h3>
+      <div id="chartWrap"></div>
+      <button class="btn primary" id="againBtn">Back to Home</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- TUTORIAL -->
+<div class="overlay" id="tutorial">
+  <div class="card tut-card">
+    <h2 id="tutTitle"></h2>
+    <p id="tutBody"></p>
+    <button class="btn primary" id="tutNext">Next</button>
+  </div>
+</div>
+
+<div id="fx"></div>
+<div id="debugPanel" class="hidden"></div>
+
+<footer class="foot">
+  <span>EV Gym · a thinking-in-bets trainer · all data stays on your device</span>
+  <a href="docs/BUILD_PLAN.md" style="color:inherit">build plan</a>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
 </html>

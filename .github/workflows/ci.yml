@@ -1,0 +1,63 @@
+name: CI & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: 'pages-deploy'
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  check-and-deploy:
+    name: Check & deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Syntax-check JS
+        run: node --check js/app.js && node --check sw.js
+
+      - name: Validate JSON
+        run: node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8')); console.log('manifest OK')"
+
+      - name: Check required files
+        run: |
+          for f in index.html css/style.css js/app.js sw.js manifest.webmanifest icon.svg docs/BUILD_PLAN.md .nojekyll; do
+            test -f "$f" || { echo "MISSING: $f"; exit 1; }
+          done
+          echo "all files present"
+
+      # ---- deploy (skipped on pull requests) ----
+      - name: Stage site
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p dist
+          cp -r index.html css js docs icon.svg manifest.webmanifest sw.js .nojekyll dist/
+          ls -la dist
+
+      - name: Setup Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/deploy-pages@v4
