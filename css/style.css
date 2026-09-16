@@ -95,9 +95,12 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 
 /* ---------- board ---------- */
 .hint{color:var(--dim);font-size:.85rem;margin-bottom:16px}
-/* 7 slots (you + six rivals): 4+3 on desktop, pairs on phones */
-.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
-@media(min-width:640px){.slots{grid-template-columns:repeat(4,1fr)}}
+/* 7 slots (you + six rivals), sorted low-to-high in a single column so a
+   crowded neighbor is something you see, not something you're told */
+.slots{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:20px}
+@media(min-width:640px){.slots{max-width:540px;margin:0 auto 20px}}
+.slot-gap{font-size:.72rem;color:var(--dim);text-align:center}
+.slot-gap.tight{color:var(--bad);font-weight:700}
 .slot{position:relative;background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:14px 8px;color:var(--ink);display:flex;flex-direction:column;gap:5px;align-items:center;transition:border-color .15s,box-shadow .2s}
 .slot:hover{border-color:#31446e}
 .slot.selected{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim),0 0 22px #2dd4bf44}

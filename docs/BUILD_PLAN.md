@@ -52,7 +52,13 @@ and outcome, from which long-run skill metrics are derived.
    clamped to [1.15, 15]. 35% of boards carry a deliberate mispricing (a
    favorite priced too generously, or a chopped longshot) for value hunters.
    Rival guesses and prices are computed on a seeded RNG so rounds are
-   reproducible.
+   reproducible. The board displays slots sorted low → high in a single
+   column, with the gap between adjacent guesses labeled (tight gaps
+   highlighted red; threshold gap ≤ max(1, range × 0.12)) — the crowding
+   that thins a slot's claimable outcome-space is shown, not just priced.
+   Sorting is presentational: slots keep their original array indices, which
+   selection, best-value tracking, and the ledger all key off. The reveal
+   recap uses the same sorted order.
 5. The player picks one slot and stakes 1–5 confidence chips
    (internally 10/30/50/70/90%). The chip count is both the wager and the
    stated probability for calibration.

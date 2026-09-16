@@ -35,7 +35,11 @@ tap.
   RMS of relative error), blended with the field's consensus. The briefing
   says it up front: this is a market game, not a test of accuracy — the skill
   is reading and playing the market, and rewards follow the decision, not the
-  outcome. Rival guesses and prices are seeded and reproducible.
+  outcome. The board reads as a number line: slots sorted low to high with
+  the gap between neighbors marked (tight gaps highlighted), so a guess
+  boxed in by close rivals — and the thin slice of outcome-space it owns —
+  is visible at a glance. Rival guesses and prices are seeded and
+  reproducible.
 - **Bank or Push** — grow a pot across dice rolls that can bust it. The
   briefing defines this round's bust rule (e.g. "any die showing a 1", or
   "any 1, or any double" at higher difficulty) with its exact per-roll odds.

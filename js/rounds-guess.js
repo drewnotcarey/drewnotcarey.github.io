@@ -65,7 +65,7 @@ function guessIntro(){
       ['Watch the flash', what],
       ['Play the market, not the answer', 'This round looks like a test of accuracy — it is really a <b>market game</b>. The point is not answering correctly or picking the slot that ends up closest; it is <b>reading and playing the market</b>: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a lucky win on a \u2212EV slot is still a mistake.'],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact.'],
-      ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
+      ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The board reads as a <b>number line</b>: slots sit sorted low to high with the gap between neighbors marked — a guess <b>boxed in</b> by tight gaps on both sides owns only the sliver of outcome-space between its rivals, which is why a central-looking slot can carry a huge payout. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
       ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
       ['A worked example', 'A slot paying <b>3\u00d7</b> implies the market rates its win chance at about <b>33%</b> (1 \u00f7 3 \u2248 0.33). If your read is that the real chance is <b>higher than 33%</b> — say 40% — then 0.40 \u00d7 3 = <b>1.2 &gt; 1</b>: the slot is +EV and worth betting. If you think it\u2019s lower, the slot is overpriced and the edge belongs elsewhere.'],
       ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Your model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. <b>Implied</b> is what the book\u2019s payout says; <b>your model</b> is your own read of the chances. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
@@ -370,11 +370,30 @@ function edgeHTML(s){
          (pos ? '+EV' : '−EV') + '</span>';
 }
 
+/* board order: low → high by guess value, not generation order. Crowded
+   neighbors visibly share a thin slice of outcome-space (see the gap
+   markers between slots) — that's what actually drives a thin payout,
+   and it was invisible when slots sat in arbitrary bot-number order.
+   Sorting is presentational only: round.slots keeps its original
+   indices, which is what selection, bestIdx, and the ledger key off. */
 function renderBoard(){
   const wrap = $('#slots'); wrap.innerHTML = '';
   const hints = hintsEnabled('guess');
   $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') + 'payout × your chance > 1 = +EV';
-  round.slots.forEach((s, i) => {
+  const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
+  const vals  = round.slots.map(s => s.display);
+  const range = Math.max(1, Math.max.apply(null, vals) - Math.min.apply(null, vals));
+  order.forEach((i, pos) => {
+    const s = round.slots[i];
+    if(pos > 0){
+      const prev  = round.slots[order[pos - 1]];
+      const gap   = s.display - prev.display;
+      const tight = gap <= Math.max(1, range * 0.12);
+      const g = document.createElement('div');
+      g.className = 'slot-gap' + (tight ? ' tight' : '');
+      g.textContent = gap <= 0 ? 'tied' : gap + ' apart';
+      wrap.appendChild(g);
+    }
     const el = document.createElement('button');
     el.type = 'button';
     el.className = 'slot' + (s.isPlayer ? ' player' : '');
@@ -487,12 +506,17 @@ function doRevealGuess(){
     ? [{ label: 'Your call — best on board', value: +round.selEV.toFixed(2), cls: 'best' }]
     : [{ label: 'Your call',  value: +round.selEV.toFixed(2), cls: 'you' },
        { label: 'Best on board', value: +best.ev.toFixed(2), cls: 'best' }]);
+  /* recap keeps the board's number-line frame: sorted low → high, same
+     as renderBoard, so where the true value landed reads at a glance */
+  const rOrder = round.slots.map((sl, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
   showReveal({
     heading: 'The true ' + spec.noun + ': <span class="true-value">' + round.trueValue + spec.unit + '</span>',
     badges: badges,
-    detail: round.slots.map((sl, i) =>
-      '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + '">' +
-      sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>').join('') +
+    detail: rOrder.map(i => {
+        const sl = round.slots[i];
+        return '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + '">' +
+          sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>';
+      }).join('') +
       bars +
       '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',
     debrief: msgs[cell],
