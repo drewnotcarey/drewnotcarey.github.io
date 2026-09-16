@@ -28,9 +28,13 @@ time a round type appears in a session; after that they collapse behind one
 tap.
 
 - **Guess & Bet** — estimate a hidden quantity (dot count, line length, blob
-  area, angle, or a timed glow), then bet on a market of rival guesses priced
-  by extremity. The skill is finding the mispriced slot; rival guesses and
-  prices are seeded and reproducible.
+  area, angle, or a timed glow), then bet on a market of six rival guesses
+  priced like a real book: calibrated win-probability odds with a margin and
+  longshot shading, plus occasional huntable mispricings. The EV model is a
+  fusion posterior — your estimate weighted by your measured accuracy (rolling
+  RMS of relative error), blended with the field's consensus. The skill is
+  finding the mispriced slot; rival guesses and prices are seeded and
+  reproducible.
 - **Bank or Push** — grow a pot across dice rolls that can bust it. The
   briefing defines this round's bust rule (e.g. "any die showing a 1", or
   "any 1, or any double" at higher difficulty) with its exact per-roll odds.

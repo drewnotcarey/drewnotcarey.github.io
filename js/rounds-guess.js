@@ -1,9 +1,11 @@
 /* ==========================================================================
    School of Thought — Guess & Bet round
    Stimulus variants: dot count, line length, blob area, angle, timed glow.
-   Market: synthetic rival guesses (anchor / over / under / herd / outlier /
-   compression biases), extremity pricing with favorite-longshot mispricing,
-   Monte Carlo model probabilities.
+   Market: a six-guess rival field (anchor / over / under / herd / outlier /
+   compression biases) priced like a real book — calibrated win-probability
+   odds with a margin and longshot shading, plus occasional huntable
+   distortions. The EV model is a fusion posterior: the player's estimate
+   weighted by their measured accuracy, blended with the field's consensus.
    ========================================================================== */
 'use strict';
 
@@ -62,10 +64,11 @@ function guessIntro(){
     steps: [
       ['Watch the flash', what],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact.'],
-      ['Read the board', 'Your guess joins four rival guesses. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value.'],
+      ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
       ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
       ['A worked example', 'A slot paying <b>3\u00d7</b> implies the market rates its win chance at about <b>33%</b> (1 \u00f7 3 \u2248 0.33). If your read is that the real chance is <b>higher than 33%</b> — say 40% — then 0.40 \u00d7 3 = <b>1.2 &gt; 1</b>: the slot is +EV and worth betting. If you think it\u2019s lower, the slot is overpriced and the edge belongs elsewhere.'],
-      ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
+      ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Your model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. <b>Implied</b> is what the book\u2019s payout says; <b>your model</b> is your own read of the chances. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
+      ['Earn the market\u2019s trust', 'Your model blends <b>your estimate</b> with the <b>field\u2019s consensus</b>, weighted by how accurate your estimates have actually been. It starts trusting the field more than you — new estimators haven\u2019t proven anything. Land close estimates round after round and your own slot starts showing green: that\u2019s the game telling you your read is now worth more than the crowd\u2019s.'],
       ['Rate your confidence', 'Pick 1\u20135 for how sure you are your slot wins. Honest ratings are scored: you\u2019re calibrated when your 70% calls come true about 70% of the time.']
     ]
   };
@@ -222,7 +225,10 @@ function prepGuess(){
 /* ---------------- market generation ---------------- */
 function niceStep(T){ return T >= 900 ? 100 : T >= 120 ? 10 : T >= 25 ? 5 : 1; }
 
-function genField(T, rng, level){
+const FIELD_SIZE = 6;   /* rival guesses joining the player's on the board */
+
+function genField(T, rng, level, n){
+  n = n || FIELD_SIZE;
   const noise = Math.max(1.5, T * (0.10 + 0.055 * level));
   const all = ['anchor','over','under','herd','outlier'];
   const nb  = rng() < 0.5 ? 1 : 2;
@@ -233,7 +239,7 @@ function genField(T, rng, level){
   }
   const cluster = T + gauss(rng) * noise * 0.6;
   const bots = [];
-  for(let i = 0; i < 4; i++){
+  for(let i = 0; i < n; i++){
     let g = T + gauss(rng) * noise;
     active.forEach(b => {
       const r = rng();
@@ -259,26 +265,14 @@ function genField(T, rng, level){
   return bots;
 }
 
-/* pricing: extremity base + favorite/longshot mispricing + jitter */
-function priceBoard(guesses, rng){
-  const med    = median(guesses);
-  const spread = Math.max(2, (Math.max.apply(null, guesses) - Math.min.apply(null, guesses)) / 2);
-  let p = guesses.map(g => 1.2 + Math.min(Math.abs(g - med) / spread, 1.6) * 5.3);
-  if(rng() < 0.3){
-    const order = guesses.map((g,i) => [Math.abs(g - med), i]).sort((a,b) => a[0] - b[0]);
-    if(rng() < 0.5) p[order[0][1]] *= 1.45;
-    else            p[order[order.length - 1][1]] *= 0.55;
-  }
-  return p.map(x => clamp(x * (0.85 + rng() * 0.30), 1.2, 12));
-}
-
-/* Monte Carlo posterior: field-consensus anchor, win = closest guess */
-function modelProbs(guesses, rng){
-  const anchor = median(guesses);
-  const unc    = Math.max(3, std(guesses) * 1.1);
+/* ---------------- the book & the model ---------------- */
+/* shared sampler: win-probability of each slot under an explicit posterior
+   truth ~ Normal(anchor, sd); a slot wins when the drawn truth lands closest
+   to its guess */
+function mcProbs(guesses, anchor, sd, rng, draws){
   const counts = guesses.map(() => 0);
-  for(let s = 0; s < 1000; s++){
-    const v = anchor + gauss(rng) * unc;
+  for(let s = 0; s < draws; s++){
+    const v = anchor + gauss(rng) * sd;
     let bi = 0, bd = Infinity;
     for(let i = 0; i < guesses.length; i++){
       const d = Math.abs(guesses[i] - v);
@@ -286,7 +280,50 @@ function modelProbs(guesses, rng){
     }
     counts[bi]++;
   }
-  return counts.map(c => c / 1000);
+  return counts.map(c => c / draws);
+}
+
+/* Measured estimating accuracy: rolling RMS of relative error across the
+   player's Guess & Bet history (all stimuli, all sessions). Fewer than 3
+   scored rounds → assume a decent newcomer. This is what the model uses to
+   decide how much your estimate is worth against the field's. */
+function playerSigma(){
+  const rs = ledger.filter(r => (r.round_type || 'guess') === 'guess' && r.relErr != null).slice(-8);
+  if(rs.length < 3) return 0.15;
+  return clamp(Math.sqrt(mean(rs.map(r => r.relErr * r.relErr))), 0.04, 0.35);
+}
+
+/* The book: prices every slot off an exchangeable market posterior (all
+   guesses weighed equally — the market doesn't know who is sharp), converts
+   to odds with a margin and longshot shading, then occasionally misprices:
+   35% of boards carry a favorite priced too generously or a chopped longshot.
+   Those mistakes are the game — hunt them. */
+function priceBoard(guesses, rng){
+  const pMkt = mcProbs(guesses, median(guesses), Math.max(3, std(guesses) * 1.1), rng, 1000);
+  let payouts = pMkt.map(p => clamp(0.87 * Math.pow(Math.max(p, 0.04), -0.83), 1.15, 15));
+  if(rng() < 0.35){
+    const med = median(guesses);
+    const order = guesses.map((g,i) => [Math.abs(g - med), i]).sort((a,b) => a[0] - b[0]);
+    if(rng() < 0.5) payouts[order[0][1]] *= 1.4;
+    else            payouts[order[order.length - 1][1]] *= 0.6;
+  }
+  return payouts.map(x => clamp(x * (0.9 + rng() * 0.20), 1.15, 15));
+}
+
+/* Your model: a fusion posterior blending two independent reads of the
+   truth — your estimate (weighted by your measured accuracy) and the rival
+   field's consensus (weighted by its observed spread). Truth-blind: built
+   only from information on the board at decision time. */
+function modelProbs(guesses, rng){
+  const bots   = guesses.slice(1);
+  const botMed = median(bots);
+  const scale  = Math.max(1, Math.abs(botMed));
+  const su     = Math.max(playerSigma() * scale, scale * 0.04);   /* your read  */
+  const sb     = Math.max(std(bots) * 0.6, scale * 0.045);        /* field read */
+  const wYou = 1 / (su * su), wBot = 1 / (sb * sb);
+  const mu = (guesses[0] * wYou + botMed * wBot) / (wYou + wBot);
+  const sd = Math.sqrt(1 / (wYou + wBot));
+  return mcProbs(guesses, mu, sd, rng, 1000);
 }
 
 function buildMarket(){
@@ -295,6 +332,7 @@ function buildMarket(){
   const guesses = [round.playerGuess].concat(bots);
   const payouts = priceBoard(guesses, rng);
   const p = modelProbs(guesses, rng);
+  round.sigYou = playerSigma();
   const slots = guesses.map((g, i) => ({
     id:        i === 0 ? 'player_0' : 'bot_' + i,
     label:     i === 0 ? 'You' : 'Bot ' + i,
@@ -325,7 +363,7 @@ function edgeHTML(s){
   const im = Math.round(s.implied * 100);
   const e  = Math.round((s.pModel - s.implied) * 100);
   const pos = s.ev > 0;
-  return '<span class="slot-implied">Model ~' + m + '% · Implied ~' + im + '%</span>' +
+  return '<span class="slot-implied">Your model ~' + m + '% · Implied ~' + im + '%</span>' +
          '<span class="slot-edge ' + (pos ? 'pos' : 'neg') + '">' +
          (pos ? '▲' : '▼') + ' Edge ' + (e > 0 ? '+' : '') + e + '% · ' +
          (pos ? '+EV' : '−EV') + '</span>';
@@ -409,6 +447,7 @@ function doRevealGuess(){
     selectedSlot: s.id, guessDisplay: s.display,
     chips: round.chips, stated: round.stated,
     payout: s.payout, implied: +s.implied.toFixed(4), pModel: +s.pModel.toFixed(4),
+    sigYou: +round.sigYou.toFixed(4),
     selEV: +round.selEV.toFixed(4),
     bestEV: +round.slots[round.bestIdx].ev.toFixed(4),
     selPositive: round.selPositive, selBest: round.selBest,

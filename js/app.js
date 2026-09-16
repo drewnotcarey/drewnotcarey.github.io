@@ -510,7 +510,9 @@ function buildDebug(){
   /* live EV board inspector (Guess & Bet rounds) */
   setInterval(() => {
     if(round && round.slots){
-      $('#dbgOut').textContent = round.slots.map((s, i) =>
+      const sigLine = (round.type === 'guess' && round.sigYou != null)
+        ? 'sigYou=' + round.sigYou.toFixed(3) + '\n' : '';
+      $('#dbgOut').textContent = sigLine + round.slots.map((s, i) =>
         i + ' ' + s.label + ' g=' + s.display + ' p=' + s.pModel.toFixed(2) +
         ' pay=' + s.payout.toFixed(1) + ' ev=' + s.ev.toFixed(2) + (i === round.bestIdx ? ' <-- BEST' : '')
       ).join('\n');

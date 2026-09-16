@@ -42,21 +42,30 @@ and outcome, from which long-run skill metrics are derived.
    dot count, line length (against a labeled reference), blob area (against a
    labeled reference square), angle, and a timed glow.
 2. The player enters a guess on a slider.
-3. The app generates 4 rival guesses from a noise distribution around the true
+3. The app generates 6 rival guesses from a noise distribution around the true
    value, with occasional structure: anchor-to-round-numbers, over/under bias,
    herding, outliers, and compression/stretch around the field median.
-4. Every guess (including the player's) becomes a slot priced by extremity
-   from the field median, with occasional deliberate favorite/longshot
-   mispricing and jitter. Rival guesses and prices are computed on a seeded
-   RNG so rounds are reproducible.
+4. Every guess (including the player's) becomes a slot. The book prices each
+   slot from an exchangeable market posterior (all guesses weighed equally,
+   1000 Monte Carlo samples; win = closest guess), converting win probability
+   to odds with a margin and longshot shading — payout ≈ 0.87 · p⁻⁰·⁸³,
+   clamped to [1.15, 15]. 35% of boards carry a deliberate mispricing (a
+   favorite priced too generously, or a chopped longshot) for value hunters.
+   Rival guesses and prices are computed on a seeded RNG so rounds are
+   reproducible.
 5. The player picks one slot and stakes 1–5 confidence chips
    (internally 10/30/50/70/90%). The chip count is both the wager and the
    stated probability for calibration.
 6. A lock-in summary shows payout, market-implied chance, and stated
    confidence side by side.
-7. Model probabilities come from a Monte Carlo posterior around the field
-   consensus (win = closest guess to the revealed value), 1000 samples.
-   Slot EV = model probability × payout − 1.
+7. Model probabilities come from a fusion posterior: the player's estimate
+   weighted by their measured accuracy (rolling RMS of relative error over the
+   last 8 guess rounds; 0.15 default for newcomers, clamped to [0.04, 0.35])
+   blended with the rival field's median weighted by its observed spread
+   (precision-weighted Normal; win = closest guess, 1000 samples). Truth-blind
+   — built only from board-visible information. Slot EV = model probability ×
+   payout − 1. A consistently accurate player's own slot trends +EV; a noisy
+   player's does not — the market's trust is earned.
 8. If the chosen slot is +EV, the process reward fires **before the reveal**.
 9. Reveal shows the true value, the winning slot, and a four-cell debrief
    (+EV/−EV × win/loss), each with its own plain-language framing.
