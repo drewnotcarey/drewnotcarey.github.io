@@ -36,15 +36,39 @@ function bankParams(level){
   return { rule: 'any1dbl',   bustP: 16/36, threshold: 10, ruleText: 'any 1, or any double' };
 }
 
+/* bankStart() prepares state only — the briefing shows before any roll.
+   bankBegin() reveals the board. No clock in this round type. */
 function bankStart(){
   round.level = skillLevel('bank');
   round.p = bankParams(round.level);
   round.rng = mulberry32(round.seed);
   round.pot = 0; round.decisions = []; round.state = 'ready';
   round.lastRoll = null; round.busted = false; round.statusText = '';
+}
+
+function bankBegin(){
   $('#bankRoundLabel').textContent = 'Round ' + (round.index + 1) + ' of ' + ROUNDS_PER_SESSION;
   bankRender();
   showPhase('phase-bank');
+}
+
+/* ---------------- briefing ---------------- */
+function bankIntro(){
+  const p = round.p;
+  const pct = Math.round(p.bustP * 100);
+  return {
+    title: 'Bank or Push',
+    note: 'Bust rule this round: <b>a roll is a bust when it shows ' + p.ruleText + '</b> — that\u2019s about a <b>' + pct + '% chance on every single roll</b>',
+    cta: 'Start — Roll the Dice',
+    fine: 'No clock in this round — the dice wait for you.',
+    steps: [
+      ['Roll to grow the pot', 'Each roll adds both dice together to your pot. A safe roll of 5+3 adds 8, for example.'],
+      ['A bust roll wipes the pot', 'The moment a roll breaks the bust rule above, the <b>entire pot drops to zero</b> and the round ends — there is no partial save.'],
+      ['Bank or push, your call', 'After every safe roll you choose: <b>Bank</b> locks the pot in and ends the round, or <b>Push</b> rolls again for a bigger pot at bust risk.'],
+      ['The math that scores you', 'Every call is scored against expected value: pushing risks the whole pot (about ' + pct + '%) to gain roughly +8 on average. Small pot \u2192 pushing is usually right; big pot \u2192 the risk outgrows the gain. Where exactly the line sits is yours to feel out.'],
+      ['Rewards', 'A +EV call fires \u26a1 SHARP the instant you make it — before the next roll. Busting after sharp pushes never breaks your streak.']
+    ]
+  };
 }
 
 function bankRender(){
@@ -240,6 +264,21 @@ function genRerollSituation(rng){
   return { hand: hand, cat: cat, keep: keep, best: best };
 }
 
+function catRuleText(cat){
+  switch(cat.type){
+    case 'number': return 'every die showing ' + cat.n + ' adds ' + cat.n + ' to your score (so three ' + cat.n + 's score ' + (3 * cat.n) + ')';
+    case 'three':  return 'the sum of all five dice, but only if at least three faces match \u2014 otherwise 0';
+    case 'four':   return 'the sum of all five dice, but only if at least four faces match \u2014 otherwise 0';
+    case 'full':   return 'a flat 25 for a triple plus a pair \u2014 anything else scores 0';
+    case 'ss':     return 'a flat 30 for four consecutive faces (like 2-3-4-5) \u2014 otherwise 0';
+    case 'ls':     return 'a flat 40 for five consecutive faces (1-2-3-4-5 or 2-3-4-5-6) \u2014 otherwise 0';
+    case 'chance': return 'always the sum of all five dice';
+  }
+  return '';
+}
+
+/* rerollStart() prepares state (including the situation) but starts no
+   clock. rerollBegin() reveals the hand and starts the decision clock. */
 function rerollStart(){
   round.level = skillLevel('reroll');
   round.timerMs = [30000, 22000, 12000][clamp(Math.round(round.level), 0, 2)];
@@ -249,10 +288,32 @@ function rerollStart(){
   round.chips = 0;
   round.locked = false;
   round.timeout = false;
+}
+
+function rerollBegin(){
   $('#rerollRoundLabel').textContent = 'Round ' + (round.index + 1) + ' of ' + ROUNDS_PER_SESSION;
   rerollRender();
   showPhase('phase-reroll');
   rerollStartTimer();
+}
+
+/* ---------------- briefing ---------------- */
+function rerollIntro(){
+  const cat = round.sit.cat;
+  const secs = Math.round(round.timerMs / 1000);
+  return {
+    title: 'Reroll Calculus',
+    note: 'Category this round: <b>' + cat.label + '</b> — ' + catRuleText(cat) + ' · max ' + cat.max + ' · decision clock: <b>' + secs + 's</b>',
+    cta: 'Start — Deal the Dice',
+    fine: 'The clock starts the moment you press Start. Run it out and you keep all five dice by default.',
+    steps: [
+      ['Read the hand', 'Five dice appear with the score they already earn under <b>' + cat.label + '</b> — that score is yours if you keep everything.'],
+      ['Mark dice to reroll', 'Tap a die to mark it for a reroll (gold highlight); tap again to keep it. Keeping all five is a valid call, and rerolling all five is too.'],
+      ['Lock In', 'The marked dice roll new random faces and the hand is rescored under the same category — that new score is yours.'],
+      ['Beat the clock', 'You have <b>' + secs + ' seconds</b> to lock your call. If time runs out, the round is scored as \u201ckept all five\u201d.'],
+      ['What \u201csharp\u201d means here', 'Every keep/reroll split has an exact expected score (each marked die has 6 equally likely faces). Land within 0.5 points of the best split and \u26a1 SHARP fires at lock-in. The confidence chips rate how likely your call is to beat the alternative you skipped.']
+    ]
+  };
 }
 function rerollStartTimer(){
   const bar = $('#rerollBar');

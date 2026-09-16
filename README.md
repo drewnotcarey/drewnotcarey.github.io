@@ -18,16 +18,26 @@ reset, seed forcing, live EV board inspector).
 
 ## The rounds
 
+Every round opens with a **briefing screen**: the exact rules for that round
+(what counts as a bust roll, how the category scores, the clock length), with
+a Start button. Nothing is timed until the player presses Start — the round
+reveals and its clock begins at that moment. Full rules auto-expand the first
+time a round type appears in a session; after that they collapse behind one
+tap.
+
 - **Guess & Bet** — estimate a hidden quantity (dot count, line length, blob
   area, angle, or a timed glow), then bet on a market of rival guesses priced
   by extremity. The skill is finding the mispriced slot; rival guesses and
   prices are seeded and reproducible.
-- **Bank or Push** — grow a pot across dice rolls that can bust it. Every
-  bank/push call is scored against a computable one-step EV rule; bust odds
-  are only shown while hints are enabled.
-- **Reroll Calculus** — five dice, a scoring category, and a clock. Call
-  keep-versus-reroll on any subset; exact EVs are enumerated over every
-  possibility, and your call is scored against the best play.
+- **Bank or Push** — grow a pot across dice rolls that can bust it. The
+  briefing defines this round's bust rule (e.g. "any die showing a 1", or
+  "any 1, or any double" at higher difficulty) with its exact per-roll odds.
+  Every bank/push call is scored against a computable one-step EV rule.
+- **Reroll Calculus** — five dice, a scoring category, and a clock. The
+  briefing spells out how the category scores and how long the clock runs
+  before the hand is dealt. Call keep-versus-reroll on any subset; exact EVs
+  are enumerated over every possibility, and your call is scored against the
+  best play.
 
 ## What's tracked
 

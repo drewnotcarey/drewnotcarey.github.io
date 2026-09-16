@@ -135,10 +135,14 @@ function buildQueue(){
 }
 
 function startSession(){
-  session = { id: Date.now().toString(36), roundIndex: 0, queue: buildQueue(), records: [] };
+  session = { id: Date.now().toString(36), roundIndex: 0, queue: buildQueue(), records: [], seenTypes: {} };
   startRound();
 }
 
+/* Rounds prepare in two steps: startRound() builds all state and shows the
+   briefing — no stimulus, no dice, no clocks. beginRound() (from the Start
+   button) reveals the round and starts any timers, so players can read the
+   rules at their own pace. */
 function startRound(){
   const spec = session.queue[session.roundIndex];
   const seed = (forcedSeed == null) ? ((Math.random() * 2147483647) | 0) : forcedSeed;
@@ -146,6 +150,41 @@ function startRound(){
   if(spec.type === 'bank') bankStart();
   else if(spec.type === 'reroll') rerollStart();
   else guessStart();
+  showIntro();
+}
+
+function beginRound(){
+  if(!round) return;
+  if(round.type === 'bank') bankBegin();
+  else if(round.type === 'reroll') rerollBegin();
+  else guessBegin();
+}
+
+/* ---------------- round briefing ---------------- */
+function showIntro(){
+  const c = (round.type === 'bank') ? bankIntro() : (round.type === 'reroll') ? rerollIntro() : guessIntro();
+  $('#introRoundLabel').textContent = 'Round ' + (round.index + 1) + ' of ' + ROUNDS_PER_SESSION + ' · ' + ROUND_TYPES[round.type].label;
+  $('#introTitle').textContent = c.title;
+  $('#introNote').innerHTML = c.note;
+  const ol = $('#introSteps');
+  ol.innerHTML = '';
+  c.steps.forEach(st => {
+    const li = document.createElement('li');
+    const b = document.createElement('b');
+    b.textContent = st[0];
+    li.appendChild(b);
+    li.insertAdjacentHTML('beforeend', ' — ' + st[1]);
+    ol.appendChild(li);
+  });
+  /* full rules auto-expand the first time a type shows up this session;
+     repeats collapse to the note line, one tap away */
+  const first = !session.seenTypes[round.type];
+  session.seenTypes[round.type] = true;
+  $('#introRules').open = first;
+  $('#introFine').textContent = c.fine || '';
+  $('#introStartBtn').textContent = c.cta || 'Start Round';
+  showPhase('phase-intro');
+  $('#introStartBtn').focus();
 }
 
 function finishRound(rec){
@@ -297,6 +336,8 @@ const TUT = [
    'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts.'],
   ['Three ways to train',
    'Estimate hidden quantities and hunt for the mispriced slot on a market of rival guesses. Grow a pot of dice past the bust zone and bank it in time. Call keep-versus-reroll on five dice against the odds.'],
+  ['Briefings before clocks',
+   'Every round opens with a briefing: the exact rules, the bust conditions, the clock. Nothing is timed until you press Start — read at your own pace, then play.'],
   ['Grow your crystal',
    'Every round is logged. The crystal tracks how well your confidence matches reality: say 70% and be right about 70% of the time to make it shine.']
 ];
@@ -389,16 +430,24 @@ function renderTypeRow(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  $('#difficulty').value = store.get('diff', 'medium');
+  /* difficulty lives in its own store key for legacy reasons; mirror it into
+     settings so skillLevel()/adaptSkill()/ledger records see it */
+  settings.difficulty = store.get('diff', 'medium');
+  $('#difficulty').value = settings.difficulty;
   $('#hints').value = settings.hints || 'auto';
   renderTypeRow();
 
-  $('#difficulty').addEventListener('change', () => store.set('diff', $('#difficulty').value));
+  $('#difficulty').addEventListener('change', () => {
+    settings.difficulty = $('#difficulty').value;
+    store.set('diff', settings.difficulty);
+    store.set('settings', settings);
+  });
   $('#hints').addEventListener('change', () => { settings.hints = $('#hints').value; store.set('settings', settings); });
 
   $('#startBtn').addEventListener('click', () => { ac(); resetBoardControls(); startSession(); });
   $('#statsBtn').addEventListener('click', () => showSummary('all'));
   $('#againBtn').addEventListener('click', () => { resetBoardControls(); showPhase('phase-home'); });
+  $('#introStartBtn').addEventListener('click', () => { ac(); beginRound(); });
 
   $('#guessSlider').addEventListener('input', e => {
     const u = (round && STIM_SPEC[round.stimulus]) ? STIM_SPEC[round.stimulus].unit : '';

@@ -1,5 +1,5 @@
 /* EV Gym service worker - offline app shell cache */
-const CACHE = 'evgym-v2';
+const CACHE = 'evgym-v3';
 const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/rounds-guess.js',
                'js/rounds-dice.js', 'js/stats.js',
                'manifest.webmanifest', 'icon.svg', 'docs/BUILD_PLAN.md'];

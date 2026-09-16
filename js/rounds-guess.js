@@ -8,12 +8,17 @@
 'use strict';
 
 /* ---------------- round entry ---------------- */
+/* guessStart() prepares state only — nothing shows, nothing is timed.
+   guessBegin() reveals the stimulus and starts the view window. */
 function guessStart(){
   round.level = skillLevel('guess');
   round.rng   = mulberry32(round.seed);
   round.stimData = genStimulus(round.stimulus, round.rng, round.level);
   round.trueValue = round.stimData.true;
   round.view  = Math.round(3400 - 900 * round.level);
+}
+
+function guessBegin(){
   $('#roundLabel').textContent = 'Round ' + (round.index + 1) + ' of ' + ROUNDS_PER_SESSION;
   $('#stimHeading').textContent = STIM_SPEC[round.stimulus].heading;
   const barWrap = $('#stimBar').parentElement;
@@ -36,6 +41,32 @@ function guessStart(){
       showPhase('phase-guess');
     }
   }, round.view);
+}
+
+/* ---------------- briefing ---------------- */
+function guessIntro(){
+  const name = { dots:'Dot count', line:'Line length', area:'Blob area', angle:'Angle size', duration:'Glow duration' }[round.stimulus];
+  const secs = (round.view / 1000).toFixed(1);
+  const what = {
+    dots:     'Count the dots scattered on the canvas — then they vanish.',
+    line:     'Measure the bright line. The short gray bar above it is exactly <b>10 units</b> long — use it as your ruler.',
+    area:     'Measure the blob. The gray square beside it has an area of exactly <b>100 units</b>.',
+    angle:    'Read the size of the gap between the two rays, in <b>degrees</b>.',
+    duration: 'A circle glows for a single timed interval — estimate how long it glowed, in <b>milliseconds</b> (1000 ms = one second). No progress bar on this one; your feel for time is the instrument.'
+  }[round.stimulus];
+  return {
+    title: 'Guess & Bet',
+    note: 'This round: <b>' + name + '</b>' + (round.stimulus === 'duration' ? '' : ' · on screen for about <b>' + secs + 's</b>'),
+    cta: 'Start — Show It',
+    fine: 'The viewing clock starts the moment you press Start.',
+    steps: [
+      ['Watch the flash', what],
+      ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact.'],
+      ['Read the board', 'Your guess joins four rival guesses. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value.'],
+      ['Bet the value, not the favorite', 'Estimate each slot\u2019s real chance of winning. When (your chance) \u00d7 (payout) is more than 1.0, the bet is <b>+EV</b> — worth making. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
+      ['Rate your confidence', 'Pick 1\u20135 for how sure you are your slot wins. Honest ratings are scored: you\u2019re calibrated when your 70% calls come true about 70% of the time.']
+    ]
+  };
 }
 
 /* ---------------- stimulus generation ---------------- */
