@@ -35,7 +35,7 @@ jobs:
 
       - name: Check required files
         run: |
-          for f in index.html css/style.css js/app.js js/rounds-guess.js js/rounds-dice.js js/stats.js sw.js manifest.webmanifest icon.svg docs/BUILD_PLAN.md .nojekyll; do
+          for f in index.html css/style.css js/app.js js/rounds-guess.js js/rounds-dice.js js/stats.js js/ranks.js sw.js manifest.webmanifest docs/BUILD_PLAN.md .nojekyll img/logo.png img/rank-minnow.png img/rank-shark.png img/rank-whale.png img/icon-64.png img/icon-192.png img/icon-512.png img/icon-maskable-512.png; do
             test -f "$f" || { echo "MISSING: $f"; exit 1; }
           done
           echo "all files present"
@@ -45,7 +45,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           mkdir -p dist
-          cp -r index.html css js docs icon.svg manifest.webmanifest sw.js .nojekyll dist/
+          cp -r index.html css js docs img manifest.webmanifest sw.js .nojekyll dist/
           ls -la dist
 
       - name: Setup Pages
