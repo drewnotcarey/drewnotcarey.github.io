@@ -365,7 +365,7 @@ function buildMarket(){
   slots.forEach(s => { if(Math.abs(s.guess - round.trueValue) === wd) s.isWinner = true; });
   round.slots = slots;
   round.bestIdx = slots.reduce((bi, s, i, arr) => s.ev > arr[bi].ev ? i : bi, 0);
-  round.selected = -1; round.chips = 0;
+  round.selected = -1; round.chips = 0; round.locked = false;
   renderBoard();
   showPhase('phase-board');
 }
@@ -384,6 +384,20 @@ function edgeHTML(s){
          (pos ? '+EV' : '−EV') + '</span>';
 }
 
+/* ONE selection path for every affordance — the board buttons below and
+   the pills on the number line. round.locked is set the moment a bet is
+   confirmed; after that the selection IS the bet, and no stray tap (a
+   late pill click, a resize rebuild of the line) may rewrite it. */
+function selectSlot(i){
+  if(!round || round.locked) return;
+  round.selected = i;
+  $$('.slot').forEach(x => x.classList.toggle('selected', +x.dataset.idx === i));
+  $$('.nl-pill').forEach(p => p.classList.toggle('sel', +p.dataset.idx === i));
+  $$('.nl-dot').forEach(d => d.classList.toggle('sel', +d.dataset.idx === i));
+  $$('.nl-leader').forEach(l => l.classList.toggle('sel', +l.dataset.idx === i));
+  updateLockUI();
+}
+
 /* board order: low → high by guess value, not generation order. Crowded
    neighbors visibly share a thin slice of outcome-space (see the gap
    markers between slots) — that's what actually drives a thin payout,
@@ -393,7 +407,8 @@ function edgeHTML(s){
 function renderBoard(){
   const wrap = $('#slots'); wrap.innerHTML = '';
   const hints = hintsEnabled('guess');
-  $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') + 'payout × your chance > 1 = +EV';
+  $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') +
+    'payout × your chance > 1 = +EV · tap a tag or a slot to select';
   const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
   const vals  = round.slots.map(s => s.display);
   const range = Math.max(1, Math.max.apply(null, vals) - Math.min.apply(null, vals));
@@ -418,15 +433,7 @@ function renderBoard(){
       '<span class="slot-guess">' + s.display + '</span>' +
       '<span class="slot-payout">' + s.payout.toFixed(1) + '×</span>' +
       (hints ? edgeHTML(s) : '');
-    el.addEventListener('click', () => {
-      round.selected = i;
-      $$('.slot').forEach(x => x.classList.remove('selected'));
-      el.classList.add('selected');
-      $$('.nl-pill').forEach(p => p.classList.toggle('sel', +p.dataset.idx === i));
-      $$('.nl-dot').forEach(d => d.classList.toggle('sel', +d.dataset.idx === i));
-      $$('.nl-leader').forEach(l => l.classList.toggle('sel', +l.dataset.idx === i));
-      updateLockUI();
-    });
+    el.addEventListener('click', () => selectSlot(i));
     wrap.appendChild(el);
   });
   renderChips($('#chips'), c => { round.chips = c; updateLockUI(); }, round.chips);
@@ -514,6 +521,14 @@ function buildNumline(host, order){
     pill.dataset.idx = i;
     pill.style.left = c[p] + '%';
     pill.innerHTML = '<span class="nl-id">' + s.label + '</span><b class="nl-val">' + s.display + '</b>';
+    /* the pill is a tap target in its own right: clicking it selects that
+       bet, exactly like the board button under it (keyboard users keep the
+       real buttons; pills carry role=button for semantics without stealing
+       tab stops). Locked rounds (rebuild-after-resize included) ignore it. */
+    pill.title = 'Bet on ' + s.label + ' (' + s.display + ') · ' + s.payout.toFixed(1) + '×';
+    pill.setAttribute('role', 'button');
+    pill.addEventListener('click', () => selectSlot(i));
+    if(round.locked) pill.style.pointerEvents = 'none';
     track.appendChild(pill);
   });
   host.appendChild(track);
@@ -566,6 +581,7 @@ function lockIn(){
 }
 
 function confirmBet(){
+  round.locked = true;                     /* the selection is now the bet */
   /* +EV decision quality is judged NOW, before the reveal — and the
      best-value pick on the board earns the gold tier. A \u2212EV bet is
      NOT judged here: its bill arrives at the reveal, and a bet that lands
@@ -575,6 +591,7 @@ function confirmBet(){
   $('#lockBtn').classList.add('hidden');
   $('#chips').style.pointerEvents = 'none';
   $$('.slot').forEach(x => x.style.pointerEvents = 'none');
+  $$('.nl-pill').forEach(p => p.style.pointerEvents = 'none');
   $('#revealBtn').classList.remove('hidden');
   showPhase('phase-board');
 }

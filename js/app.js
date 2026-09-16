@@ -72,6 +72,7 @@ let ledger   = store.get('ledger', []);
 let settings = Object.assign(
   { sound: true,
     motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    haptic: true,
     hints: 'auto',
     types: { guess: true, bank: true, reroll: true },
     skill: { guess: 1, bank: 1, reroll: 1 } },
@@ -133,9 +134,21 @@ function rankUpTone(){
 
 /* ---------------- haptics (Vibration API) ----------------
    Process reward (+EV lock) and rank-up only — never outcome wins/losses.
-   Unsupported browsers (iOS Safari) degrade silently to visual + audio. */
-function pulseProcess(){ if(navigator.vibrate) navigator.vibrate(15); }
-function pulseRankUp(){ if(navigator.vibrate) navigator.vibrate([30, 40, 30]); }
+   Patterns run longer than the old bare 15ms tick, which sat at the edge
+   of perception on most Androids and read as "not working": a Sharp call
+   is a crisp double-tap, a gold best-value call escalates to a triple,
+   and a rank-up gets the slow ceremonial pulse. The header toggle (📳)
+   fires a test buzz on enable so a player can confirm the device
+   responds. iOS Safari has no Vibration API at all — the button stays
+   dimmed there and the game leans on visuals + audio. */
+const HAPTIC_OK = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+function pulseProcess(tier){
+  if(settings.haptic && navigator.vibrate)
+    navigator.vibrate(tier === 2 ? [15, 35, 25, 35, 50] : [20, 40, 20]);
+}
+function pulseRankUp(){
+  if(settings.haptic && navigator.vibrate) navigator.vibrate([45, 70, 45, 70, 90]);
+}
 
 /* ---------------- session / round state ---------------- */
 let session = null;
@@ -297,7 +310,7 @@ function processReward(el, tier){
   updateStreakUI();
   processChime(tier);
   sharpToast(tier);
-  pulseProcess();
+  pulseProcess(tier);
   if(el){
     el.classList.add('glow-btn');
     if(tier === 2) el.classList.add('gold');
@@ -532,6 +545,12 @@ function syncToggles(){
   $('#soundBtn').classList.toggle('off', !settings.sound);
   $('#motionBtn').classList.toggle('off', !settings.motion);
   $('#soundBtn').textContent = settings.sound ? '🔔' : '🔕';
+  const hb = $('#hapticBtn');
+  hb.classList.toggle('off', !settings.haptic || !HAPTIC_OK);
+  hb.title = HAPTIC_OK
+    ? 'Toggle haptics — buzz on Sharp rewards and rank-ups'
+    : 'Haptics unsupported in this browser (iOS Safari has no Vibration API)';
+  hb.setAttribute('aria-label', hb.title);
 }
 function resetBoardControls(){
   $('#lockBtn').classList.remove('hidden');
@@ -596,6 +615,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#rerollLockBtn').addEventListener('click', rerollLock);
 
   $('#soundBtn').addEventListener('click', () => { settings.sound = !settings.sound; store.set('settings', settings); syncToggles(); });
+  $('#hapticBtn').addEventListener('click', () => {
+    settings.haptic = !settings.haptic; store.set('settings', settings); syncToggles();
+    if(settings.haptic && HAPTIC_OK) navigator.vibrate([20, 40, 20]);   /* test buzz: did you feel it? */
+  });
   $('#motionBtn').addEventListener('click', () => {
     settings.motion = !settings.motion; store.set('settings', settings); syncToggles();
     if(ambientCtl){ settings.motion ? ambientCtl.start() : ambientCtl.stop(); }

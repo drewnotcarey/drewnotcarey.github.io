@@ -118,7 +118,7 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .nl-leader.sel{background:var(--teal);box-shadow:0 0 6px #2dd4bf88}
 .nl-dot.sel{background:var(--teal);box-shadow:0 0 0 3px var(--teal-dim),0 0 14px #2dd4bf99;transform:translate(-50%,-50%) scale(1.3);z-index:4}
 .nl-dot.sel.player{background:var(--gold);box-shadow:0 0 0 3px var(--teal-dim),0 0 16px #2dd4bf99}
-.nl-pill{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px 9px;line-height:1.3;white-space:nowrap;z-index:4}
+.nl-pill{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px 9px;line-height:1.3;white-space:nowrap;z-index:4;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .15s,box-shadow .15s,transform .15s}
 .nl-pill.above{bottom:calc(50% + 15px)}
 .nl-pill.below{top:calc(50% + 15px)}
 .nl-id{font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
@@ -126,6 +126,12 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .nl-pill.player{border-color:#ffd16655}
 .nl-pill.player .nl-id,.nl-pill.player .nl-val{color:var(--gold)}
 .nl-pill.sel{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-dim)}
+/* tappable: hover (pointer devices only — no sticky hover on touch) hints
+   at the teal selection state; a press confirms the pressability */
+@media (hover:hover){
+  .nl-pill:hover{border-color:var(--teal);transform:translateX(-50%) translateY(-1px)}
+}
+.nl-pill:active{transform:translateX(-50%) scale(.94)}
 .slot{position:relative;background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:14px 8px;color:var(--ink);display:flex;flex-direction:column;gap:5px;align-items:center;transition:border-color .15s,box-shadow .2s}
 .slot:hover{border-color:#31446e}
 .slot.selected{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim),0 0 22px #2dd4bf44}

@@ -106,13 +106,16 @@ to the toast. Reveals carry badge pills, an at-a-glance EV comparison bar
 (your call vs the best on the board), and debriefs that quote the edge in
 numbers (your price vs the market's).
 
-**Haptics** (Vibration API, where supported — iOS Safari and other
-unsupported browsers degrade gracefully to visual + audio): a short single
-pulse (~15 ms) the instant a +EV call is locked, and a triple pulse for
-rare rank-ups. Haptics never attach to outcome wins or losses.
+**Haptics** (Vibration API, where supported): the header toggle (📳) carries
+a test buzz on enable so you can confirm your device responds. Patterns are
+longer than a bare tick so they can actually be felt — a crisp double-tap
+the instant a +EV call is locked, an escalating triple for gold best-value
+calls, and a slow ceremonial pulse for rare rank-ups. Haptics never attach
+to outcome wins or losses. iOS Safari has no Vibration API at all — there
+the button stays dimmed and the game leans on visuals + audio.
 
 **Rank-up** is its own moment: a rising school of light particles, a deep
-rising tone, the triple pulse, and one line of flavor.
+rising tone, the slow haptic pulse, and one line of flavor.
 
 ## What's tracked
 
