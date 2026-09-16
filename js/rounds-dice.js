@@ -44,6 +44,7 @@ function bankStart(){
   round.rng = mulberry32(round.seed);
   round.pot = 0; round.decisions = []; round.state = 'ready';
   round.lastRoll = null; round.busted = false; round.statusText = '';
+  round.bustBrokeStreak = false;
 }
 
 function bankBegin(){
@@ -66,7 +67,7 @@ function bankIntro(){
       ['A bust roll wipes the pot', 'The moment a roll breaks the bust rule above, the <b>entire pot drops to zero</b> and the round ends — there is no partial save.'],
       ['Bank or push, your call', 'After every safe roll you choose: <b>Bank</b> locks the pot in and ends the round, or <b>Push</b> rolls again for a bigger pot at bust risk.'],
       ['The math that scores you', 'Every call is scored against expected value: pushing risks the whole pot (about ' + pct + '%) to gain roughly +8 on average. Small pot \u2192 pushing is usually right; big pot \u2192 the risk outgrows the gain. Where exactly the line sits is yours to feel out.'],
-      ['Rewards', 'A +EV call fires \u26a1 SHARP the instant you make it — before the next roll. Busting after sharp pushes never breaks your streak.']
+      ['Rewards', 'A +EV call fires \u26a1 SHARP the instant you make it — before the next roll. A \u2212EV call that works out anyway — a push that survives, a bank that lands — is <b>neutral</b>: no reward, no streak break. Only a \u2212EV push that busts breaks the streak, and busting after sharp pushes never does.']
     ]
   };
 }
@@ -114,9 +115,20 @@ function bankRoll(){
     if(bust){
       round.busted = true; round.state = 'done';
       round.statusText = 'Rolled ' + a + '+' + b + ' — bust. The pot is gone.';
+      /* the bust resolves the push that caused it: a \u2212EV push that
+         busts is the one outcome that breaks the streak — a sharp push
+         busting is just bad luck, and a \u2212EV push that survives stays
+         neutral */
+      const last = round.decisions[round.decisions.length - 1];
+      if(last && last.action === 'push'){
+        last.resolved = 'bust';
+        if(!last.correct){ round.bustBrokeStreak = true; breakStreak(); }
+      }
       bankRender();
       setTimeout(bankFinish, 1400);
     } else {
+      const last = round.decisions[round.decisions.length - 1];
+      if(last && last.action === 'push') last.resolved = 'safe';
       round.pot += a + b;
       round.state = 'decide';
       round.statusText = 'Rolled ' + a + '+' + b + ' — pot +' + (a + b) + '.';
@@ -128,10 +140,13 @@ function bankRoll(){
 function bankDecide(action){
   if(round.state !== 'decide') return;
   const correct = (action === 'push') ? (round.pot < round.p.threshold) : (round.pot >= round.p.threshold);
-  round.decisions.push({ pot: round.pot, action: action, correct: correct });
+  round.decisions.push({ pot: round.pot, action: action, correct: correct, resolved: null });
   if(correct) processReward(action === 'push' ? $('#bankPushBtn') : $('#bankBankBtn'));
-  else breakStreak();
+  /* a \u2212EV call no longer breaks the streak on the spot — the outcome
+     decides: a push that busts pays for the decision, while a push that
+     survives or a bank that lands is neutral (nothing added, nothing taken) */
   if(action === 'bank'){
+    round.decisions[round.decisions.length - 1].resolved = 'banked';
     round.state = 'done';
     round.statusText = 'Banked ' + round.pot + '.';
     bankRender();
@@ -146,11 +161,13 @@ function bankFinish(){
   const busted = !!round.busted;
   const total = round.decisions.length;
   const pos = round.decisions.filter(x => x.correct).length;
+  /* \u2212EV calls that luck bailed out: pushes that survived, banks that landed */
+  const neutralCalls = round.decisions.filter(x => !x.correct && x.resolved !== 'bust').length;
   const rec = {
     round_type: 'bank', round: round.index, seed: round.seed,
     diff: settings.difficulty, level: +round.level.toFixed(2),
     rule: round.p.rule, threshold: round.p.threshold,
-    decisions: total, posDecisions: pos,
+    decisions: total, posDecisions: pos, neutralDecisions: neutralCalls,
     busted: busted, banked: busted ? 0 : round.pot
   };
   finishRound(rec);
@@ -159,7 +176,8 @@ function bankFinish(){
   const timeline = total
     ? round.decisions.map(x =>
         '<div class="tt ' + (x.correct ? 'good' : 'bad') + '">pot ' + x.pot + ' · ' +
-        (x.action === 'push' ? 'pushed' : 'banked') + (x.correct ? ' · +EV' : ' · −EV') + '</div>').join('')
+        (x.action === 'push' ? 'pushed' : 'banked') + ' · ' +
+        (x.correct ? '+EV' : '−EV' + (x.resolved === 'bust' ? ' · broke the streak' : ' · neutral')) + '</div>').join('')
     : '<div class="tt">No calls to make — the dice decided this one.</div>';
 
   let deb;
@@ -167,18 +185,26 @@ function bankFinish(){
                                     : 'Banked without a single push. The opening roll carried it.';
   else if(sharp && !busted) deb = 'Sharp calls and a clean bank. Process and luck lined up.';
   else if(sharp && busted)  deb = 'Sharp calls, unlucky bust. Every push you made was worth making — the streak knows it.';
-  else if(!sharp && !busted) deb = 'Banked — but ' + (total - pos) + ' of ' + total + ' calls fought the math. The win was luck, not process.';
-  else                deb = 'The bust stings, but the fix is in the calls, not the luck. Bank when the pot outgrows the odds.';
+  else if(!sharp && !busted) deb = 'Banked — but ' + (total - pos) + ' of ' + total + ' calls fought the math. Luck covered them: neutral, no streak growth and no break.';
+  else if(round.bustBrokeStreak) deb = 'That push fought the math and the bust made it stick — a \u2212EV push that busts is the one thing that breaks the streak. Bank when the pot outgrows the odds.';
+  else                deb = 'The bust came on a sharp push — bad luck, so the streak holds. The ' + (total - pos) + ' \u2212EV call' + (total - pos === 1 ? ' earlier' : 's earlier') + ' got bailed out and count' + (total - pos === 1 ? 's' : '') + ' neutral.';
+
+  const badges = [];
+  if(sharp) badges.push('<span class="rv-badge">⚡ ' + pos + ' of ' + total + ' calls +EV</span>');
+  if(!sharp && !busted && neutralCalls) badges.push('<span class="rv-badge neutral">neutral · no streak change</span>');
 
   showReveal({
     heading: busted ? 'Bust at ' + round.pot : 'Banked ' + round.pot,
-    badges: sharp ? ['<span class="rv-badge">⚡ ' + pos + ' of ' + total + ' calls +EV</span>'] : [],
+    badges: badges,
     detail: timeline,
     debrief: deb,
     good: sharp,
     win: !busted,
     muted: !sharp,
-    accent: sharp ? 'sharp' : null
+    accent: sharp ? 'sharp' : null,
+    streakNote: (!sharp && !round.bustBrokeStreak && neutralCalls)
+      ? 'Neutral: the \u2212EV calls got bailed out — the streak neither grows nor breaks.'
+      : undefined
   });
 }
 
@@ -321,7 +347,7 @@ function rerollIntro(){
       ['Mark dice to reroll', 'Tap a die to mark it for a reroll (gold highlight); tap again to keep it. Keeping all five is a valid call, and rerolling all five is too.'],
       ['Lock In', 'The marked dice roll new random faces and the hand is rescored under the same category — that new score is yours.'],
       ['Beat the clock', 'You have <b>' + secs + ' seconds</b> to lock your call. If time runs out, the round is scored as \u201ckept all five\u201d.'],
-      ['What \u201csharp\u201d means here', 'Every keep/reroll split has an exact expected score (each marked die has 6 equally likely faces). Land within 0.5 points of the best split and \u26a1 SHARP fires at lock-in. The confidence chips rate how likely your call is to beat the alternative you skipped.']
+      ['What \u201csharp\u201d means here', 'Every keep/reroll split has an exact expected score (each marked die has 6 equally likely faces). Land within 0.5 points of the best split and \u26a1 SHARP fires at lock-in. The confidence chips rate how likely your call is to beat the alternative you skipped. A call outside that window that still beats the alternative is <b>neutral</b> — no reward, no streak break; only one that loses ground breaks it.']
     ]
   };
 }
@@ -391,7 +417,9 @@ function rerollLock(){
   round.exactBest = round.chosenEV >= round.sit.best.ev - 0.05;
   round.stated = CHIPS[round.chips - 1];
   if(round.sharp) processReward($('#rerollLockBtn'), round.exactBest ? 2 : 1);
-  else breakStreak();
+  /* a non-sharp call is not judged until the dice land: beating the
+     alternative you skipped is neutral (no reward, no break) — only a
+     non-sharp call that loses ground breaks the streak */
 
   if(idxs.length){
     $('#rerollHint').classList.add('hidden');
@@ -431,14 +459,16 @@ function rerollTimeout(){
   round.exactBest = round.chosenEV >= round.sit.best.ev - 0.05;
   round.stated = null; round.chips = 0;
   if(round.sharp) processReward(null, round.exactBest ? 2 : 1);
-  else breakStreak();
+  /* same rule as a deliberate call: the forced keep is only penalized if
+     the shadow reroll beats it — a hold-up is neutral. Brier stays null:
+     there was no stated confidence to score. */
   const hand = round.sit.hand.slice();
   round.sit.best.subset.forEach(i => hand[i] = 1 + ((round.rng() * 6) | 0));
   round.finalHand = round.sit.hand.slice();
   round.finalScore = round.sit.keep;
   round.kept = true;
   round.altScore = scoreHand(hand, round.sit.cat);
-  round.outcome = null;
+  round.outcome = round.finalScore >= round.altScore ? 1 : 0;
   rerollFinish();
 }
 
@@ -453,10 +483,17 @@ function rerollFinish(){
     best_subset: s.best.subset.length, sharp: round.sharp, timeout: !!round.timeout,
     chips: round.chips || null, stated: round.stated,
     outcome: round.outcome,
+    neutral: !round.sharp && round.outcome === 1,
     brier: (round.stated != null && round.outcome != null) ? +Math.pow(round.stated - round.outcome, 2).toFixed(4) : null,
     final_score: round.finalScore, alt_score: +round.altScore.toFixed(2)
   };
   finishRound(rec);
+
+  /* outcome-contingent penalty: a non-sharp call that lost ground breaks
+     the streak; one the dice bailed out is neutral (nothing added, nothing
+     taken) */
+  const neutral = !round.sharp && round.outcome === 1;
+  if(!round.sharp && round.outcome !== 1) breakStreak();
 
   const win = round.outcome === 1;
   const diceLine = '<div class="dice-row">' + round.finalHand.map(v => dieHTML(v)).join('') + '</div>';
@@ -469,6 +506,7 @@ function rerollFinish(){
   const badges = [];
   if(round.sharp) badges.push('<span class="rv-badge">⚡ sharp call</span>');
   if(round.sharp && round.exactBest) badges.push('<span class="rv-badge gold">⭐ best play</span>');
+  if(neutral) badges.push('<span class="rv-badge neutral">neutral · no streak change</span>');
   const bars = evBarsHTML(round.exactBest
     ? [{ label: 'Your call — best play', value: +round.chosenEV.toFixed(2), cls: 'best' }]
     : [{ label: 'Your call', value: +round.chosenEV.toFixed(2), cls: 'you' },
@@ -476,11 +514,13 @@ function rerollFinish(){
 
   let deb;
   if(round.timeout)      deb = 'Time ran out, so you kept by default. ' +
-    (round.sharp ? 'As it happens, keeping was the sharp call.' : 'There was value on the table — the clock is part of the game.');
+    (round.sharp ? 'As it happens, keeping was the sharp call.'
+     : round.outcome === 1 ? 'Keeping still held up against the best reroll — neutral: no streak change. But the clock made that call, not the math.'
+     : 'The best reroll would have beaten it — the streak breaks. The clock is part of the game.');
   else if(round.sharp && win)  deb = 'Sharp call and it held up. You read the dice right.';
   else if(round.sharp && !win) deb = 'Sharp call, unlucky roll. The expected value was on your side — the dice just disagreed.';
-  else if(!round.sharp && win) deb = 'It worked out, but the math was against this call. Enjoy the luck, don\u2019t trust it.';
-  else                   deb = 'The odds were against this call and the dice agreed. Focus on the expected value, not the result.';
+  else if(!round.sharp && win) deb = 'It worked out, but the math was against this call — neutral: no streak growth, no break. Don\u2019t let a bailed-out call teach the wrong habit.';
+  else                   deb = 'The odds were against this call and the dice agreed — that combination is what breaks the streak. Focus on the expected value, not the result.';
 
   showReveal({
     heading: round.kept ? 'Kept ' + round.finalScore + ' pts' : 'Rerolled to ' + round.finalScore + ' pts',
@@ -493,6 +533,7 @@ function rerollFinish(){
     good: round.sharp,
     win: win,
     muted: !round.sharp,
-    accent: round.sharp ? (round.exactBest ? 'best' : 'sharp') : null
+    accent: round.sharp ? (round.exactBest ? 'best' : 'sharp') : null,
+    streakNote: neutral ? 'Neutral: the dice bailed out a \u2212EV call — the streak neither grows nor breaks.' : undefined
   });
 }

@@ -85,7 +85,9 @@ Two independent channels: a ⚡ SHARP process reward fires the moment a +EV
 call is locked (before the reveal); a separate, softer outcome celebration
 (a rising particle cascade) fires only for clean wins. No punishing
 stingers for bad luck on good decisions, and no celebratory effects for
-lucky −EV wins. No real money, no purchases, no random-reinforcement
+lucky −EV wins. A −EV call that nevertheless works out is **neutral** —
+no reward, no streak break; only a −EV call that loses breaks the Sharp
+Streak. No real money, no purchases, no random-reinforcement
 tricks.
 
 The process reward is tiered: any +EV call gets the teal ⚡ SHARP treatment,
@@ -115,7 +117,8 @@ rising tone, the triple pulse, and one line of flavor.
 - **Edge report** — chosen EV vs. best available EV, best-value rate, longshot
   tendency, per-round-type sharp-call rates.
 - **Sharp Streak** — consecutive +EV calls; a good bet that loses never
-  breaks it.
+  breaks it, and a lucky −EV win is neutral (only a −EV call that loses
+  breaks it).
 - **Hint stripping** — per-slot edge indicators (model vs implied chance,
   green +EV / red −EV), bust odds, and EV panels fade as calibration
   tightens (Auto difficulty scales stimuli, bust rules, and clocks with

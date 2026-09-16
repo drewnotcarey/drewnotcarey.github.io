@@ -196,6 +196,7 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .reveal-badges{flex-basis:100%;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 8px}
 .rv-badge{display:inline-block;background:#0e2a26ee;border:1px solid var(--teal);color:var(--teal);font-size:.78rem;font-weight:800;padding:4px 14px;border-radius:999px;letter-spacing:.5px}
 .rv-badge.gold{background:#2a2410ee;border-color:var(--gold);color:var(--gold)}
+.rv-badge.neutral{background:#141c2eee;border-color:var(--dim);color:var(--dim)}
 .ev-bars{flex-basis:100%;margin:8px auto 2px;max-width:420px;display:grid;gap:8px}
 .ev-bar-row{display:grid;grid-template-columns:128px 1fr 48px;align-items:center;gap:10px}
 .ev-bar-label{font-size:.68rem;color:var(--dim);text-align:right;text-transform:uppercase;letter-spacing:.5px}

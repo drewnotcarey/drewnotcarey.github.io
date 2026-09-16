@@ -314,7 +314,7 @@ function breakStreak(){
 function streakNoteDefault(){
   return streak.current > 0
     ? '⚡ Sharp Streak: ' + streak.current + (streak.current === streak.best ? ' (personal best)' : '')
-    : 'Sharp Streak reset — a −EV call breaks it, not bad luck.';
+    : 'Sharp Streak reset — only a \u2212EV call that loses breaks it. A lucky \u2212EV win is neutral.';
 }
 function showReveal(o){
   $('#revealHeading').innerHTML = o.heading || '–';
@@ -457,7 +457,7 @@ const TUT = [
   ['Judge the decision, not the result',
    'A good call can lose and a bad call can win — luck is real. School of Thought trains the habit of separating choice quality from outcome quality.'],
   ['Two separate rewards',
-   'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts.'],
+   'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts. And a −EV call that wins anyway is neutral — nothing added, nothing taken.'],
   ['Three ways to train',
    'Estimate hidden quantities and hunt for the mispriced slot on a market of rival guesses. Grow a pot of dice past the bust zone and bank it in time. Call keep-versus-reroll on five dice against the odds.'],
   ['Briefings before clocks',
