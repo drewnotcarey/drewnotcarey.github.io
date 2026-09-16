@@ -1,5 +1,5 @@
 /* School of Thought service worker - offline app shell cache */
-const CACHE = 'evgym-v10';
+const CACHE = 'evgym-v11';
 const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/rounds-guess.js',
                'js/rounds-dice.js', 'js/stats.js', 'js/ranks.js',
                'manifest.webmanifest', 'docs/BUILD_PLAN.md',

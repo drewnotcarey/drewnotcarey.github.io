@@ -63,6 +63,7 @@ function guessIntro(){
     fine: 'The viewing clock starts the moment you press Start.',
     steps: [
       ['Watch the flash', what],
+      ['Play the market, not the answer', 'This round looks like a test of accuracy — it is really a <b>market game</b>. The point is not answering correctly or picking the slot that ends up closest; it is <b>reading and playing the market</b>: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a lucky win on a \u2212EV slot is still a mistake.'],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact.'],
       ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
       ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
