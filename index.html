@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EV Gym — Train Your Judgment</title>
-<meta name="description" content="A game that trains probabilistic reasoning: reward the decision, not the result.">
+<meta name="description" content="A game that trains decision quality under uncertainty: reward the decision, not the result.">
 <meta name="theme-color" content="#0d1120">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -33,14 +33,24 @@
   <section class="phase active" id="phase-home">
     <div class="card hero">
       <h1>Reward the decision,<br>not the result.</h1>
-      <p class="tagline">Estimate. Read the odds. Bet where the value is — get rewarded for a sharp bet <em>before</em> you know if it won.</p>
+      <p class="tagline">Estimate hidden quantities, read the odds, and bet where the value is — a sharp call gets its reward <em>before</em> you know if it won.</p>
       <div class="home-controls">
         <label for="difficulty">Difficulty</label>
         <select id="difficulty">
           <option value="easy">Easy</option>
           <option value="medium" selected>Medium</option>
           <option value="hard">Hard</option>
+          <option value="auto">Auto — scales with you</option>
         </select>
+        <label for="hints">Hints</label>
+        <select id="hints">
+          <option value="auto" selected>Auto — fade as you improve</option>
+          <option value="on">Always on</option>
+          <option value="off">Off</option>
+        </select>
+      </div>
+      <div class="type-row" id="typeRow"></div>
+      <div class="home-actions">
         <button class="btn primary big" id="startBtn">Start Session</button>
         <button class="btn ghost" id="statsBtn">Your Calibration</button>
       </div>
@@ -48,14 +58,14 @@
     </div>
   </section>
 
-  <!-- STIMULUS -->
+  <!-- STIMULUS (Guess & Bet) -->
   <section class="phase" id="phase-stim">
     <div class="card">
       <div class="round-label" id="roundLabel">Round 1 of 8</div>
-      <h2>How many dots?</h2>
+      <h2 id="stimHeading">How many dots?</h2>
       <div class="stim-wrap">
         <canvas id="stimCanvas" width="520" height="340"></canvas>
-        </div>
+      </div>
       <div class="stim-bar"><div id="stimBar"></div></div>
     </div>
   </section>
@@ -64,7 +74,7 @@
   <section class="phase" id="phase-guess">
     <div class="card">
       <div class="round-label" id="guessRoundLabel"></div>
-      <h2>How many dots did you see?</h2>
+      <h2 id="guessHeading">How many did you see?</h2>
       <div class="guess-row">
         <input type="range" id="guessSlider" min="5" max="130" value="65">
         <div class="guess-value" id="guessValue">65</div>
@@ -74,11 +84,11 @@
     </div>
   </section>
 
-  <!-- BOARD -->
+  <!-- BOARD (Guess & Bet) -->
   <section class="phase" id="phase-board">
     <div class="card wide">
       <h2>The board</h2>
-      <p class="hint">Which slot is worth betting on? Payout × · market-implied chance ~%</p>
+      <p class="hint">Which slot is worth betting on? Payout ×<span id="boardHintExt"></span></p>
       <div class="slots" id="slots"></div>
       <div class="confidence-row">
         <span class="conf-label">Confidence</span>
@@ -89,11 +99,10 @@
         <button class="btn primary" id="lockBtn" disabled>Review Bet</button>
         <button class="btn primary hidden" id="revealBtn">Reveal</button>
       </div>
-      <div class="sharp-badge hidden" id="sharpBadge">⚡ SHARP — +EV decision locked in</div>
     </div>
   </section>
 
-  <!-- LOCK-IN SUMMARY -->
+  <!-- LOCK-IN SUMMARY (Guess & Bet) -->
   <section class="phase" id="phase-lock">
     <div class="card">
       <h2>Bet summary</h2>
@@ -105,10 +114,46 @@
     </div>
   </section>
 
-  <!-- REVEAL -->
+  <!-- BANK OR PUSH -->
+  <section class="phase" id="phase-bank">
+    <div class="card">
+      <div class="round-label" id="bankRoundLabel"></div>
+      <h2>Bank or Push</h2>
+      <div class="pot-wrap"><span class="pot-label">Pot</span><div class="pot" id="potVal">0</div></div>
+      <div class="dice-row" id="bankDice"></div>
+      <p class="status" id="bankStatus">Roll to open the pot.</p>
+      <div class="bank-actions">
+        <button class="btn primary" id="bankRollBtn">Roll the Dice</button>
+        <button class="btn primary hidden" id="bankBankBtn">Bank</button>
+        <button class="btn ghost hidden" id="bankPushBtn">Push</button>
+      </div>
+      <p class="hint hidden" id="bankHint"></p>
+      <p class="fineprint">Pushing grows the pot — a bust roll wipes it. Banking locks it in. Every call is scored against the odds.</p>
+    </div>
+  </section>
+
+  <!-- REROLL CALCULUS -->
+  <section class="phase" id="phase-reroll">
+    <div class="card">
+      <div class="round-label" id="rerollRoundLabel"></div>
+      <div class="cat-line">Category: <b id="rerollCat">–</b> <span class="cat-max" id="rerollCatMax"></span></div>
+      <div class="dice-row selectable" id="rerollDice"></div>
+      <div class="score-line">Current score: <b id="rerollScore">–</b></div>
+      <div class="stim-bar tbar"><div id="rerollBar"></div></div>
+      <p class="hint hidden" id="rerollHint"></p>
+      <div class="confidence-row">
+        <span class="conf-label">Confidence</span>
+        <div class="chips" id="rerollChips"></div>
+      </div>
+      <p class="fineprint">Tap dice to mark them for a reroll (tap again to keep) · rate your confidence that your call beats the alternative</p>
+      <button class="btn primary" id="rerollLockBtn" disabled>Lock In</button>
+    </div>
+  </section>
+
+  <!-- REVEAL (shared) -->
   <section class="phase" id="phase-reveal">
     <div class="card">
-      <h2>The true count: <span class="true-value" id="trueValue">–</span></h2>
+      <h2 id="revealHeading">–</h2>
       <div class="recap" id="recap"></div>
       <p class="debrief" id="debrief"></p>
       <p class="streak-note" id="streakNote"></p>
@@ -119,18 +164,16 @@
   <!-- SUMMARY -->
   <section class="phase" id="phase-summary">
     <div class="card wide">
-      <h2>Session summary</h2>
+      <h2 id="sumTitle">Session summary</h2>
       <div class="summary-grid">
         <div class="crystal-big" id="crystalBig"></div>
-        <div class="stats">
-          <div class="stat"><span>Brier score</span><b id="sumBrier">–</b></div>
-          <div class="stat"><span>+EV decisions</span><b id="sumPos">–</b></div>
-          <div class="stat"><span>Best value found</span><b id="sumBest">–</b></div>
-          <div class="stat"><span>Estimation error</span><b id="sumErr">–</b></div>
-        </div>
+        <div class="stats" id="sumStats"></div>
       </div>
+      <div id="typeBreakdown"></div>
       <h3>Reliability — when you say 70%, are you right 70% of the time?</h3>
       <div id="chartWrap"></div>
+      <h3>Edge report</h3>
+      <div id="edgeWrap"></div>
       <button class="btn primary" id="againBtn">Back to Home</button>
     </div>
   </section>
@@ -147,13 +190,17 @@
 </div>
 
 <div id="fx"></div>
+<div id="toast">⚡ SHARP — +EV call</div>
 <div id="debugPanel" class="hidden"></div>
 
 <footer class="foot">
-  <span>EV Gym · a thinking-in-bets trainer · all data stays on your device</span>
-  <a href="docs/BUILD_PLAN.md" style="color:inherit">build plan</a>
+  <span>EV Gym · a decision-quality trainer · all data stays on your device</span>
+  <a href="docs/BUILD_PLAN.md" style="color:inherit">design doc</a>
 </footer>
 
 <script src="js/app.js"></script>
+<script src="js/rounds-guess.js"></script>
+<script src="js/rounds-dice.js"></script>
+<script src="js/stats.js"></script>
 </body>
 </html>

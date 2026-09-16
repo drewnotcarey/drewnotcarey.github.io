@@ -28,14 +28,14 @@ jobs:
           node-version: 20
 
       - name: Syntax-check JS
-        run: node --check js/app.js && node --check sw.js
+        run: for f in js/*.js; do node --check "$f" || exit 1; done
 
       - name: Validate JSON
         run: node -e "JSON.parse(require('fs').readFileSync('manifest.webmanifest','utf8')); console.log('manifest OK')"
 
       - name: Check required files
         run: |
-          for f in index.html css/style.css js/app.js sw.js manifest.webmanifest icon.svg docs/BUILD_PLAN.md .nojekyll; do
+          for f in index.html css/style.css js/app.js js/rounds-guess.js js/rounds-dice.js js/stats.js sw.js manifest.webmanifest icon.svg docs/BUILD_PLAN.md .nojekyll; do
             test -f "$f" || { echo "MISSING: $f"; exit 1; }
           done
           echo "all files present"

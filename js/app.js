@@ -1,7 +1,7 @@
 /* ==========================================================================
-   EV Gym - Guess & Bet MVP
-   Trains probabilistic reasoning: reward the decision, not the result.
-   Client-only. All data stays in localStorage. See docs/BUILD_PLAN.md.
+   EV Gym — core: session flow, reward channels, ledger, hints, tutorial
+   Round logic lives in rounds-guess.js and rounds-dice.js; calibration
+   surfaces in stats.js. Client-only. All data stays in localStorage.
    ========================================================================== */
 'use strict';
 
@@ -24,31 +24,62 @@ function gauss(rng){
   while(v === 0) v = rng();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
+const sum    = a => a.reduce((x,y)=>x+y,0);
+const mean   = a => a.length ? sum(a) / a.length : null;
 const median = a => { const s = a.slice().sort((x,y)=>x-y), m = s.length >> 1;
                       return s.length % 2 ? s[m] : (s[m-1]+s[m])/2; };
-const mean   = a => a.reduce((x,y)=>x+y,0) / a.length;
-const std    = a => { const m = mean(a); return Math.sqrt(mean(a.map(x=>(x-m)*(x-m)))) || 0; };
+const std    = a => { const m = mean(a); return m == null ? 0 : (Math.sqrt(mean(a.map(x=>(x-m)*(x-m)))) || 0); };
+function shuffle(a, rng){
+  for(let i = a.length - 1; i > 0; i--){
+    const j = (rng() * (i + 1)) | 0;
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
 
 /* ---------------- config ---------------- */
 const CHIPS       = [0.10, 0.30, 0.50, 0.70, 0.90];
 const CHIP_LABELS = ['Very low','Low','Medium','High','Very high'];
-const PRESETS = {
-  easy:   { label:'Easy',   dots:[15,40],  view:3500, noise:6,  guessMax:70  },
-  medium: { label:'Medium', dots:[25,80],  view:2500, noise:10, guessMax:130 },
-  hard:   { label:'Hard',   dots:[40,150], view:1500, noise:16, guessMax:220 }
-};
 const ROUNDS_PER_SESSION = 8;
+
+const ROUND_TYPES = {
+  guess:  { label: 'Guess & Bet',
+            desc:  'Estimate a hidden quantity, then find the mispriced slot on a market of rival guesses' },
+  bank:   { label: 'Bank or Push',
+            desc:  'Grow a pot of dice past the bust zone — know when to walk away' },
+  reroll: { label: 'Reroll Calculus',
+            desc:  'Five dice, one category, one clock: call keep-versus-reroll against the math' }
+};
+const PRESETS = { easy: 0.3, medium: 1.0, hard: 1.8 };
+
+const STIM_TYPES = ['dots','line','area','angle','duration'];
+const STIM_SPEC = {
+  dots:     { noun: 'count',    unit: '',    heading: 'How many dots?',       gheading: 'How many dots did you see?',   step: 1,  slider: null },
+  line:     { noun: 'length',   unit: '',    heading: 'How long is the line?', gheading: 'How long was the line?',       step: 1,  slider: [5, 95] },
+  area:     { noun: 'area',     unit: '',    heading: 'How big is the blob?',  gheading: 'How big was the blob?',        step: 5,  slider: [10, 650] },
+  angle:    { noun: 'angle',    unit: '°',   heading: 'How wide is the angle?',gheading: 'How wide was the angle?',      step: 1,  slider: [5, 175] },
+  duration: { noun: 'duration', unit: ' ms', heading: 'How long does it glow?',gheading: 'How long did it glow?',       step: 25, slider: [200, 4000] }
+};
 
 /* ---------------- persistence ---------------- */
 const store = {
   get(k,d){ try{ const v = localStorage.getItem('evgym.'+k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
   set(k,v){ try{ localStorage.setItem('evgym.'+k, JSON.stringify(v)); }catch(e){} }
 };
-let ledger      = store.get('ledger', []);
-let settings    = store.get('settings', { sound:true, motion:!window.matchMedia('(prefers-reduced-motion: reduce)').matches });
-let streak      = store.get('streak', { current:0, best:0 });
-let tutSeen     = store.get('tutSeen', false);
-let forcedSeed  = store.get('forcedSeed', null);
+let ledger   = store.get('ledger', []);
+let settings = Object.assign(
+  { sound: true,
+    motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    hints: 'auto',
+    types: { guess: true, bank: true, reroll: true },
+    skill: { guess: 1, bank: 1, reroll: 1 } },
+  store.get('settings', {})
+);
+settings.types = Object.assign({ guess:true, bank:true, reroll:true }, settings.types || {});
+settings.skill = Object.assign({ guess:1, bank:1, reroll:1 }, settings.skill || {});
+let streak     = store.get('streak', { current: 0, best: 0 });
+let tutSeen    = store.get('tutSeen', false);
+let forcedSeed = store.get('forcedSeed', null);
 
 const motionOK = () => settings.motion;
 
@@ -91,375 +122,155 @@ function showPhase(id){
   window.scrollTo(0,0);
 }
 
-/* ---------------- session flow ---------------- */
+function buildQueue(){
+  const active = Object.keys(ROUND_TYPES).filter(t => settings.types[t]);
+  const types  = active.length ? active : ['guess'];
+  const q = [];
+  for(let i = 0; i < ROUNDS_PER_SESSION; i++) q.push({ type: types[i % types.length] });
+  shuffle(q, Math.random);
+  const pool = shuffle(STIM_TYPES.slice(), Math.random);
+  let k = 0;
+  q.forEach(item => { if(item.type === 'guess') item.stimulus = pool[(k++) % pool.length]; });
+  return q;
+}
+
 function startSession(){
-  session = { id: Date.now().toString(36), roundIndex: 0, diffKey: $('#difficulty').value, records: [] };
+  session = { id: Date.now().toString(36), roundIndex: 0, queue: buildQueue(), records: [] };
   startRound();
 }
 
 function startRound(){
-  const diff = PRESETS[session.diffKey];
+  const spec = session.queue[session.roundIndex];
   const seed = (forcedSeed == null) ? ((Math.random() * 2147483647) | 0) : forcedSeed;
-  const rng  = mulberry32(seed);
-  const trueValue = Math.round(diff.dots[0] + rng() * (diff.dots[1] - diff.dots[0]));
-  round = { seed: seed, rng: rng, diff: diff, trueValue: trueValue, index: session.roundIndex,
-            selected: -1, chips: 0 };
-  $('#roundLabel').textContent = 'Round ' + (session.roundIndex + 1) + ' of ' + ROUNDS_PER_SESSION;
-  $('#guessRoundLabel').textContent = 'Round ' + (session.roundIndex + 1) + ' of ' + ROUNDS_PER_SESSION;
-  drawStimulus();
-  showPhase('phase-stim');
-  const bar = $('#stimBar');
-  bar.style.transition = 'none'; bar.style.width = '100%';
-  void bar.offsetWidth;
-  bar.style.transition = 'width ' + diff.view + 'ms linear';
-  bar.style.width = '0%';
-  setTimeout(() => {
-    if(round && $('#phase-stim').classList.contains('active')){
-      prepGuess();
-      showPhase('phase-guess');
-    }
-  }, diff.view);
+  round = { type: spec.type, stimulus: spec.stimulus || 'dots', seed: seed, index: session.roundIndex };
+  if(spec.type === 'bank') bankStart();
+  else if(spec.type === 'reroll') rerollStart();
+  else guessStart();
 }
 
-/* ---------------- stimulus: dot cluster ---------------- */
-function drawStimulus(){
-  const cv = $('#stimCanvas');
-  cv.style.visibility = 'visible';
-  const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
-  ctx.clearRect(0, 0, W, H);
-  const rng = round.rng, n = round.trueValue, pts = [];
-  const minD = Math.max(7, Math.sqrt(W * H / n) * 0.45);
-  let tries = 0;
-  while(pts.length < n && tries < n * 300){
-    tries++;
-    const x = 12 + rng() * (W - 24), y = 12 + rng() * (H - 24);
-    if(pts.every(p => { const dx = p[0]-x, dy = p[1]-y; return dx*dx + dy*dy >= minD*minD; }))
-      pts.push([x, y]);
-  }
-  for(let i = pts.length; i < n; i++) pts.push([12 + rng()*(W-24), 12 + rng()*(H-24)]);
-  ctx.fillStyle = '#e8ecf8';
-  pts.forEach(p => { ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, 6.2832); ctx.fill(); });
-}
-function prepGuess(){
-  const g = $('#guessSlider');
-  g.min = 5; g.max = round.diff.guessMax;
-  g.value = Math.round(round.diff.guessMax / 2);
-  $('#guessValue').textContent = g.value;
-}
-
-/* ---------------- market generation ---------------- */
-function genField(T, rng, diff){
-  const all = ['anchor','over','under','herd','outlier'];
-  const nb  = rng() < 0.5 ? 1 : 2;
-  const active = [];
-  while(active.length < nb){
-    const b = all[(rng() * all.length) | 0];
-    if(!active.includes(b)) active.push(b);
-  }
-  const cluster = T + gauss(rng) * diff.noise * 0.6;
-  const bots = [];
-  for(let i = 0; i < 4; i++){
-    let g = T + gauss(rng) * diff.noise;
-    active.forEach(b => {
-      const r = rng();
-      if(b === 'anchor'  && r < 0.6){ const step = T > 60 ? 10 : 5; g = Math.round(g / step) * step; }
-      if(b === 'over'    && r < 0.6){ g = T + Math.abs(g - T) * 1.15; }
-      if(b === 'under'   && r < 0.6){ g = T - Math.abs(g - T) * 1.15; }
-      if(b === 'herd'    && r < 0.6){ g = cluster + gauss(rng) * diff.noise * 0.25; }
-      if(b === 'outlier' && i === 3){ g = T + (rng() < 0.5 ? -1 : 1) * diff.noise * (2 + rng() * 2); }
-    });
-    bots.push(g);
-  }
-  return bots;
-}
-
-/* pricing: extremity base + favorite/longshot bias + jitter (v4 anti-repetition fix) */
-function priceBoard(guesses, rng){
-  const med    = median(guesses);
-  const spread = Math.max(2, (Math.max.apply(null, guesses) - Math.min.apply(null, guesses)) / 2);
-  let p = guesses.map(g => 1.2 + Math.min(Math.abs(g - med) / spread, 1.6) * 5.3);
-  if(rng() < 0.3){                                    /* 30%: misprice favorite or longshot */
-    const order = guesses.map((g,i) => [Math.abs(g - med), i]).sort((a,b) => a[0] - b[0]);
-    if(rng() < 0.5) p[order[0][1]] *= 1.45;             /* favorite too generous -> favorite can be +EV */
-    else            p[order[order.length - 1][1]] *= 0.55;
-  }
-  return p.map(x => clamp(x * (0.85 + rng() * 0.30), 1.2, 12));
-}
-
-/* Monte Carlo posterior: field-consensus anchor, win = closest guess */
-function modelProbs(guesses, rng){
-  const anchor = median(guesses);
-  const unc    = Math.max(3, std(guesses) * 1.1);
-  const counts = guesses.map(() => 0);
-  for(let s = 0; s < 1000; s++){
-    const v = anchor + gauss(rng) * unc;
-    let bi = 0, bd = Infinity;
-    for(let i = 0; i < guesses.length; i++){
-      const d = Math.abs(guesses[i] - v);
-      if(d < bd){ bd = d; bi = i; }
-    }
-    counts[bi]++;
-  }
-  return counts.map(c => c / 1000);
-}
-
-function buildMarket(){
-  const rng = round.rng;
-  const bots = genField(round.trueValue, rng, round.diff);
-  const guesses = [round.playerGuess].concat(bots);
-  const payouts = priceBoard(guesses, rng);
-  const p = modelProbs(guesses, rng);
-  const slots = guesses.map((g, i) => ({
-    id:        i === 0 ? 'player_0' : 'bot_' + i,
-    label:     i === 0 ? 'You' : 'Bot ' + i,
-    guess:     g,
-    display:   Math.round(g),
-    payout:    +payouts[i].toFixed(2),
-    pModel:    p[i],
-    implied:   1 / payouts[i],
-    ev:        p[i] * payouts[i] - 1,
-    isPlayer:  i === 0,
-    isWinner:  false
-  }));
-  /* winning slot = closest guess to true value (ties: lowest slot index) */
-  let wi = 0, wd = Infinity;
-  slots.forEach((s, i) => { const d = Math.abs(s.guess - round.trueValue); if(d < wd){ wd = d; wi = i; } });
-  slots[wi].isWinner = true;
-  round.slots = slots;
-  round.bestIdx = slots.reduce((bi, s, i, arr) => s.ev > arr[bi].ev ? i : bi, 0);
-  round.selected = -1; round.chips = 0;
-  renderBoard();
-  showPhase('phase-board');
-}
-
-/* ---------------- board UI ---------------- */
-function renderBoard(){
-  const wrap = $('#slots'); wrap.innerHTML = '';
-  round.slots.forEach((s, i) => {
-    const el = document.createElement('button');
-    el.type = 'button';
-    el.className = 'slot' + (s.isPlayer ? ' player' : '');
-    el.dataset.idx = i;
-    el.innerHTML =
-      '<span class="slot-label">' + s.label + '</span>' +
-      '<span class="slot-guess">' + s.display + '</span>' +
-      '<span class="slot-payout">' + s.payout.toFixed(1) + '×</span>' +
-      '<span class="slot-implied">~' + Math.round(s.implied * 100) + '% implied</span>';
-    el.addEventListener('click', () => {
-      round.selected = i;
-      $$('.slot').forEach(x => x.classList.remove('selected'));
-      el.classList.add('selected');
-      updateLockUI();
-    });
-    wrap.appendChild(el);
-  });
-  const cw = $('#chips'); cw.innerHTML = '';
-  for(let c = 1; c <= 5; c++){
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'chip'; b.textContent = c;
-    b.title = CHIP_LABELS[c-1] + ' (' + Math.round(CHIPS[c-1] * 100) + '%)';
-    b.addEventListener('click', () => {
-      round.chips = c;
-      $$('.chip').forEach(x => x.classList.remove('selected'));
-      b.classList.add('selected');
-      updateLockUI();
-    });
-    cw.appendChild(b);
-  }
-  updateLockUI();
-}
-function updateLockUI(){
-  const ok = round.selected >= 0 && round.chips > 0;
-  $('#lockBtn').disabled = !ok;
-  const s = round.slots && round.slots[round.selected];
-  $('#lockPreview').textContent = ok
-    ? 'Bet on ' + s.label + ' (' + s.display + ') at ' + s.payout.toFixed(1) + '× · confidence ' + CHIP_LABELS[round.chips - 1]
-    : 'Select a slot and confidence';
-}
-
-/* ---------------- lock-in & process reward ---------------- */
-function lockIn(){
-  const s = round.slots[round.selected];
-  round.stated     = CHIPS[round.chips - 1];
-  round.selEV      = s.ev;
-  round.selPositive= s.ev > 0;
-  round.selBest    = round.selected === round.bestIdx;
-  $('#lockSummary').innerHTML =
-    'Slot: <b>' + s.label + ' (' + s.display + ')</b><br>' +
-    'Payout: <b>' + s.payout.toFixed(1) + '×</b><br>' +
-    'Market implies: <b>~' + Math.round(s.implied * 100) + '% chance</b><br>' +
-    'Your confidence: <b>' + CHIP_LABELS[round.chips - 1] + ' (' + Math.round(round.stated * 100) + '%)</b>';
-  showPhase('phase-lock');
-}
-
-function confirmBet(){
-  /* decision quality is judged NOW, before the reveal */
-  if(round.selPositive){
-    streak.current += 1;
-    const el = $('.slot[data-idx="' + round.selected + '"]');
-    if(el) el.classList.add('glow');
-    $('#sharpBadge').classList.remove('hidden');
-    processChime();                      /* process channel: pre-reveal */
-  } else {
-    streak.current = 0;                  /* a -EV decision breaks the streak, bad luck never does */
-  }
-  streak.best = Math.max(streak.best, streak.current);
-  store.set('streak', streak);
-  updateStreakUI();
-  /* return to the board (glow needs the slot); swap actions for reveal */
-  $('#lockBtn').classList.add('hidden');
-  $('#chips').style.pointerEvents = 'none';
-  $$('.slot').forEach(x => x.style.pointerEvents = 'none');
-  $('#revealBtn').classList.remove('hidden');
-  showPhase('phase-board');
-}
-
-/* ---------------- reveal & debrief ---------------- */
-function doReveal(){
-  const s  = round.slots[round.selected];
-  const win = s.isWinner;
-  const outcome = win ? 1 : 0;
-  const brier = Math.pow(round.stated - outcome, 2);
-
-  $('#trueValue').textContent = round.trueValue;
-  const recap = $('#recap'); recap.innerHTML = '';
-  round.slots.forEach((sl, i) => {
-    const d = document.createElement('div');
-    d.className = 'recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '');
-    d.textContent = sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×';
-    recap.appendChild(d);
-  });
-
-  const cell = (round.selPositive ? '+EV' : '-EV') + '/' + (win ? 'win' : 'loss');
-  const msgs = {
-    '+EV/win' : 'Sharp decision and good result. You found value — this is the best cell.',
-    '+EV/loss': 'Sharp decision, unlucky result. This bet was worth making. Your Sharp Streak continues.',
-    '-EV/win' : "You won, but the odds weren't in your favor. That was luck more than good process.",
-    '-EV/loss': "This bet wasn't +EV, and it lost. No punishment — bad luck and bad decisions are different. Focus on the decision next time."
-  };
-  const deb = $('#debrief');
-  deb.textContent = msgs[cell];
-  deb.className = 'debrief ' + (round.selPositive ? 'good' : 'muted');
-  $('#streakNote').textContent = round.selPositive
-    ? '⚡ Sharp Streak: ' + streak.current + (streak.current === streak.best ? ' (personal best)' : '')
-    : 'Sharp Streak reset — a −EV decision breaks it, not bad luck.';
-
-  /* outcome channel: separate, muted on lucky -EV wins */
-  if(win){
-    outcomeSound(!round.selPositive);
-    if(motionOK()) confetti();
-  }
-
-  /* ledger record */
-  const rec = {
-    session: session ? session.id : null,
-    round: round.index, seed: round.seed, diff: session.diffKey,
-    trueValue: round.trueValue, playerGuess: round.playerGuess,
-    selectedSlot: s.id, guessDisplay: s.display,
-    chips: round.chips, stated: round.stated,
-    payout: s.payout, implied: +s.implied.toFixed(4), pModel: +s.pModel.toFixed(4),
-    selEV: +round.selEV.toFixed(4),
-    bestEV: +round.slots[round.bestIdx].ev.toFixed(4),
-    selPositive: round.selPositive, selBest: round.selBest,
-    bestPos: round.bestIdx, outcome: outcome,
-    brier: +brier.toFixed(4),
-    absErr: Math.abs(round.playerGuess - round.trueValue),
-    relErr: +(Math.abs(round.playerGuess - round.trueValue) / round.trueValue).toFixed(4),
-    time: new Date().toISOString()
-  };
+function finishRound(rec){
+  rec.session = session ? session.id : null;
+  if(!rec.time) rec.time = new Date().toISOString();
   ledger.push(rec);
   store.set('ledger', ledger);
-  session.records.push(rec);
+  if(session) session.records.push(rec);
+  adaptSkill(rec.round_type || 'guess');
   updateHUD();
-  showPhase('phase-reveal');
 }
 
 function nextRound(){
   session.roundIndex += 1;
-  if(session.roundIndex >= ROUNDS_PER_SESSION) showSummary();
+  if(session.roundIndex >= ROUNDS_PER_SESSION) showSummary('session');
   else startRound();
 }
 
-/* ---------------- aggregation / calibration surface ---------------- */
-function aggregate(recs){
-  return {
-    brier:   recs.length ? mean(recs.map(r => r.brier)) : null,
-    posRate: recs.length ? recs.filter(r => r.selPositive).length / recs.length : null,
-    bestRate:recs.length ? recs.filter(r => r.selBest).length / recs.length : null,
-    avgErr:  recs.length ? mean(recs.map(r => r.relErr)) : null,
-    buckets: CHIPS.map((p, i) => {
-      const rs = recs.filter(r => r.chips === i + 1);
-      return { stated: p, n: rs.length,
-               hit: rs.length ? rs.filter(r => r.outcome === 1).length / rs.length : null };
-    })
-  };
+/* ---------------- skill levels, hints, adaptation ---------------- */
+function skillLevel(type){
+  if(settings.difficulty === 'auto') return settings.skill[type] != null ? settings.skill[type] : 1;
+  return PRESETS[settings.difficulty] != null ? PRESETS[settings.difficulty] : 1;
 }
-
-function crystalSVG(clarity, uid){
-  const blur  = (1 - clarity) * 5;
-  const light = 30 + clarity * 40;
-  return '<svg viewBox="0 0 100 120" class="crystal" aria-hidden="true">' +
-    '<defs><filter id="cb' + uid + '"><feGaussianBlur stdDeviation="' + blur.toFixed(1) + '"/></filter></defs>' +
-    '<polygon points="50,4 92,40 78,112 22,112 8,40" fill="hsl(190,70%,' + light.toFixed(0) + '%)" opacity="' + (0.35 + clarity*0.6).toFixed(2) + '" filter="url(#cb' + uid + ')"/>' +
-    '<polygon points="50,4 92,40 50,62 8,40" fill="hsl(190,85%,' + (light+12).toFixed(0) + '%)" opacity="' + (0.45 + clarity*0.5).toFixed(2) + '"/>' +
-    '<polygon points="50,62 92,40 78,112 50,112" fill="hsl(205,65%,' + light.toFixed(0) + '%)" opacity="' + (0.45 + clarity*0.45).toFixed(2) + '"/>' +
-    '<polygon points="50,62 8,40 22,112 50,112" fill="hsl(175,65%,' + light.toFixed(0) + '%)" opacity="' + (0.45 + clarity*0.45).toFixed(2) + '"/>' +
-    '</svg>';
+function rollingBrier(type, lastN){
+  lastN = lastN || 12;
+  const rs = ledger.filter(r => (r.round_type || 'guess') === type && r.stated != null).slice(-lastN);
+  return { n: rs.length, brier: rs.length ? mean(rs.map(r => r.brier)) : null };
 }
-const clarityFromBrier = b => (b == null ? 0.15 : clamp(1 - b / 0.25, 0.05, 1));
-
-function updateHUD(){
-  const a = aggregate(ledger);
-  $('#crystalMini').innerHTML = crystalSVG(clarityFromBrier(a.brier), 'm');
-  $('#calibLabel').textContent = a.brier == null
-    ? 'No data yet — play to grow your crystal'
-    : 'Brier ' + a.brier.toFixed(3) + ' · lower is better';
-}
-function updateStreakUI(){
-  $('#streakVal').textContent = streak.current;
-  $('#streakBest').textContent = 'best ' + streak.best;
-}
-
-function reliabilitySVG(a, w, h){
-  const pad = 36;
-  const X = p => pad + p * (w - 2 * pad);
-  const Y = p => h - pad - p * (h - 2 * pad);
-  let s = '<svg viewBox="0 0 ' + w + ' ' + h + '" class="chart" role="img" aria-label="Reliability diagram">';
-  s += '<line class="diag" x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(1) + '" y2="' + Y(1) + '"/>';
-  s += '<line x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(1) + '" y2="' + Y(0) + '" stroke="#3a4568"/>';
-  s += '<line x1="' + X(0) + '" y1="' + Y(0) + '" x2="' + X(0) + '" y2="' + Y(1) + '" stroke="#3a4568"/>';
-  s += '<text x="' + X(1) + '" y="' + (h - 10) + '" text-anchor="end">stated confidence</text>';
-  s += '<text x="6" y="' + Y(1) + '">actual</text>';
-  const pts = [];
-  a.buckets.forEach(b => {
-    if(b.n < 3 || b.hit == null) return;
-    const over = b.hit < b.stated - 0.03;    /* below diagonal = overconfident */
-    pts.push([b.stated, b.hit, over, b.n]);
-  });
-  if(pts.length){
-    s += '<polyline fill="none" stroke="#2dd4bf88" stroke-width="2" points="' +
-         pts.map(p => X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1)).join(' ') + '"/>';
-    pts.forEach(p => {
-      s += '<circle class="pt' + (p[2] ? ' over' : '') + '" cx="' + X(p[0]).toFixed(1) + '" cy="' + Y(p[1]).toFixed(1) + '" r="6">' +
-           '<title>' + Math.round(p[0]*100) + '% stated · ' + Math.round(p[1]*100) + '% actual (' + p[3] + ' bets)</title></circle>';
-    });
-  } else {
-    s += '<text x="' + (w/2) + '" y="' + (h/2) + '" text-anchor="middle">Play more rounds to fill this in</text>';
+function sharpRate(type, lastN){
+  lastN = lastN || 8;
+  const rs = ledger.filter(r => (r.round_type || 'guess') === type).slice(-lastN);
+  if(!rs.length) return null;
+  if(type === 'bank'){
+    const d = rs.reduce((a,r)=> a + (r.decisions || 0), 0);
+    const p = rs.reduce((a,r)=> a + (r.posDecisions || 0), 0);
+    return d ? p / d : null;
   }
-  return s + '</svg>';
+  if(type === 'reroll') return rs.filter(r => r.sharp).length / rs.length;
+  return rs.filter(r => r.selPositive).length / rs.length;
+}
+/* Hints: auto strips them away once calibration tightens for that round type */
+function hintsEnabled(type){
+  if(settings.hints === 'on') return true;
+  if(settings.hints === 'off') return false;
+  if(type === 'bank') return skillLevel('bank') < 0.75;
+  const rb = rollingBrier(type);
+  const gate = (type === 'reroll') ? 0.13 : 0.20;
+  return rb.n < 8 || rb.brier == null || rb.brier > gate;
+}
+function adaptSkill(type){
+  if(settings.difficulty !== 'auto' || !ROUND_TYPES[type]) return;
+  let lv = settings.skill[type];
+  const rate = sharpRate(type, 8);
+  if(rate != null){
+    if(rate > 0.75) lv += 0.4;
+    else if(rate < 0.45) lv -= 0.4;
+  }
+  if(type !== 'bank'){
+    const rb = rollingBrier(type, 10);
+    if(rb.n >= 5 && rb.brier != null){
+      if(rb.brier < 0.16) lv += 0.3;
+      else if(rb.brier > 0.30) lv -= 0.3;
+    }
+  }
+  settings.skill[type] = clamp(lv, 0, 2);
+  store.set('settings', settings);
 }
 
-/* ---------------- summary ---------------- */
-function showSummary(){
-  const a = aggregate(session.records);
-  const all = aggregate(ledger);
-  $('#sumBrier').textContent = a.brier == null ? '–' : a.brier.toFixed(3);
-  $('#sumPos').textContent   = a.posRate == null ? '–' : Math.round(a.posRate * 100) + '%';
-  $('#sumBest').textContent  = a.bestRate == null ? '–' : Math.round(a.bestRate * 100) + '%';
-  $('#sumErr').textContent   = a.avgErr == null ? '–' : Math.round(a.avgErr * 100) + '%';
-  $('#crystalBig').innerHTML = crystalSVG(clarityFromBrier(all.brier), 'b');
-  $('#chartWrap').innerHTML  = reliabilitySVG(all, 560, 320);
-  showPhase('phase-summary');
+/* ---------------- reward channels ---------------- */
+function sharpToast(){
+  const t = $('#toast');
+  t.classList.add('show');
+  clearTimeout(sharpToast._id);
+  sharpToast._id = setTimeout(() => t.classList.remove('show'), 1500);
+}
+/* Process reward: fires the moment a +EV call is locked, before any reveal */
+function processReward(el){
+  streak.current += 1;
+  streak.best = Math.max(streak.best, streak.current);
+  store.set('streak', streak);
+  updateStreakUI();
+  processChime();
+  sharpToast();
+  if(el){
+    el.classList.add('glow-btn');
+    setTimeout(() => el.classList.remove('glow-btn'), 1300);
+  }
+}
+/* Only a -EV decision breaks the streak — bad luck never does */
+function breakStreak(){
+  if(!streak.current) return;
+  streak.current = 0;
+  store.set('streak', streak);
+  updateStreakUI();
+}
+function streakNoteDefault(){
+  return streak.current > 0
+    ? '⚡ Sharp Streak: ' + streak.current + (streak.current === streak.best ? ' (personal best)' : '')
+    : 'Sharp Streak reset — a −EV call breaks it, not bad luck.';
+}
+function showReveal(o){
+  $('#revealHeading').innerHTML = o.heading || '–';
+  $('#recap').innerHTML = o.detail || '';
+  const deb = $('#debrief');
+  deb.textContent = o.debrief || '';
+  deb.className = 'debrief ' + (o.good ? 'good' : 'muted');
+  $('#streakNote').textContent = o.streakNote || streakNoteDefault();
+  if(o.win){ outcomeSound(!!o.muted); if(motionOK()) confetti(); }
+  showPhase('phase-reveal');
+}
+
+/* ---------------- shared confidence-chip row ---------------- */
+function renderChips(container, onPick, initVal){
+  container.innerHTML = '';
+  for(let c = 1; c <= 5; c++){
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip' + (c === initVal ? ' selected' : ''); b.textContent = c;
+    b.title = CHIP_LABELS[c-1] + ' (' + Math.round(CHIPS[c-1] * 100) + '%)';
+    b.addEventListener('click', () => {
+      container.querySelectorAll('.chip').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      onPick(c);
+    });
+    container.appendChild(b);
+  }
 }
 
 /* ---------------- confetti (outcome channel only) ---------------- */
@@ -480,10 +291,12 @@ function confetti(){
 
 /* ---------------- tutorial ---------------- */
 const TUT = [
-  ['Thinking in bets',
-   'A good decision can have a bad outcome, and a bad decision can have a good one. EV Gym trains the habit of telling them apart.'],
+  ['Judge the decision, not the result',
+   'A good call can lose and a bad call can win — luck is real. EV Gym trains the habit of separating choice quality from outcome quality.'],
   ['Two separate rewards',
-   'Lock in a +EV bet and the ⚡ SHARP process reward fires immediately — before you know if you won. Winning itself is a separate, smaller celebration. A sharp bet that loses still counts.'],
+   'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts.'],
+  ['Three ways to train',
+   'Estimate hidden quantities and hunt for the mispriced slot on a market of rival guesses. Grow a pot of dice past the bust zone and bank it in time. Call keep-versus-reroll on five dice against the odds.'],
   ['Grow your crystal',
    'Every round is logged. The crystal tracks how well your confidence matches reality: say 70% and be right about 70% of the time to make it shine.']
 ];
@@ -510,7 +323,8 @@ function buildDebug(){
   $('#dbgJson').addEventListener('click', () => download('evgym-ledger.json', JSON.stringify(ledger, null, 2)));
   $('#dbgCsv').addEventListener('click', () => {
     if(!ledger.length) return;
-    const keys = Object.keys(ledger[0]);
+    const keys = [];
+    ledger.forEach(r => Object.keys(r).forEach(k => { if(!keys.includes(k)) keys.push(k); }));
     const csv = [keys.join(',')].concat(ledger.map(r => keys.map(k => JSON.stringify(r[k] == null ? '' : r[k])).join(','))).join('\n');
     download('evgym-ledger.csv', csv);
   });
@@ -526,7 +340,7 @@ function buildDebug(){
     store.set('forcedSeed', forcedSeed);
     $('#dbgOut').textContent = 'seed = ' + forcedSeed;
   });
-  /* last-round EV inspector */
+  /* live EV board inspector (Guess & Bet rounds) */
   setInterval(() => {
     if(round && round.slots){
       $('#dbgOut').textContent = round.slots.map((s, i) =>
@@ -554,26 +368,55 @@ function resetBoardControls(){
   $('#lockBtn').classList.remove('hidden');
   $('#lockBtn').disabled = true;
   $('#revealBtn').classList.add('hidden');
-  $('#sharpBadge').classList.add('hidden');
-  $('#chips').style.pointerEvents = '';
+  const ch = $('#chips');
+  if(ch) ch.style.pointerEvents = '';
+  $$('.slot').forEach(x => x.style.pointerEvents = '');
+}
+function renderTypeRow(){
+  const row = $('#typeRow'); row.innerHTML = '';
+  Object.keys(ROUND_TYPES).forEach(t => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'type-chip' + (settings.types[t] ? ' on' : '');
+    b.innerHTML = '<b>' + (settings.types[t] ? '✓ ' : '') + ROUND_TYPES[t].label + '</b><span>' + ROUND_TYPES[t].desc + '</span>';
+    b.addEventListener('click', () => {
+      settings.types[t] = !settings.types[t];
+      store.set('settings', settings);
+      renderTypeRow();
+    });
+    row.appendChild(b);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   $('#difficulty').value = store.get('diff', 'medium');
+  $('#hints').value = settings.hints || 'auto';
+  renderTypeRow();
+
   $('#difficulty').addEventListener('change', () => store.set('diff', $('#difficulty').value));
+  $('#hints').addEventListener('change', () => { settings.hints = $('#hints').value; store.set('settings', settings); });
 
   $('#startBtn').addEventListener('click', () => { ac(); resetBoardControls(); startSession(); });
-  $('#statsBtn').addEventListener('click', () => { session = session || { id: null, roundIndex: 0, diffKey: $('#difficulty').value, records: ledger.slice(-ROUNDS_PER_SESSION) }; showSummary(); });
+  $('#statsBtn').addEventListener('click', () => showSummary('all'));
   $('#againBtn').addEventListener('click', () => { resetBoardControls(); showPhase('phase-home'); });
 
-  $('#guessSlider').addEventListener('input', e => $('#guessValue').textContent = e.target.value);
+  $('#guessSlider').addEventListener('input', e => {
+    const u = (round && STIM_SPEC[round.stimulus]) ? STIM_SPEC[round.stimulus].unit : '';
+    $('#guessValue').textContent = e.target.value + u;
+  });
   $('#guessBtn').addEventListener('click', () => { round.playerGuess = +$('#guessSlider').value; buildMarket(); });
 
   $('#lockBtn').addEventListener('click', lockIn);
   $('#backToBoard').addEventListener('click', () => showPhase('phase-board'));
   $('#confirmBet').addEventListener('click', confirmBet);
-  $('#revealBtn').addEventListener('click', doReveal);
+  $('#revealBtn').addEventListener('click', doRevealGuess);
   $('#nextBtn').addEventListener('click', () => { resetBoardControls(); nextRound(); });
+
+  $('#bankRollBtn').addEventListener('click', bankRoll);
+  $('#bankBankBtn').addEventListener('click', () => bankDecide('bank'));
+  $('#bankPushBtn').addEventListener('click', () => bankDecide('push'));
+
+  $('#rerollLockBtn').addEventListener('click', rerollLock);
 
   $('#soundBtn').addEventListener('click', () => { settings.sound = !settings.sound; store.set('settings', settings); syncToggles(); });
   $('#motionBtn').addEventListener('click', () => { settings.motion = !settings.motion; store.set('settings', settings); syncToggles(); });

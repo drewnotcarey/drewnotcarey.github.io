@@ -1,6 +1,7 @@
 /* EV Gym service worker - offline app shell cache */
-const CACHE = 'evgym-v1';
-const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js',
+const CACHE = 'evgym-v2';
+const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/rounds-guess.js',
+               'js/rounds-dice.js', 'js/stats.js',
                'manifest.webmanifest', 'icon.svg', 'docs/BUILD_PLAN.md'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

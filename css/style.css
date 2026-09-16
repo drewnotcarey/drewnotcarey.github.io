@@ -47,6 +47,15 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 .home-controls{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .home-controls select{background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
 .home-controls label{color:var(--dim);font-size:.9rem}
+.home-actions{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+/* ---------- round-type selector ---------- */
+.type-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 4px}
+.type-chip{flex:1;min-width:170px;max-width:220px;background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;transition:border-color .15s,box-shadow .15s;color:var(--ink)}
+.type-chip:hover{border-color:#3b4870}
+.type-chip.on{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim)}
+.type-chip b{display:block;font-size:.9rem}
+.type-chip span{display:block;font-size:.7rem;color:var(--dim);margin-top:4px;line-height:1.4}
 
 /* ---------- stimulus ---------- */
 .round-label{color:var(--dim);font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
@@ -58,7 +67,7 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 /* ---------- guess ---------- */
 .guess-row{display:flex;align-items:center;gap:16px;margin:22px 0}
 #guessSlider{flex:1;accent-color:var(--teal);height:6px}
-.guess-value{font-size:2.2rem;font-weight:800;min-width:90px;color:var(--teal)}
+.guess-value{font-size:2.2rem;font-weight:800;min-width:110px;color:var(--teal)}
 
 /* ---------- board ---------- */
 .hint{color:var(--dim);font-size:.85rem;margin-bottom:16px}
@@ -82,12 +91,38 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 .lock-preview{color:var(--dim);font-size:.9rem;min-height:1.4em;margin-bottom:14px}
 .board-actions{display:flex;gap:10px;justify-content:center}
 
-.sharp-badge{margin-top:16px;color:var(--teal);font-weight:700;font-size:1rem;animation:pop .4s ease}
-@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
-
 /* ---------- lock-in ---------- */
 .lock-summary{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px;line-height:2;text-align:left;max-width:340px;margin:0 auto}
 .lock-summary b{color:var(--teal)}
+
+/* ---------- dice ---------- */
+.dice-row{display:flex;gap:12px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.die{width:56px;height:56px;background:linear-gradient(180deg,#f8faff,#dbe2f5);border-radius:12px;position:relative;box-shadow:0 4px 14px #0007,inset 0 -3px 0 #0002}
+.die .pip{position:absolute;width:11px;height:11px;border-radius:50%;background:#141a30;transform:translate(-50%,-50%)}
+.die.dim{opacity:.45}
+.die.bust{outline:3px solid var(--bad)}
+.dice-row.selectable .die{cursor:pointer;transition:transform .12s,box-shadow .15s}
+.dice-row.selectable .die:hover{transform:translateY(-2px)}
+.die.marked{box-shadow:0 0 0 3px var(--gold),0 4px 18px #ffd16644;transform:translateY(-4px)}
+.die.rolling{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:translateY(-4px)}25%{transform:translateY(-10px) rotate(-7deg)}75%{transform:translateY(-8px) rotate(6deg)}}
+
+/* ---------- bank or push ---------- */
+.pot-wrap{margin:6px 0 2px}
+.pot-label{color:var(--dim);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px}
+.pot{font-size:3rem;font-weight:800;color:var(--gold);line-height:1.15}
+.status{color:var(--dim);min-height:1.5em;margin:6px 0 14px}
+.bank-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- reroll calculus ---------- */
+.tbar{margin:12px 0}
+#rerollBar{height:100%;width:100%;background:linear-gradient(90deg,var(--gold),#f59e6b);border-radius:3px}
+.cat-line{color:var(--dim);font-size:.95rem;margin-bottom:4px}
+.cat-line b{color:var(--ink)}
+.cat-max{font-size:.75rem;opacity:.7}
+.score-line{font-size:1.05rem;color:var(--dim);margin-bottom:8px}
+.score-line b{color:var(--teal);font-size:1.3rem}
+#rerollHint{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:.85rem;margin:10px 0}
 
 /* ---------- reveal ---------- */
 .true-value{color:var(--gold);font-size:1.6em}
@@ -95,10 +130,16 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 .recap-slot{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:.82rem;color:var(--dim)}
 .recap-slot.winner{border-color:var(--gold);color:var(--gold);font-weight:700}
 .recap-slot.chosen{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-dim)}
+.recap .dice-row{margin:6px 0}
+.tb-line{color:var(--dim);font-size:.88rem;line-height:1.6}
+.tb-line b{color:var(--ink)}
 .debrief{font-size:1.08rem;line-height:1.55;max-width:520px;margin:0 auto 12px}
 .debrief.good{color:var(--teal)}
 .debrief.muted{color:var(--dim)}
 .streak-note{color:var(--dim);font-size:.85rem;margin-bottom:18px}
+.tt{display:inline-block;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:.8rem;color:var(--dim);margin:3px}
+.tt.good{border-color:var(--teal);color:var(--teal)}
+.tt.bad{border-color:#f8717166;color:var(--bad)}
 
 /* ---------- summary ---------- */
 .summary-grid{display:flex;gap:26px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
@@ -112,6 +153,14 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 .chart .pt{fill:var(--teal)}
 .chart .pt.over{fill:var(--bad)}
 .chart .diag{stroke:#4a5578;stroke-dasharray:5 4}
+.tb-card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:10px 0;text-align:left}
+.tb-card h4{font-size:.85rem;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.tb-card .tb-line{font-size:.85rem}
+.stat-table{display:grid;grid-template-columns:1fr auto;gap:6px 18px;text-align:left;max-width:480px;margin:0 auto;font-size:.88rem}
+.stat-table .k{color:var(--dim)}
+.stat-table .k.strong{color:var(--teal);font-weight:700}
+.stat-table .v{font-weight:700;text-align:right}
+.stat-table .sep{grid-column:1/-1;border-top:1px solid var(--line);margin:4px 0}
 
 /* ---------- overlay / tutorial ---------- */
 .overlay{position:fixed;inset:0;background:#0a0d18ee;display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
@@ -119,10 +168,14 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 .tut-card{max-width:440px}
 .tut-card p{color:var(--dim);line-height:1.6;margin-bottom:20px}
 
-/* ---------- confetti ---------- */
+/* ---------- confetti & toast ---------- */
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60}
 .confetti{position:absolute;top:30%;width:9px;height:14px;border-radius:2px;animation:fall 1.4s ease-in forwards}
 @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),60vh) rotate(560deg);opacity:0}}
+#toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) scale(.8);background:#0e2a26ee;border:1px solid var(--teal);color:var(--teal);font-weight:800;padding:10px 22px;border-radius:999px;z-index:80;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;box-shadow:0 0 30px #2dd4bf55}
+#toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.glow-btn{animation:btnGlow 1.2s ease-in-out}
+@keyframes btnGlow{0%,100%{box-shadow:0 0 0 0 #2dd4bf00}30%{box-shadow:0 0 0 5px #2dd4bf88,0 0 34px #2dd4bfcc}}
 
 /* ---------- footer & debug ---------- */
 .foot{display:flex;gap:14px;justify-content:center;padding:14px;color:var(--dim);font-size:.75rem;border-top:1px solid var(--line);flex-wrap:wrap}
@@ -133,8 +186,9 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 
 @media (max-width:520px){
   .card h1{font-size:1.4rem}
-  .guess-value{font-size:1.6rem;min-width:64px}
+  .guess-value{font-size:1.6rem;min-width:78px}
   .stats{grid-template-columns:1fr 1fr}
+  .die{width:46px;height:46px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}

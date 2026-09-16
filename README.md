@@ -1,7 +1,7 @@
 # EV Gym
 
-A single-player web app that trains probabilistic reasoning — "thinking in bets" —
-by rewarding **decision quality separately from outcome quality**.
+A single-player web game that trains decision quality under uncertainty —
+rewarding **decision quality separately from outcome quality**.
 
 Built to the spec in [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md).
 
@@ -13,44 +13,53 @@ Open `index.html` in any modern browser, or serve the folder statically:
 npx serve .
 ```
 
-Add `?debug=1` to the URL for the debug panel (ledger JSON/CSV export, full reset,
-seed forcing, live EV board inspector).
+Add `?debug=1` to the URL for the debug panel (ledger JSON/CSV export, full
+reset, seed forcing, live EV board inspector).
 
-## What's implemented (MVP)
+## The rounds
 
-- **Guess & Bet round** — timed dot-count stimulus, player guess, 4 synthetic bot
-  guesses (anchor / over / under / herd / outlier biases), extremity-based pricing
-  with favorite/longshot mispricing and jitter, Monte Carlo model probabilities.
-- **Process/outcome reward split** — pre-reveal ⚡ SHARP glow + chime for +EV
-  decisions; separate, muted outcome celebration; four-cell debrief strings.
-- **Sharp Streak** — increments on +EV decisions only; a good bet that loses never
+- **Guess & Bet** — estimate a hidden quantity (dot count, line length, blob
+  area, angle, or a timed glow), then bet on a market of rival guesses priced
+  by extremity. The skill is finding the mispriced slot; rival guesses and
+  prices are seeded and reproducible.
+- **Bank or Push** — grow a pot across dice rolls that can bust it. Every
+  bank/push call is scored against a computable one-step EV rule; bust odds
+  are only shown while hints are enabled.
+- **Reroll Calculus** — five dice, a scoring category, and a clock. Call
+  keep-versus-reroll on any subset; exact EVs are enumerated over every
+  possibility, and your call is scored against the best play.
+
+## What's tracked
+
+- **Calibration ledger** — every round writes a structured record (localStorage):
+  Brier score, reliability diagram, +EV rate, best-EV rate, estimation error.
+- **Calibration Crystal** — ambient skill identity; clarity follows your
+  rolling Brier score.
+- **Edge report** — chosen EV vs. best available EV, best-value rate, longshot
+  tendency, per-round-type sharp-call rates.
+- **Sharp Streak** — consecutive +EV calls; a good bet that loses never
   breaks it.
-- **Calibration Ledger** — full record per round in localStorage; Brier score,
-  reliability diagram, +EV rate, best-EV rate, estimation error.
-- **Calibration Crystal** — ambient skill identity (clarity = rolling Brier).
-- 8-round sessions, 3-slide tutorial, difficulty presets, sound/motion toggles,
-  PWA offline shell, keyboard-accessible board, reduced-motion support.
+- **Hint stripping** — implied probabilities, bust odds, and EV panels fade
+  as calibration tightens (Auto difficulty scales stimuli, bust rules, and
+  clocks with you).
 
-## Not yet (deferred by design)
+## Reward design
 
-Bank or Push round, Reroll Calculus round, additional stimulus types, difficulty
-auto-scaling, hint stripping, accounts/cloud sync. See build plan phase gates.
+Two independent channels: a ⚡ SHARP process reward fires the moment a +EV
+call is locked (before the reveal); a separate, muted outcome celebration
+fires only for wins. No punishing stingers for bad luck on good decisions.
+No real money, no purchases, no random-reinforcement tricks.
 
 ## Deploy (GitHub Pages)
 
-This repo is a plain static site — no build step. The
+Plain static site — no build step. The
 [CI workflow](.github/workflows/ci.yml) syntax-checks the JS, then deploys the
-whole folder to GitHub Pages via `actions/deploy-pages` on every push to `main`.
-
-```
-git add -A
-git commit -m "EV Gym update"
-git push
-```
+folder to GitHub Pages via `actions/deploy-pages` on every push to `main`.
 
 Live at https://drewnotcarey.github.io/ once the Actions run completes.
 
 ## Data & privacy
 
 All game data lives in the player's browser (localStorage, `evgym.*` keys).
-No accounts, no tracking, no network calls. Debug panel can export/erase data.
+No accounts, no tracking, no network calls. The debug panel can export or
+erase everything.
