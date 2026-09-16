@@ -191,14 +191,14 @@ function bankFinish(){
    ========================================================================== */
 const CAT_POOL = [];
 (function(){
-  const names = ['','Aces','Twos','Threes','Fours','Fives','Sixes'];
+  const names = ['','Ones','Twos','Threes','Fours','Fives','Sixes'];
   for(let n = 1; n <= 6; n++) CAT_POOL.push({ type:'number', n:n, label:names[n], max:5*n });
   CAT_POOL.push({ type:'three',  label:'Three of a Kind', max:30 });
   CAT_POOL.push({ type:'four',   label:'Four of a Kind',  max:30 });
   CAT_POOL.push({ type:'full',   label:'Full House',      max:25 });
-  CAT_POOL.push({ type:'ss',     label:'Small Straight',  max:30 });
-  CAT_POOL.push({ type:'ls',     label:'Large Straight',  max:40 });
-  CAT_POOL.push({ type:'chance', label:'Chance',          max:30 });
+  CAT_POOL.push({ type:'ss',     label:'Run of Four',    max:30 });
+  CAT_POOL.push({ type:'ls',     label:'Run of Five',    max:40 });
+  CAT_POOL.push({ type:'chance', label:'Random',         max:30 });
 })();
 
 function longestRun(dice){
@@ -272,9 +272,9 @@ function catRuleText(cat){
     case 'three':  return 'the sum of all five dice, but only if at least three faces match \u2014 otherwise 0';
     case 'four':   return 'the sum of all five dice, but only if at least four faces match \u2014 otherwise 0';
     case 'full':   return 'a flat 25 for a triple plus a pair \u2014 anything else scores 0';
-    case 'ss':     return 'a flat 30 for four consecutive faces (like 2-3-4-5) \u2014 otherwise 0';
-    case 'ls':     return 'a flat 40 for five consecutive faces (1-2-3-4-5 or 2-3-4-5-6) \u2014 otherwise 0';
-    case 'chance': return 'always the sum of all five dice';
+    case 'ss':     return 'a flat 30 for a run of four consecutive faces (like 2-3-4-5) \u2014 otherwise 0';
+    case 'ls':     return 'a flat 40 for a run of five consecutive faces (1-2-3-4-5 or 2-3-4-5-6) \u2014 otherwise 0';
+    case 'chance': return 'always the sum of all five dice, whatever shows';
   }
   return '';
 }

@@ -79,9 +79,9 @@ and outcome, from which long-run skill metrics are derived.
 
 ### 3.3 Reroll Calculus (keep-vs-reroll round)
 
-- Five dice and a scoring category from a dice-poker family: number sums
-  (Aces–Sixes), Three/Four of a Kind (sum of all dice), Full House (25),
-  Small/Large Straight (30/40), Chance (sum).
+- Five dice and a scoring category from an original dice family: number sums
+  (Ones–Sixes), Three/Four of a Kind (sum of all dice), Full House (25),
+  Run of Four/Run of Five (30/40), Random (sum).
 - Situations are generated until they contain a real decision: either clear
   upside to chase (best-subset EV at least 1.5 points above the current
   score) or a made hand worth protecting (≥ 80% of category max with no

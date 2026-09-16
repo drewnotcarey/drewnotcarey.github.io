@@ -61,7 +61,8 @@ main{flex:1;display:flex;justify-content:center;padding:22px 14px;width:100%}
 .home-actions{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:14px}
 
 /* ---------- round-type selector ---------- */
-.type-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 4px}
+.type-row-label{text-align:center;color:var(--dim);font-size:.84rem;margin:20px 0 0}
+.type-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
 .type-chip{flex:1;min-width:170px;max-width:220px;background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;transition:border-color .15s,box-shadow .15s;color:var(--ink)}
 .type-chip:hover{border-color:#31446e}
 .type-chip.on{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-dim)}
