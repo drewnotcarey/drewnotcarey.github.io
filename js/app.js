@@ -294,6 +294,23 @@ function adaptSkill(type){
 }
 
 /* ---------------- reward channels ---------------- */
+/* Screen-edge flash — the emphasis channel every device can receive,
+   including the iOS browsers that can never buzz. A teal vignette
+   breathes in and out around the viewport edge the instant a +EV call
+   locks; gold for the best-value tier. Gated by the motion setting
+   (reduced-motion players default to off and never see it). */
+function rewardFlash(tier){
+  if(!motionOK()) return;
+  const f = $('#flash');
+  if(!f || !f.animate) return;                 /* ancient browsers: skip */
+  f.style.boxShadow = tier === 2
+    ? 'inset 0 0 96px 24px rgba(255,209,102,.40)'
+    : 'inset 0 0 84px 20px rgba(45,212,191,.34)';
+  f.animate(
+    [{ opacity: 0 }, { opacity: 1, offset: .18 }, { opacity: 0 }],
+    { duration: 620, easing: 'ease-out' }
+  );
+}
 function sharpToast(tier){
   const t = $('#toast');
   t.textContent = tier === 2 ? '⚡⚡ SHARP — BEST VALUE' : '⚡ SHARP — +EV call';
@@ -313,6 +330,7 @@ function processReward(el, tier){
   processChime(tier);
   sharpToast(tier);
   pulseProcess(tier);
+  rewardFlash(tier);
   if(el){
     el.classList.add('glow-btn');
     if(tier === 2) el.classList.add('gold');

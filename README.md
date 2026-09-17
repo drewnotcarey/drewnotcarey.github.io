@@ -102,9 +102,11 @@ The process reward is tiered: any +EV call gets the teal ⚡ SHARP treatment,
 while a call that was also the **best value available** (highest-EV slot,
 exact best keep/reroll split) escalates to a gold ⚡⚡ SHARP — BEST VALUE
 toast, a rising chime arpeggio, and a gold glow. Streak counts of 3+ append
-to the toast. Reveals carry badge pills, an at-a-glance EV comparison bar
-(your call vs the best on the board), and debriefs that quote the edge in
-numbers (your price vs the market's).
+to the toast. Every Sharp reward also breathes a brief screen-edge flash
+(teal — gold for best-value), so the moment lands even on devices with
+no haptics at all, like every iOS browser. Reveals carry badge pills, an
+at-a-glance EV comparison bar (your call vs the best on the board), and
+debriefs that quote the edge in numbers (your price vs the market's).
 
 **Haptics** (Vibration API, where supported): the header toggle (📳) carries
 a test buzz on enable so you can confirm your device responds. Patterns are
