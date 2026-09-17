@@ -596,6 +596,40 @@ function confirmBet(){
   showPhase('phase-board');
 }
 
+/* reveal number line — the market's spread with the truth pinned on it.
+   Same frame as the board's line (raw guess positions, proportional
+   spacing), with the domain extended to include the true value when the
+   whole field missed it — so the pin never lies about being "at the edge".
+   Gray dots are the field, teal is the best-value slot, the white ring is
+   your pick, and the gold pin is where reality actually landed.
+   Presentational only (aria-hidden — the truth is stated in words right
+   above, and the recap list carries the winner/best/chosen detail). */
+function revealNumlineHTML(){
+  const spec = STIM_SPEC[round.stimulus];
+  const gs = round.slots.map(s => s.guess);
+  const lo = Math.min.apply(null, gs.concat([round.trueValue]));
+  const hi = Math.max.apply(null, gs.concat([round.trueValue]));
+  const pct = g => hi > lo ? (g - lo) / (hi - lo) * 100 : 50;
+  const dots = round.slots.map((s, i) =>
+    '<span class="rv-nl-dot' + (i === round.bestIdx ? ' best' : '') + (i === round.selected ? ' you' : '') +
+    '" style="left:' + pct(s.guess) + '%"></span>').join('');
+  const pl = pct(round.trueValue);
+  const near = pl < 10 ? ' near-l' : pl > 90 ? ' near-r' : '';
+  return '<div class="rv-numline" aria-hidden="true" title="Where the true value landed against the market">' +
+    '<div class="rv-nl-track">' + dots +
+      '<span class="rv-nl-pin' + near + '" style="left:' + pl + '%">' +
+        '<span class="rv-nl-pin-stem"></span>' +
+        '<span class="rv-nl-pin-gem"></span>' +
+        '<span class="rv-nl-pin-tag">true ' + round.trueValue + spec.unit + '</span>' +
+      '</span>' +
+    '</div>' +
+    '<div class="rv-nl-legend"><span><i class="lg-field"></i>field</span>' +
+      '<span><i class="lg-best"></i>best value</span>' +
+      '<span><i class="lg-you"></i>your pick</span>' +
+      '<span><i class="lg-true"></i>truth</span></div>' +
+  '</div>';
+}
+
 /* ---------------- reveal & debrief ---------------- */
 function doRevealGuess(){
   const s = round.slots[round.selected];
@@ -669,6 +703,7 @@ function doRevealGuess(){
     heading: 'Best value on the board: <span class="best-slot">' + bestSlot.label + ' (' + bestSlot.display + ')</span>',
     badges: badges,
     detail: '<div class="rv-truth">the true ' + spec.noun + ': <span class="true-value">' + round.trueValue + spec.unit + '</span></div>' +
+      revealNumlineHTML() +
       rOrder.map(i => {
         const sl = round.slots[i];
         return '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + (i === round.bestIdx ? ' best' : '') + '">' +
@@ -683,4 +718,13 @@ function doRevealGuess(){
     accent: round.selPositive ? (round.selBest ? 'best' : 'sharp') : null,
     streakNote: neutral ? 'Neutral: a lucky \u2212EV win — the streak neither grows nor breaks.' : undefined
   });
+  /* the truth pin drops onto the spread — motion-gated like every
+     flourish; reduced-motion and ✨-off players get the static pin */
+  const pin = $('#phase-reveal .rv-nl-pin');
+  if(pin && pin.animate && motionOK()){
+    pin.animate(
+      [{ opacity: 0, transform: 'translateY(-16px)' },
+       { opacity: 1, transform: 'translateY(0)' }],
+      { duration: 480, easing: 'cubic-bezier(.2,.7,.3,1.25)' });
+  }
 }

@@ -145,7 +145,10 @@ rising tone, the slow haptic pulse, and one line of flavor.
   green +EV / red −EV), bust odds, and EV panels fade as calibration
   tightens (Auto difficulty scales stimuli, bust rules, and clocks with
   you). Every Guess & Bet reveal names the best-value slot, whether or not
-  you picked it.
+  you picked it, then pins the true value in gold on a compact number-line
+  strip of the market's spread — gray dots for the field, teal for the
+  best-value slot, a white ring for your pick — so where reality landed
+  reads at a glance.
 
 ## Deploy (GitHub Pages)
 

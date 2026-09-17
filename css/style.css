@@ -235,6 +235,25 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 /* reveal leads with the best-EV slot, then the true value */
 .best-slot{color:var(--teal);font-size:1.2em;font-weight:800}
 .rv-truth{margin:12px 0 8px;font-size:1.02rem;color:var(--dim)}
+/* reveal number line — the truth pinned on the market's spread */
+.rv-numline{flex-basis:100%;margin:2px 0 4px}
+.rv-nl-track{position:relative;height:2px;background:var(--line);border-radius:1px;margin:40px 10px 0}
+.rv-nl-dot{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;background:var(--dim);opacity:.45;transform:translate(-50%,-50%);border:2px solid transparent;box-sizing:border-box}
+.rv-nl-dot.best{background:var(--teal);opacity:1;box-shadow:0 0 8px var(--teal-dim)}
+.rv-nl-dot.you{opacity:1;border-color:var(--ink);background:transparent}
+.rv-nl-dot.best.you{background:var(--teal)}
+.rv-nl-pin{position:absolute;top:50%;width:0;height:0}
+.rv-nl-pin-gem{position:absolute;left:-5px;top:-5px;width:10px;height:10px;background:var(--gold);border-radius:2px;transform:rotate(45deg);box-shadow:0 0 10px #ffd16655}
+.rv-nl-pin-stem{position:absolute;left:-.5px;top:-20px;width:1px;height:12px;background:#ffd16688}
+.rv-nl-pin-tag{position:absolute;bottom:24px;left:0;transform:translateX(-50%);white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--gold);background:var(--bg2);border:1px solid #ffd16644;border-radius:999px;padding:1px 8px}
+.rv-nl-pin.near-l .rv-nl-pin-tag{transform:translateX(-18%)}
+.rv-nl-pin.near-r .rv-nl-pin-tag{transform:translateX(-82%)}
+.rv-nl-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:.7rem;color:var(--dim);margin-top:12px}
+.rv-nl-legend i{display:inline-block;width:8px;height:8px;margin-right:5px;vertical-align:-1px}
+.rv-nl-legend .lg-field{border-radius:50%;background:var(--dim);opacity:.6}
+.rv-nl-legend .lg-best{border-radius:50%;background:var(--teal)}
+.rv-nl-legend .lg-you{border-radius:50%;border:2px solid var(--ink);width:7px;height:7px;box-sizing:border-box}
+.rv-nl-legend .lg-true{background:var(--gold);transform:rotate(45deg);border-radius:1px}
 .recap .dice-row{margin:6px 0}
 .tb-line{color:var(--dim);font-size:.88rem;line-height:1.6}
 .tb-line b{color:var(--ink)}
