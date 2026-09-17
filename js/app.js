@@ -46,7 +46,7 @@ const ROUNDS_PER_SESSION = 8;
 
 const ROUND_TYPES = {
   guess:  { label: 'Guess & Bet',
-            desc:  'Estimate a hidden quantity, then find the mispriced slot on a market of rival guesses' },
+            desc:  'Estimate a hidden quantity — or read a race card — then find the mispriced slot on the market' },
   bank:   { label: 'Keep or Roll',
             desc:  'Finish above the Tide without busting — every keep/roll call priced on the true win odds' },
   reroll: { label: 'Five Dice Roll',
@@ -60,7 +60,11 @@ const STIM_SPEC = {
   line:     { noun: 'length',   unit: '',    heading: 'How long is the line?', gheading: 'How long was the line?',       step: 1,  slider: [5, 95] },
   area:     { noun: 'area',     unit: '',    heading: 'How big is the blob?',  gheading: 'How big was the blob?',        step: 5,  slider: [10, 650] },
   angle:    { noun: 'angle',    unit: '°',   heading: 'How wide is the angle?',gheading: 'How wide was the angle?',      step: 1,  slider: [5, 175] },
-  duration: { noun: 'duration', unit: ' ms', heading: 'How long does it glow?',gheading: 'How long did it glow?',       step: 25, slider: [200, 4000] }
+  duration: { noun: 'duration', unit: ' ms', heading: 'How long does it glow?',gheading: 'How long did it glow?',       step: 25, slider: [200, 4000] },
+  /* race: no slider phase (the form read IS the estimate), so the
+     slider/gheading fields are never read — heading/noun drive the
+     paddock phase and the reveal */
+  race:     { noun: 'winner',   unit: '',    heading: 'The paddock — read the form', gheading: '', step: 1, slider: null }
 };
 
 /* ---------------- persistence ---------------- */
@@ -75,11 +79,13 @@ let settings = Object.assign(
     haptic: true,
     hints: 'auto',
     types: { guess: true, bank: true, reroll: true },
-    skill: { guess: 1, bank: 1, reroll: 1 } },
+    skill: { guess: 1, bank: 1, reroll: 1 },
+    race: 'mix' },
   store.get('settings', {})
 );
 settings.types = Object.assign({ guess:true, bank:true, reroll:true }, settings.types || {});
 settings.skill = Object.assign({ guess:1, bank:1, reroll:1 }, settings.skill || {});
+if(['off','mix','only'].indexOf(settings.race) < 0) settings.race = 'mix';
 let streak     = store.get('streak', { current: 0, best: 0 });
 let tutSeen    = store.get('tutSeen', false);
 let forcedSeed = store.get('forcedSeed', null);
@@ -162,13 +168,23 @@ function showPhase(id){
   window.scrollTo(0,0);
 }
 
+/* race preference drives which propositions Guess & Bet deals:
+   off — the five perceptual stimuli only; mix — race joins the rotation
+   (its natural share, ~1/6 of guess rounds); only — every guess round is
+   a race. Returns a fresh array every call, safe to shuffle. */
+function stimPool(){
+  if(settings.race === 'only') return ['race'];
+  if(settings.race === 'off')  return STIM_TYPES.slice();
+  return STIM_TYPES.concat(['race']);
+}
+
 function buildQueue(){
   const active = Object.keys(ROUND_TYPES).filter(t => settings.types[t]);
   const types  = active.length ? active : ['guess'];
   const q = [];
   for(let i = 0; i < ROUNDS_PER_SESSION; i++) q.push({ type: types[i % types.length] });
   shuffle(q, Math.random);
-  const pool = shuffle(STIM_TYPES.slice(), Math.random);
+  const pool = shuffle(stimPool(), Math.random);
   let k = 0;
   q.forEach(item => { if(item.type === 'guess') item.stimulus = pool[(k++) % pool.length]; });
   return q;
@@ -492,7 +508,7 @@ const TUT = [
   ['Two separate rewards',
    'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts. And a −EV call that wins anyway is neutral — nothing added, nothing taken.'],
   ['Three ways to train',
-   'Estimate hidden quantities and hunt for the mispriced slot on a market of rival guesses. Grow a pot of dice and keep it ahead of the Tide — without busting. Call keep-versus-reroll on five dice against the odds.'],
+   'Estimate hidden quantities — or read a field of racing minnows — and hunt for the mispriced slot on the market. Grow a pot of dice and keep it ahead of the Tide — without busting. Call keep-versus-reroll on five dice against the odds.'],
   ['Briefings before clocks',
    'Every round opens with a briefing: the exact rules, the bust conditions, the clock. Nothing is timed until you press Start — read at your own pace, then play.'],
   ['Grow your crystal',
@@ -580,6 +596,20 @@ function resetBoardControls(){
   if(ch) ch.style.pointerEvents = '';
   $$('.slot').forEach(x => x.style.pointerEvents = '');
 }
+function renderRaceRow(){
+  const row = $('#raceRow'); if(!row) return;
+  row.innerHTML = '<span class="race-row-label">Minnow Race</span>';
+  [['off','Off'], ['mix','Mix'], ['only','Race only']].forEach(o => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'race-opt' + (settings.race === o[0] ? ' on' : '');
+    b.textContent = o[1];
+    b.setAttribute('aria-pressed', settings.race === o[0] ? 'true' : 'false');
+    b.addEventListener('click', () => { settings.race = o[0]; store.set('settings', settings); renderRaceRow(); });
+    row.appendChild(b);
+  });
+}
+
 function renderTypeRow(){
   const row = $('#typeRow'); row.innerHTML = '';
   Object.keys(ROUND_TYPES).forEach(t => {
@@ -603,6 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#difficulty').value = settings.difficulty;
   $('#hints').value = settings.hints || 'auto';
   renderTypeRow();
+  renderRaceRow();
 
   $('#difficulty').addEventListener('change', () => {
     settings.difficulty = $('#difficulty').value;

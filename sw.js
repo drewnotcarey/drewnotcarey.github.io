@@ -1,7 +1,7 @@
 /* School of Thought service worker - offline app shell cache */
-const CACHE = 'evgym-v21';
-const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/rounds-guess.js',
-               'js/rounds-dice.js', 'js/stats.js', 'js/ranks.js',
+const CACHE = 'evgym-v22';
+const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/race-core.js',
+               'js/rounds-guess.js', 'js/rounds-dice.js', 'js/stats.js', 'js/ranks.js',
                'manifest.webmanifest', 'docs/BUILD_PLAN.md',
                'img/logo.png', 'img/rank-minnow.png', 'img/rank-shark.png',
                'img/rank-whale.png', 'img/icon-64.png', 'img/icon-192.png'];

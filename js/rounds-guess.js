@@ -11,13 +11,22 @@
 
 /* ---------------- round entry ---------------- */
 /* guessStart() prepares state only — nothing shows, nothing is timed.
-   guessBegin() reveals the stimulus and starts the view window. */
+   guessBegin() reveals the stimulus and starts the view window.
+   Races: the stimulus IS the field (latent strengths + noisy form), the
+   paddock window is longer than a perceptual flash, and there is no
+   numeric estimate to make — the read of the form is the estimate. */
 function guessStart(){
   round.level = skillLevel('guess');
   round.rng   = mulberry32(round.seed);
-  round.stimData = genStimulus(round.stimulus, round.rng, round.level);
-  round.trueValue = round.stimData.true;
-  round.view  = Math.round(3400 - 900 * round.level);
+  if(round.stimulus === 'race'){
+    round.stimData  = genRaceField(round.rng, round.level);
+    round.trueValue = null;
+    round.view      = Math.round(5600 - 600 * round.level);   /* study the form */
+  } else {
+    round.stimData  = genStimulus(round.stimulus, round.rng, round.level);
+    round.trueValue = round.stimData.true;
+    round.view      = Math.round(3400 - 900 * round.level);
+  }
 }
 
 function guessBegin(){
@@ -39,14 +48,15 @@ function guessBegin(){
   bar.style.width = '0%';
   setTimeout(() => {
     if(round && round.type === 'guess' && $('#phase-stim').classList.contains('active')){
-      prepGuess();
-      showPhase('phase-guess');
+      if(round.stimulus === 'race') buildMarket();          /* no estimate phase — straight to the market */
+      else { prepGuess(); showPhase('phase-guess'); }
     }
   }, round.view);
 }
 
 /* ---------------- briefing ---------------- */
 function guessIntro(){
+  if(round.stimulus === 'race') return raceIntro();
   const name = { dots:'Dot count', line:'Line length', area:'Blob area', angle:'Angle size', duration:'Glow duration' }[round.stimulus];
   const secs = (round.view / 1000).toFixed(1);
   const what = {
@@ -71,6 +81,27 @@ function guessIntro(){
       ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Your model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. <b>Implied</b> is what the book\u2019s payout says; <b>your model</b> is your own read of the chances. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
       ['Earn the market\u2019s trust', 'Your model blends <b>your estimate</b> with the <b>field\u2019s consensus</b>, weighted by how accurate your estimates have actually been. It starts trusting the field more than you — new estimators haven\u2019t proven anything. Land close estimates round after round and your own slot starts showing green: that\u2019s the game telling you your read is now worth more than the crowd\u2019s.'],
       ['Rate your confidence', 'Pick 1\u20135 for how sure you are your slot wins. Honest ratings are scored: you\u2019re calibrated when your 70% calls come true about 70% of the time.']
+    ]
+  };
+}
+
+/* ---------------- minnow race briefing ---------------- */
+function raceIntro(){
+  return {
+    title: 'Guess & Bet',
+    note: 'This round: <b>Minnow Race</b> — 6 entries, one question: <b>which price is wrong?</b> · <b>payout × your chance &gt; 1 = +EV</b>',
+    cta: 'Start — To the Paddock',
+    fine: 'The form-reading clock starts the moment you press Start; prices drop after it.',
+    steps: [
+      ['Meet the field', 'Six minnows, each with a <b>form meter (0–12)</b> — a noisy reading of how fast it is. Better form, likelier winner; but the reading is noisy, and even the fastest fish loses plenty of races.'],
+      ['Study before you price', 'You see the form <b>before the odds appear</b>. Read it first — form your own picture of each minnow’s chances before the market anchors you.'],
+      ['This is a market game', '<b>Accuracy is secondary</b> — the only score that matters is whether you took the <b>highest-EV entry</b>. A +EV bet that loses was still the right play; a −EV bet that wins is luck, not process — it scores <b>neutral</b>: no streak growth, no penalty. Only a −EV bet that loses breaks the streak.'],
+      ['Read the board', 'Each minnow pays its <b>payout</b> (e.g. 3.4×) if it wins. The book prices every entry to make a profit — the margin is the house’s, so on most boards <b>every price is bad</b>. Some boards carry exactly one mistake: a favorite priced too generously, or a longshot chopped. Hunt the mistake.'],
+      ['The one rule that decides every bet', '<b>If the payout × your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is −EV — take the least-bad and skip the fireworks. Locking a +EV bet fires ⚡ SHARP instantly, win or lose.'],
+      ['A worked example', 'A minnow paying <b>4×</b> implies the market rates its win chance at about <b>25%</b> (1 ÷ 4). If your form read says it’s really more like <b>35%</b>, then 0.35 × 4 = <b>1.4 &gt; 1</b>: that price is wrong in your favor — that’s the bet.'],
+      ['Watch the edge (while hints last)', 'With hints on, every card shows <b>Your model ~35% · Implied ~25% · Edge +10%</b> — green for +EV, red for −EV. Your model is your form read, steadied by your track record: prove your eye and it sharpens.'],
+      ['Rate your confidence', 'Pick 1–5 for how sure you are your minnow wins. Honest ratings are scored: you’re calibrated when your 70% calls come true about 70% of the time.'],
+      ['The lesson', '<b>Value on the board, not the fastest fish.</b> The best form is not the best bet — the best <b>price</b> is.']
     ]
   };
 }
@@ -122,13 +153,53 @@ function genStimulus(type, rng, level){
 }
 
 /* ---------------- stimulus drawing ---------------- */
+/* a small minnow, facing right, in its identity color */
+function drawRaceMinnow(ctx, x, y, col){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = col;
+  ctx.beginPath();                                    /* tail */
+  ctx.moveTo(-24, 0); ctx.lineTo(-42, -13); ctx.lineTo(-42, 13);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();                                    /* body */
+  ctx.ellipse(0, 0, 27, 14, 0, 0, 6.2832);
+  ctx.fill();
+  ctx.beginPath();                                    /* dorsal fin */
+  ctx.moveTo(-9, -12); ctx.quadraticCurveTo(1, -23, 12, -11);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#0B1220';                          /* eye */
+  ctx.beginPath(); ctx.arc(14, -3, 3, 0, 6.2832); ctx.fill();
+  ctx.restore();
+}
+
 function drawStimulus(glow){
   const cv = $('#stimCanvas');
   const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
   ctx.clearRect(0, 0, W, H);
   const rng = round.rng;
 
-  if(round.stimulus === 'dots'){
+  if(round.stimulus === 'race'){
+    /* the paddock: a 3×2 field of minnows with form only — prices come
+       after the window closes, so the read forms before the anchor */
+    for(let i = 0; i < RACE_N; i++){
+      const col = i % 3, row = (i / 3) | 0;
+      const cx = col * (W / 3) + W / 6, cy = row * (H / 2) + 66;
+      drawRaceMinnow(ctx, cx, cy, RACE_COLORS[i].hex);
+      ctx.fillStyle = '#e8ecf8'; ctx.font = '700 13px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(RACE_COLORS[i].name, cx, cy + 40);
+      const segW = 9, gap = 3, x0 = cx - (12 * (segW + gap) - gap) / 2;
+      for(let k = 0; k < 12; k++){
+        ctx.fillStyle = k < round.stimData.bars[i] ? RACE_COLORS[i].hex : '#263450';
+        ctx.beginPath();
+        if(ctx.roundRect) ctx.roundRect(x0 + k * (segW + gap), cy + 50, segW, 13, 2);
+        else              ctx.rect(x0 + k * (segW + gap), cy + 50, segW, 13);
+        ctx.fill();
+      }
+    }
+    ctx.fillStyle = '#9aa3c0'; ctx.font = '600 15px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('form readings are noisy — prices drop next', W / 2, H - 12);
+
+  } else if(round.stimulus === 'dots'){
     const n = round.trueValue, pts = [];
     const minD = Math.max(7, Math.sqrt(W * H / n) * 0.45);
     let tries = 0;
@@ -338,6 +409,7 @@ function modelProbs(guesses, rng){
 }
 
 function buildMarket(){
+  if(round.stimulus === 'race'){ buildRaceMarket(); return; }
   const rng = round.rng;
   /* rivals bet on the player's guess grid — see genField */
   const bots = genField(round.trueValue, rng, round.level, FIELD_SIZE, STIM_SPEC[round.stimulus].step);
@@ -368,6 +440,45 @@ function buildMarket(){
   round.selected = -1; round.chips = 0; round.locked = false;
   renderBoard();
   showPhase('phase-board');
+}
+
+/* ---------------- minnow race: market & board ---------------- */
+/* The book drops after the paddock: payouts come off the TRUE
+   probabilities (margin + longshot shading + the occasional deliberate
+   mistake — see race-core.js), the model off the form meters the player
+   just studied, steadied by their measured accuracy. The winner is drawn
+   here, from the true probabilities, and held until the reveal. rng
+   order (book → model → winner) is fixed and matches the tests. */
+function buildRaceMarket(){
+  const rng  = round.rng;
+  const f    = round.stimData;
+  const book = priceRaceBook(f.p, rng, round.level);
+  round.sigYou = playerSigma();
+  const q = raceModel(f.bars, round.sigYou, f.sigmaForm, round.level, rng);
+  let u = rng(), cum = 0, winner = RACE_N - 1;
+  for(let i = 0; i < RACE_N; i++){ cum += f.p[i]; if(u < cum){ winner = i; break; } }
+  round.slots = f.p.map((p, i) => {
+    const payout = book.payouts[i];
+    return {
+      id: 'minnow_' + i, label: RACE_COLORS[i].name, color: RACE_COLORS[i].hex,
+      form: f.bars[i], guess: f.bars[i], display: 'form ' + f.bars[i] + '/12',
+      payout: payout, pModel: q[i], implied: 1 / payout, ev: q[i] * payout - 1,
+      isPlayer: false, isWinner: i === winner, pTrue: p
+    };
+  });
+  round.raceBook = book;
+  round.bestIdx = round.slots.reduce((bi, s, i, arr) => s.ev > arr[bi].ev ? i : bi, 0);
+  round.selected = -1; round.chips = 0; round.locked = false;
+  renderBoard();
+  showPhase('phase-board');
+}
+
+/* 12-segment form meter; segments inherit the minnow's color from the
+   slot's --mcolor custom property */
+function formHTML(n){
+  let h = '';
+  for(let k = 0; k < 12; k++) h += '<i class="rf' + (k < n ? ' on' : '') + '"></i>';
+  return h;
 }
 
 /* ---------------- board UI ---------------- */
@@ -407,6 +518,33 @@ function selectSlot(i){
 function renderBoard(){
   const wrap = $('#slots'); wrap.innerHTML = '';
   const hints = hintsEnabled('guess');
+  if(round.stimulus === 'race'){
+    /* no number line in a race — there is no spread to plot. The board is
+       a race card: favorite (shortest odds) first, form carried over from
+       the paddock so the price and the read sit together */
+    $('#numline').innerHTML = '';
+    $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') +
+      'payout × your chance > 1 = +EV · tap a card to bet';
+    const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].payout - round.slots[b].payout);
+    order.forEach(i => {
+      const s = round.slots[i];
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'slot race';
+      el.dataset.idx = i;
+      el.style.setProperty('--mcolor', s.color);
+      el.innerHTML =
+        '<span class="slot-label"><i class="race-chip"></i>' + s.label + '</span>' +
+        '<span class="slot-form">' + formHTML(s.form) + '</span>' +
+        '<span class="slot-payout">' + s.payout.toFixed(1) + '×</span>' +
+        (hints ? edgeHTML(s) : '');
+      el.addEventListener('click', () => selectSlot(i));
+      wrap.appendChild(el);
+    });
+    renderChips($('#chips'), c => { round.chips = c; updateLockUI(); }, round.chips);
+    updateLockUI();
+    return;
+  }
   $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') +
     'payout × your chance > 1 = +EV · tap a tag or a slot to select';
   const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
@@ -632,6 +770,11 @@ function revealNumlineHTML(){
 
 /* ---------------- reveal & debrief ---------------- */
 function doRevealGuess(){
+  /* the reveal button is hidden until a bet is confirmed; a programmatic
+     click on the hidden button (or any stray invocation before the
+     selection exists) must not crash the round */
+  if(!round || !round.slots || round.selected < 0) return;
+  if(round.stimulus === 'race'){ doRevealRace(); return; }
   const s = round.slots[round.selected];
   const win = s.isWinner;
   const outcome = win ? 1 : 0;
@@ -727,4 +870,135 @@ function doRevealGuess(){
        { opacity: 1, transform: 'translateY(0)' }],
       { duration: 480, easing: 'cubic-bezier(.2,.7,.3,1.25)' });
   }
+}
+
+/* ---------------- minnow race: reveal ---------------- */
+/* market-implied vs true chance, one strip. Diamonds sit at each
+   price's implied chance, dots at the true chance; the horizontal gap
+   between a minnow's own two marks is its mispricing — the whole game
+   in one picture. Presentational only (aria-hidden): the recap rows
+   carry the numbers in words. */
+function raceGapHTML(){
+  const MX = 0.52;                        /* axis runs 0..52% */
+  const pos = v => clamp(v / MX * 100, 1.2, 98.8);
+  let grids = '';
+  for(let g = 0; g <= 50; g += 10) grids += '<span class="rg" style="left:' + (g / MX).toFixed(2) + '%"></span>';
+  const dias = round.slots.map((s, i) =>
+    '<span class="race-dia ' + (i % 2 ? 'dn' : 'up') + '" style="left:' + pos(s.implied).toFixed(2) + '%;border-color:' + s.color + '"></span>').join('');
+  const dots = round.slots.map((s, i) =>
+    '<span class="race-dot ' + (i % 2 ? 'dn' : 'up') + (i === round.selected ? ' you' : '') + (s.isWinner ? ' winner' : '') +
+    '" style="left:' + pos(s.pTrue).toFixed(2) + '%;background:' + s.color + '"></span>').join('');
+  return '<div class="rv-race" aria-hidden="true" title="Market-implied chance vs true chance — the gap is the mispricing">' +
+    '<div class="rv-race-body">' + grids +
+      '<div class="rv-race-lane"><span class="lane-base"></span>' + dias + '</div>' +
+      '<div class="rv-race-lane"><span class="lane-base"></span>' + dots + '</div>' +
+    '</div>' +
+    '<div class="rv-race-ticks"><span style="left:0%">0%</span><span style="left:' + (25 / MX).toFixed(2) + '%">25%</span><span style="left:' + (50 / MX).toFixed(2) + '%">50%</span></div>' +
+    '<div class="rv-race-legend"><span><i class="lg-dia"></i>market’s implied</span>' +
+      '<span><i class="lg-rdot"></i>true chance</span>' +
+      '<span><i class="lg-win"></i>winner</span>' +
+      '<span>gap = the mispricing</span></div>' +
+  '</div>';
+}
+
+/* race reveal: the market frame leads (best value first, as every Guess
+   & Bet reveal does), then the winner in color with its true chance, the
+   price-vs-truth strip, the race card recap, and the EV comparison.
+   Same reward grammar as the rival market: +EV fires SHARP at lock,
+   a lucky −EV win is neutral, only −EV that loses breaks the streak. */
+function doRevealRace(){
+  const s = round.slots[round.selected];
+  const win = s.isWinner;
+  const outcome = win ? 1 : 0;
+  const brier = Math.pow(round.stated - outcome, 2);
+  const best = round.slots[round.bestIdx];
+  const wIdx = round.slots.findIndex(x => x.isWinner);
+  const wSlot = round.slots[wIdx];
+  const fmtEV = v => (v >= 0 ? '+' : '') + v.toFixed(2);
+
+  const rec = {
+    round_type: 'guess', stimulus: 'race',
+    round: round.index, seed: round.seed, diff: settings.difficulty, level: +round.level.toFixed(2),
+    trueValue: null, playerGuess: null,
+    selectedSlot: s.id, guessDisplay: s.display,
+    chips: round.chips, stated: round.stated,
+    payout: s.payout, implied: +s.implied.toFixed(4), pModel: +s.pModel.toFixed(4),
+    sigYou: +round.sigYou.toFixed(4),
+    selEV: +round.selEV.toFixed(4),
+    bestEV: +round.slots[round.bestIdx].ev.toFixed(4),
+    selPositive: round.selPositive, selBest: round.selBest,
+    neutral: !round.selPositive && outcome === 1,
+    outcome: outcome, brier: +brier.toFixed(4),
+    absErr: null, relErr: null,          /* no quantity to measure — excluded from playerSigma by design */
+    race: {
+      mispriced: round.raceBook.misIdx >= 0, dir: round.raceBook.misDir, misIdx: round.raceBook.misIdx,
+      winner: wIdx,
+      trueP: round.slots.map(x => +x.pTrue.toFixed(4)),
+      q: round.slots.map(x => +x.pModel.toFixed(4)),
+      bars: round.slots.map(x => x.form),
+      payouts: round.slots.map(x => x.payout)
+    }
+  };
+  finishRound(rec);
+
+  const neutral = !round.selPositive && win;
+  if(!round.selPositive && !win) breakStreak();
+
+  const cell = (round.selPositive ? '+EV' : '-EV') + '/' + (win ? 'win' : 'loss');
+  const m  = Math.round(s.pModel * 100), im = Math.round(s.implied * 100);
+  const msgs = {
+    '+EV/win' : 'You priced ' + s.label + ' at ~' + m + '% against the market’s ~' + im + '% — the edge was real and it swam home. This is the best cell.',
+    '+EV/loss': 'You priced ' + s.label + ' at ~' + m + '% against the market’s ~' + im + '%. That edge pays over the long run, not on every race — your Sharp Streak knows the difference.',
+    '-EV/win' : 'It swam home, but the odds were against it — luck, not process. Neutral: no reward, no penalty, and the streak holds. Don’t let a bailed-out mistake read like skill.',
+    '-EV/loss': 'This bet wasn’t +EV, and it lost — that combination is the one thing that breaks the streak. Sharp calls survive bad luck; −EV calls don’t survive their own odds.'
+  };
+  let edgeNote;
+  if(round.selBest){
+    edgeNote = round.selPositive
+      ? '⭐ Best-value pick — this was the highest-EV entry on the board.'
+      : 'No entry was +EV this round — you still picked the best of a bad board.';
+  } else if(round.selPositive){
+    edgeNote = '+EV call, but a better-value entry existed: <b>' + best.label + ' (' + best.display + ')</b> at ' +
+               best.payout.toFixed(1) + '× carried EV ' + fmtEV(best.ev) + '.';
+  } else {
+    edgeNote = 'The best value was <b>' + best.label + ' (' + best.display + ')</b> at ' +
+               best.payout.toFixed(1) + '× (EV ' + fmtEV(best.ev) + ').';
+  }
+  /* the flavor lesson: backed the fastest fish at the wrong price */
+  const topForm = round.slots.reduce((bi, sl, i, arr) => sl.form > arr[bi].form ? i : bi, 0);
+  if(round.selected === topForm && !round.selBest)
+    edgeNote += ' <b>The fastest fish isn’t the bet — the price is.</b>';
+
+  const badges = [];
+  if(round.selPositive) badges.push('<span class="rv-badge">⚡ +EV call</span>');
+  if(round.selPositive && round.selBest) badges.push('<span class="rv-badge gold">⭐ best value on board</span>');
+  if(neutral) badges.push('<span class="rv-badge neutral">neutral · no streak change</span>');
+  const bars = evBarsHTML(round.selBest
+    ? [{ label: 'Your call — best on board', value: +round.selEV.toFixed(2), cls: 'best' }]
+    : [{ label: 'Your call',  value: +round.selEV.toFixed(2), cls: 'you' },
+       { label: 'Best on board', value: +best.ev.toFixed(2), cls: 'best' }]);
+  /* race card order: favorite (shortest odds) first */
+  const rOrder = round.slots.map((sl, i) => i).sort((a, b) => round.slots[a].payout - round.slots[b].payout);
+  const bestSlot = round.slots[round.bestIdx];
+  showReveal({
+    heading: 'Best value on the board: <span class="best-slot">' + bestSlot.label + ' (' + bestSlot.display + ')</span>',
+    badges: badges,
+    detail: '<div class="rv-truth">the winner: <span class="true-value"><i class="race-chip" style="background:' + wSlot.color + '"></i>' + wSlot.label +
+              '</span> · true win chance ' + Math.round(wSlot.pTrue * 100) + '%</div>' +
+      raceGapHTML() +
+      rOrder.map(i => {
+        const sl = round.slots[i];
+        return '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + (i === round.bestIdx ? ' best' : '') + '">' +
+          (i === round.bestIdx ? '⭐ ' : '') + '<i class="race-chip" style="background:' + sl.color + '"></i>' + sl.label +
+          ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '× · true ' + Math.round(sl.pTrue * 100) + '%</div>';
+      }).join('') +
+      bars +
+      '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',
+    debrief: msgs[cell],
+    good: round.selPositive,
+    win: win,
+    muted: !round.selPositive,
+    accent: round.selPositive ? (round.selBest ? 'best' : 'sharp') : null,
+    streakNote: neutral ? 'Neutral: a lucky −EV win — the streak neither grows nor breaks.' : undefined
+  });
 }

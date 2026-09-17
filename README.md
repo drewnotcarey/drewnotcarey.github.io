@@ -50,6 +50,25 @@ tap.
   displays is exactly what each bet is; exact ties can happen, split the
   win, and fan apart as separate dots on the line. Rival guesses and
   prices are seeded and reproducible.
+  A sixth proposition type, the **Minnow Race**, deals a field of six
+  colored minnows instead of a perceptual stimulus: each carries a noisy
+  form meter (a 0–12 reading of latent strength), shown paddock-style
+  *before* the odds drop so the read forms before the market anchors it.
+  True win probabilities come from a softmax over latent strengths; the
+  book prices them with a realistic overround and longshot shading, and a
+  share of boards (40/35/30% by difficulty) carries exactly one deliberate
+  mistake — a favorite overlaid (a gem) or a longshot chopped (a trap).
+  The player model is truth-blind: it reads only the form meters,
+  de-noised against the level's known form noise, and steadied by the
+  player's measured accuracy — an unproven eye adds noise, a proven one
+  reads nearly clean through it. The reveal pins every minnow's true
+  chance (colored dot) against its market-implied chance (diamond) on one
+  strip — the horizontal gap between a fish's two marks is its
+  mispricing, the whole game in one picture. Race rounds log the same
+  ledger fields as any market round plus a compact race block
+  (mispricing, winner, true probabilities, model reads, payouts); the
+  home screen offers Off / Mix / Race-only so races can join the stimulus
+  rotation or stand alone.
 - **Keep or Roll** — a duel against the Tide. You and the Tide each build a
   pot across dice rolls that can bust it; the Tide follows one fixed,
   visible policy (roll below 15, keep at 15 or above) under the same bust

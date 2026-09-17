@@ -335,3 +335,44 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
 }
+
+/* ---------- minnow race ---------- */
+/* home-screen preference: off / mix / race only */
+.race-row{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px 0 2px;flex-wrap:wrap}
+.race-row-label{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;margin-right:2px}
+.race-opt{background:var(--bg2);border:2px solid var(--line);border-radius:999px;padding:6px 15px;font-size:.78rem;font-weight:700;color:var(--dim);transition:border-color .15s,box-shadow .15s,color .15s}
+.race-opt:hover{border-color:#31446e}
+.race-opt.on{border-color:var(--teal);color:var(--ink);box-shadow:0 0 0 3px var(--teal-dim)}
+/* board card: identity chip + 12-segment form meter in the minnow's color */
+.race-chip{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--mcolor,var(--dim))}
+.slot.race{padding:12px 10px}
+.slot-form{display:inline-flex;gap:3px;justify-content:center;align-items:center;min-height:20px}
+.rf{width:9px;height:15px;border-radius:3px;border:1px solid var(--line);background:transparent;display:inline-block}
+.slot.race .rf.on{background:var(--mcolor,var(--teal));border-color:var(--mcolor,var(--teal))}
+/* reveal strip: market-implied chance (diamonds) vs true chance (dots).
+   The horizontal gap between a minnow's own two marks IS its mispricing. */
+.rv-race{flex-basis:100%;margin:4px 0 2px}
+.rv-race-body{position:relative;margin:0 10px;padding:3px 0}
+.rg{position:absolute;top:0;bottom:0;width:1px;background:var(--line);opacity:.4}
+.rv-race-lane{position:relative;height:34px}
+.rv-race-lane .lane-base{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line)}
+.race-dia{position:absolute;left:0;top:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);border:2px solid;box-sizing:border-box;background:transparent;z-index:2}
+.race-dot{position:absolute;left:0;top:50%;width:11px;height:11px;border-radius:50%;transform:translate(-50%,-50%);box-sizing:border-box;z-index:2}
+.race-dia.up{top:24%}
+.race-dia.dn{top:76%}
+.race-dot.up{top:26%}
+.race-dot.dn{top:74%}
+.race-dot.you{box-shadow:0 0 0 2px var(--ink)}
+.race-dot.winner{box-shadow:0 0 0 2px var(--gold),0 0 10px #ffd16699;transform:translate(-50%,-50%) scale(1.25)}
+.race-dot.winner.up{top:26%}
+.race-dot.winner.dn{top:74%}
+.rv-race-ticks{position:relative;height:15px;margin:0 10px;font-size:.62rem;color:var(--dim)}
+.rv-race-ticks span{position:absolute;transform:translateX(-50%)}
+.rv-race-ticks span:first-child{transform:none}
+.rv-race-legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:.7rem;color:var(--dim);margin-top:3px}
+.rv-race-legend i{display:inline-block;margin-right:5px;vertical-align:-1px}
+.lg-dia{width:8px;height:8px;border:2px solid var(--dim);transform:rotate(45deg)}
+.lg-rdot{width:9px;height:9px;border-radius:50%;background:var(--dim)}
+.lg-win{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px #ffd16688}
+/* the winner's name rides the gold true-value styling; the chip keeps its color */
+.true-value .race-chip{width:13px;height:13px;vertical-align:-2px}
