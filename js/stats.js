@@ -137,10 +137,10 @@ function typeBreakdownHTML(recs){
     ['+EV bets', pct(a.guess.pos)],
     ['Best-value found', pct(a.guess.best)]
   ]));
-  if(a.bank.n) parts.push(tbCard('Bank or Push', a.bank.n, [
+  if(a.bank.n) parts.push(tbCard('Keep or Roll', a.bank.n, [
     ['+EV calls', a.bank.calls ? pct(a.bank.posCalls / a.bank.calls) : '–'],
     ['Beat the Tide', a.bank.n ? pct(a.bank.wins / a.bank.n) : '–'],
-    ['Banked total', a.bank.banked]
+    ['Kept total', a.bank.banked]
   ]));
   if(a.reroll.n) parts.push(tbCard('Five Dice Roll', a.reroll.n, [
     ['Sharp calls', pct(a.reroll.sharp)],
@@ -168,10 +168,10 @@ function edgeTableHTML(a){
     rows.push({ sep: true });
   }
   if(bk.n){
-    rows.push({ head: 'Bank or Push rounds (vs the Tide)', v: bk.n });
+    rows.push({ head: 'Keep or Roll rounds (vs the Tide)', v: bk.n });
     rows.push({ label: '+EV calls', v: bk.calls ? pct(bk.posCalls / bk.calls) : '–' });
     rows.push({ label: 'Beat the Tide', v: pct(bk.n ? bk.wins / bk.n : null) });
-    rows.push({ label: 'Banked total', v: bk.banked });
+    rows.push({ label: 'Kept total', v: bk.banked });
     rows.push({ label: 'Bust rate', v: pct(bk.n ? bk.busts / bk.n : null) });
   }
   if(!rows.length) return '<p class="hint">Play some rounds to fill this in.</p>';

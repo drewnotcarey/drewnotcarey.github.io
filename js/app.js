@@ -47,8 +47,8 @@ const ROUNDS_PER_SESSION = 8;
 const ROUND_TYPES = {
   guess:  { label: 'Guess & Bet',
             desc:  'Estimate a hidden quantity, then find the mispriced slot on a market of rival guesses' },
-  bank:   { label: 'Bank or Push',
-            desc:  'Out-bank the Tide without busting — every push/bank call priced on the true win odds' },
+  bank:   { label: 'Keep or Roll',
+            desc:  'Finish above the Tide without busting — every keep/roll call priced on the true win odds' },
   reroll: { label: 'Five Dice Roll',
             desc:  'One category, one clock: call keep-versus-reroll against the math' }
 };
@@ -492,7 +492,7 @@ const TUT = [
   ['Two separate rewards',
    'Lock in a +EV call and the ⚡ SHARP reward fires immediately — before you know how it turned out. Winning is a separate, smaller celebration. A sharp call that loses still counts. And a −EV call that wins anyway is neutral — nothing added, nothing taken.'],
   ['Three ways to train',
-   'Estimate hidden quantities and hunt for the mispriced slot on a market of rival guesses. Grow a pot of dice past the bust zone and bank it in time. Call keep-versus-reroll on five dice against the odds.'],
+   'Estimate hidden quantities and hunt for the mispriced slot on a market of rival guesses. Grow a pot of dice and keep it ahead of the Tide — without busting. Call keep-versus-reroll on five dice against the odds.'],
   ['Briefings before clocks',
    'Every round opens with a briefing: the exact rules, the bust conditions, the clock. Nothing is timed until you press Start — read at your own pace, then play.'],
   ['Grow your crystal',

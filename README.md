@@ -50,15 +50,15 @@ tap.
   displays is exactly what each bet is; exact ties can happen, split the
   win, and fan apart as separate dots on the line. Rival guesses and
   prices are seeded and reproducible.
-- **Bank or Push** — a duel against the Tide. You and the Tide each build a
+- **Keep or Roll** — a duel against the Tide. You and the Tide each build a
   pot across dice rolls that can bust it; the Tide follows one fixed,
-  visible policy (push below 15, bank at 15 or above) under the same bust
-  rule you face. Goal: finish with a higher banked pot than the Tide —
-  ties go to the Tide. Every bank/push call is scored against the true
-  one-step win probability of beating the Tide, with both pots, both bust
-  risks, and the Tide's known policy priced in; with hints on, the panel
-  shows your win % for banking vs pushing. (The multi-roll optimal
-  strategy is a deliberate later upgrade.)
+  visible policy (roll below 15, keep at 15 or above) under the same bust
+  rule you face. Goal: finish with a higher kept pot than the Tide —
+  ties go to the Tide. Every keep/roll call is scored against the true
+  multi-roll win probability of beating the Tide — both pots, both bust
+  risks, the Tide's known policy, and the freedom to keep rolling are all
+  priced in, with the roll number assuming sharp follow-through; with hints
+  on, the panel shows your win % for keeping vs rolling.
 - **Five Dice Roll** — five dice, a scoring category, and a clock. The
   briefing spells out how the category scores and how long the clock runs
   before the hand is dealt. Call keep-versus-reroll on any subset; exact EVs
