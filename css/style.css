@@ -177,6 +177,16 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .pot-wrap{margin:6px 0 2px}
 .pot-label{color:var(--dim);font-size:.75rem;text-transform:uppercase;letter-spacing:1.5px}
 .pot{font-size:3rem;font-weight:800;color:var(--gold);line-height:1.15}
+/* the duel: your pot vs the Tide's, side by side */
+.duel{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;margin:8px 0 2px}
+.duel-side{display:flex;flex-direction:column;align-items:center;gap:4px}
+.duel-vs{font-weight:800;color:var(--dim);padding-top:30px;font-size:.9rem}
+.duel .dice-row{margin:6px 0 2px}
+.duel .pot{font-size:2.6rem}
+.duel .status{min-height:3em;margin:2px 0 0;font-size:.82rem;text-align:center}
+.tide-pot{color:#8fb7e8}
+.die.tidebanked{outline:3px solid #8fb7e8}
+.tide-policy{font-size:.78rem;color:var(--dim);text-align:center;margin:6px 0 10px}
 .status{color:var(--dim);min-height:1.5em;margin:6px 0 14px}
 .bank-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
@@ -221,6 +231,10 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .recap-slot{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:.82rem;color:var(--dim)}
 .recap-slot.winner{border-color:var(--gold);color:var(--gold);font-weight:700}
 .recap-slot.chosen{border-color:var(--teal);box-shadow:0 0 0 2px var(--teal-dim)}
+.recap-slot.best{box-shadow:0 0 0 2px #ffd16644}
+/* reveal leads with the best-EV slot, then the true value */
+.best-slot{color:var(--teal);font-size:1.2em;font-weight:800}
+.rv-truth{margin:12px 0 8px;font-size:1.02rem;color:var(--dim)}
 .recap .dice-row{margin:6px 0}
 .tb-line{color:var(--dim);font-size:.88rem;line-height:1.6}
 .tb-line b{color:var(--ink)}
@@ -231,6 +245,8 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 .tt{display:inline-block;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:.8rem;color:var(--dim);margin:3px}
 .tt.good{border-color:var(--teal);color:var(--teal)}
 .tt.bad{border-color:#f8717166;color:var(--bad)}
+.tt.tide{color:#8fb7e8;border-color:#31446e}
+.tt-sep{height:1px;background:var(--line);margin:10px 0}
 
 /* ---------- summary ---------- */
 .summary-grid{display:flex;gap:26px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:8px}

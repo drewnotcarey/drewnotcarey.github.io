@@ -50,10 +50,15 @@ tap.
   displays is exactly what each bet is; exact ties can happen, split the
   win, and fan apart as separate dots on the line. Rival guesses and
   prices are seeded and reproducible.
-- **Bank or Push** — grow a pot across dice rolls that can bust it. The
-  briefing defines this round's bust rule (e.g. "any die showing a 1", or
-  "any 1, or any double" at higher difficulty) with its exact per-roll odds.
-  Every bank/push call is scored against a computable one-step EV rule.
+- **Bank or Push** — a duel against the Tide. You and the Tide each build a
+  pot across dice rolls that can bust it; the Tide follows one fixed,
+  visible policy (push below 15, bank at 15 or above) under the same bust
+  rule you face. Goal: finish with a higher banked pot than the Tide —
+  ties go to the Tide. Every bank/push call is scored against the true
+  one-step win probability of beating the Tide, with both pots, both bust
+  risks, and the Tide's known policy priced in; with hints on, the panel
+  shows your win % for banking vs pushing. (The multi-roll optimal
+  strategy is a deliberate later upgrade.)
 - **Five Dice Roll** — five dice, a scoring category, and a clock. The
   briefing spells out how the category scores and how long the clock runs
   before the hand is dealt. Call keep-versus-reroll on any subset; exact EVs
@@ -104,9 +109,11 @@ exact best keep/reroll split) escalates to a gold ⚡⚡ SHARP — BEST VALUE
 toast, a rising chime arpeggio, and a gold glow. Streak counts of 3+ append
 to the toast. Every Sharp reward also breathes a brief screen-edge flash
 (teal — gold for best-value), so the moment lands even on devices with
-no haptics at all, like every iOS browser. Reveals carry badge pills, an
-at-a-glance EV comparison bar (your call vs the best on the board), and
-debriefs that quote the edge in numbers (your price vs the market's).
+no haptics at all, like every iOS browser. Reveals lead with the
+best-EV slot on the board (what the round actually scores), then show
+the true value, then the field with badge pills, an at-a-glance EV
+comparison bar (your call vs the best on the board), and debriefs that
+quote the edge in numbers (your price vs the market's).
 
 **Haptics** (Vibration API, where supported): the header toggle (📳) carries
 a test buzz on enable so you can confirm your device responds. Patterns are

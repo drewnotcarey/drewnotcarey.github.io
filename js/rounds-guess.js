@@ -63,7 +63,7 @@ function guessIntro(){
     fine: 'The viewing clock starts the moment you press Start.',
     steps: [
       ['Watch the flash', what],
-      ['Play the market, not the answer', 'This round looks like a test of accuracy — it is really a <b>market game</b>. The point is not answering correctly or picking the slot that ends up closest; it is <b>reading and playing the market</b>: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a \u2212EV bet that wins is luck, not process — it scores <b>neutral</b>: no streak growth, no penalty. Only a \u2212EV bet that loses breaks the streak.'],
+      ['Play the market, not the answer', 'This is a <b>market game</b>. <b>Accuracy is secondary</b> \u2014 the only score that matters is whether you took the <b>highest-EV slot</b>. The point is not answering correctly or picking the slot that ends up closest; it is reading and playing the market: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a \u2212EV bet that wins is luck, not process \u2014 it scores <b>neutral</b>: no streak growth, no penalty. Only a \u2212EV bet that loses breaks the streak.'],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact, and an exact tie shares the win.'],
       ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The board reads as a <b>number line</b>: the whole field is plotted across the top at true spacing, and the slots below sit sorted low to high with the gap between neighbors marked — a guess <b>boxed in</b> by tight gaps on both sides owns only the sliver of outcome-space between its rivals, which is why a central-looking slot can carry a huge payout. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
       ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
@@ -660,15 +660,19 @@ function doRevealGuess(){
     : [{ label: 'Your call',  value: +round.selEV.toFixed(2), cls: 'you' },
        { label: 'Best on board', value: +best.ev.toFixed(2), cls: 'best' }]);
   /* recap keeps the board's number-line frame: sorted low → high, same
-     as renderBoard, so where the true value landed reads at a glance */
+     as renderBoard, so where the true value landed reads at a glance.
+     Order of attention is deliberate: the best-EV slot leads (that is
+     what the round scores), the true value follows, then the field */
   const rOrder = round.slots.map((sl, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
+  const bestSlot = round.slots[round.bestIdx];
   showReveal({
-    heading: 'The true ' + spec.noun + ': <span class="true-value">' + round.trueValue + spec.unit + '</span>',
+    heading: 'Best value on the board: <span class="best-slot">' + bestSlot.label + ' (' + bestSlot.display + ')</span>',
     badges: badges,
-    detail: rOrder.map(i => {
+    detail: '<div class="rv-truth">the true ' + spec.noun + ': <span class="true-value">' + round.trueValue + spec.unit + '</span></div>' +
+      rOrder.map(i => {
         const sl = round.slots[i];
-        return '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + '">' +
-          sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>';
+        return '<div class="recap-slot' + (sl.isWinner ? ' winner' : '') + (i === round.selected ? ' chosen' : '') + (i === round.bestIdx ? ' best' : '') + '">' +
+          (i === round.bestIdx ? '⭐ ' : '') + sl.label + ' · ' + sl.display + ' · ' + sl.payout.toFixed(1) + '×</div>';
       }).join('') +
       bars +
       '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',

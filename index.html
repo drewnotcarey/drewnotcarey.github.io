@@ -141,16 +141,29 @@
     <div class="card">
       <div class="round-label" id="bankRoundLabel"></div>
       <h2>Bank or Push</h2>
-      <div class="pot-wrap"><span class="pot-label">Pot</span><div class="pot" id="potVal">0</div></div>
-      <div class="dice-row" id="bankDice"></div>
-      <p class="status" id="bankStatus">Roll to open the pot.</p>
+      <div class="duel">
+        <div class="duel-side">
+          <span class="pot-label">Your pot</span>
+          <div class="pot" id="potVal">0</div>
+          <div class="dice-row" id="bankDice"></div>
+          <p class="status" id="bankStatus">Roll to open the pot.</p>
+        </div>
+        <div class="duel-vs">vs</div>
+        <div class="duel-side tide">
+          <span class="pot-label">The Tide</span>
+          <div class="pot tide-pot" id="tideVal">0</div>
+          <div class="dice-row" id="tideDice"></div>
+          <p class="status" id="tideStatus"></p>
+        </div>
+      </div>
+      <p class="tide-policy">The Tide rolls with you under the same bust rule — <b>pushes below 15, banks at 15+</b>. Beat its pot; ties go to the Tide.</p>
       <div class="bank-actions">
         <button class="btn primary" id="bankRollBtn">Roll the Dice</button>
         <button class="btn primary hidden" id="bankBankBtn">Bank</button>
         <button class="btn ghost hidden" id="bankPushBtn">Push</button>
       </div>
       <p class="hint hidden" id="bankHint"></p>
-      <p class="fineprint">Pushing grows the pot — a bust roll wipes it. Banking locks it in. Every call is scored against the odds.</p>
+      <p class="fineprint">Pushing grows your pot — a bust roll wipes it. Banking locks it in. Every call is scored on the true odds of beating the Tide.</p>
     </div>
   </section>
 

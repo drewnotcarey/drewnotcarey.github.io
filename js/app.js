@@ -48,7 +48,7 @@ const ROUND_TYPES = {
   guess:  { label: 'Guess & Bet',
             desc:  'Estimate a hidden quantity, then find the mispriced slot on a market of rival guesses' },
   bank:   { label: 'Bank or Push',
-            desc:  'Grow a pot of dice past the bust zone — know when to walk away' },
+            desc:  'Out-bank the Tide without busting — every push/bank call priced on the true win odds' },
   reroll: { label: 'Five Dice Roll',
             desc:  'One category, one clock: call keep-versus-reroll against the math' }
 };

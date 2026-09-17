@@ -37,7 +37,8 @@ function aggregate(recs){
       calls: bk.reduce((a, r) => a + (r.decisions || 0), 0),
       posCalls: bk.reduce((a, r) => a + (r.posDecisions || 0), 0),
       banked: bk.reduce((a, r) => a + (r.banked || 0), 0),
-      busts: bk.filter(r => r.busted).length
+      busts: bk.filter(r => r.busted).length,
+      wins: bk.filter(r => r.outcome === 1).length
     }
   };
 }
@@ -138,6 +139,7 @@ function typeBreakdownHTML(recs){
   ]));
   if(a.bank.n) parts.push(tbCard('Bank or Push', a.bank.n, [
     ['+EV calls', a.bank.calls ? pct(a.bank.posCalls / a.bank.calls) : '–'],
+    ['Beat the Tide', a.bank.n ? pct(a.bank.wins / a.bank.n) : '–'],
     ['Banked total', a.bank.banked]
   ]));
   if(a.reroll.n) parts.push(tbCard('Five Dice Roll', a.reroll.n, [
@@ -166,8 +168,9 @@ function edgeTableHTML(a){
     rows.push({ sep: true });
   }
   if(bk.n){
-    rows.push({ head: 'Bank or Push rounds', v: bk.n });
+    rows.push({ head: 'Bank or Push rounds (vs the Tide)', v: bk.n });
     rows.push({ label: '+EV calls', v: bk.calls ? pct(bk.posCalls / bk.calls) : '–' });
+    rows.push({ label: 'Beat the Tide', v: pct(bk.n ? bk.wins / bk.n : null) });
     rows.push({ label: 'Banked total', v: bk.banked });
     rows.push({ label: 'Bust rate', v: pct(bk.n ? bk.busts / bk.n : null) });
   }

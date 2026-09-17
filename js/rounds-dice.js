@@ -22,18 +22,85 @@ function pipsHTML(v){
 function dieHTML(v, extra){ return '<div class="die ' + (extra || '') + '">' + pipsHTML(v) + '</div>'; }
 
 /* ==========================================================================
-   BANK OR PUSH
+   BANK OR PUSH — vs the Tide
    Two dice per roll. Rules by difficulty:
-     any1   — bust if any die shows 1           (P = 11/36, avg safe gain 8)
-     any1dbl— bust on any 1 OR any double       (P = 16/36, avg safe gain 8)
-   One-step EV rule: pushing at pot P is +EV while P(bust)×P < P(safe)×gain,
-   i.e. keep pushing below the threshold, bank at/above it.
-     any1:    threshold 19      any1dbl: threshold 10
+     any1   — bust if any die shows a 1           (P = 11/36, avg safe gain 8)
+     any1dbl— bust on any 1 OR any double         (P = 16/36, avg safe gain 8)
+   The Tide — a fixed, visible opponent — rolls its own pot under the same
+   bust rule and one unchanging policy: push below 15, bank at 15 or above.
+   Goal: finish with a higher banked pot than the Tide; ties go to the Tide.
+   Every bank/push call is scored against the true one-step win probability
+   of beating the Tide — both pots, both bust risks, and the Tide's known
+   policy all priced in. The multi-roll optimal strategy stays a later
+   upgrade; one-step EV is the honest, computable baseline.
    ========================================================================== */
+const TIDE_T = 15;
+
 function bankParams(level){
   if(level < 1.2)
-    return { rule: 'any1',    bustP: 11/36, threshold: 19, ruleText: 'any die showing a 1' };
-  return { rule: 'any1dbl',   bustP: 16/36, threshold: 10, ruleText: 'any 1, or any double' };
+    return { rule: 'any1',    bustP: 11/36, ruleText: 'any die showing a 1' };
+  return { rule: 'any1dbl',   bustP: 16/36, ruleText: 'any 1, or any double' };
+}
+
+function rollBusts(a, b, rule){
+  return rule === 'any1' ? (a === 1 || b === 1) : (a === 1 || b === 1 || a === b);
+}
+/* safe-roll sums conditional on survival, per bust rule */
+function safeSums(rule){
+  const counts = {};
+  let n = 0;
+  for(let a = 1; a <= 6; a++) for(let b = 1; b <= 6; b++){
+    if(!rollBusts(a, b, rule)){ counts[a + b] = (counts[a + b] || 0) + 1; n++; }
+  }
+  return Object.keys(counts).map(s => ({ s: +s, p: counts[s] / n }));
+}
+/* final-pot distribution of a live Tide at pot D under its fixed policy —
+   push while below TIDE_T, bank at/above: { bust: p, banked: { v: p } }.
+   Memoized; pots only grow, so the recursion always terminates */
+function tideDist(D, p, safe, memo){
+  if(D >= TIDE_T){ const m = {}; m[D] = 1; return { bust: 0, banked: m }; }
+  if(memo[D]) return memo[D];
+  const res = { bust: p.bustP, banked: {} };
+  const S = 1 - p.bustP;
+  safe.forEach(e => {
+    const nxt = tideDist(D + e.s, p, safe, memo);
+    const w = e.p * S;
+    res.bust += w * nxt.bust;
+    for(const v in nxt.banked) res.banked[v] = (res.banked[v] || 0) + w * nxt.banked[v];
+  });
+  memo[D] = res;
+  return res;
+}
+/* P(a banked pot of P beats the Tide from this state) — ties go to the Tide */
+function vBank(P, tide, p, safe, memo){
+  if(tide.status === 'bust')   return 1;
+  if(tide.status === 'banked') return P > tide.pot ? 1 : 0;
+  const d = tideDist(tide.pot, p, safe, memo);
+  let w = d.bust;
+  for(const v in d.banked) if(+v < P) w += d.banked[v];
+  return w;
+}
+/* one-step value of pushing: survive the roll (the Tide rolls concurrently
+   if live), then bank. The option value of pushing AGAIN after a safe push
+   is the multi-roll upgrade — deliberately not priced in yet */
+function vPush(P, tide, p, safe, memo){
+  const S = 1 - p.bustP;
+  let v = 0;
+  safe.forEach(e => {
+    const P2 = P + e.s;
+    if(tide.status !== 'live' || tide.pot >= TIDE_T){
+      v += e.p * S * vBank(P2, tide, p, safe, memo);
+    } else {
+      let inner = p.bustP;                       /* the Tide busts alongside */
+      safe.forEach(t => {
+        const D2 = tide.pot + t.s;
+        const t2 = D2 >= TIDE_T ? { status: 'banked', pot: D2 } : { status: 'live', pot: D2 };
+        inner += (1 - p.bustP) * t.p * vBank(P2, t2, p, safe, memo);
+      });
+      v += e.p * S * inner;
+    }
+  });
+  return v;
 }
 
 /* bankStart() prepares state only — the briefing shows before any roll.
@@ -44,11 +111,25 @@ function bankStart(){
   round.rng = mulberry32(round.seed);
   round.pot = 0; round.decisions = []; round.state = 'ready';
   round.lastRoll = null; round.busted = false; round.statusText = '';
-  round.bustBrokeStreak = false;
+  round.bustBrokeStreak = false; round.bankBrokeStreak = false;
+  round.safe = safeSums(round.p.rule);
+  round.tide = { status: 'live', pot: 0, rolls: [], lastRoll: null, statusText: '' };
 }
 
 function bankBegin(){
   $('#bankRoundLabel').textContent = 'Round ' + (round.index + 1) + ' of ' + ROUNDS_PER_SESSION;
+  /* the Tide opens with its own roll — visible before you act. It can bust
+     on the opener (same risk you carry), which ends it at pot 0 */
+  const a = 1 + ((round.rng() * 6) | 0), b = 1 + ((round.rng() * 6) | 0);
+  round.tide.lastRoll = [a, b];
+  round.tide.rolls.push([a, b]);
+  if(rollBusts(a, b, round.p.rule)){
+    round.tide.status = 'bust';
+    round.tide.statusText = 'The Tide busted on its opening roll.';
+  } else {
+    round.tide.pot = a + b;
+    round.tide.statusText = 'The Tide opened at ' + (a + b) + '.';
+  }
   bankRender();
   showPhase('phase-bank');
 }
@@ -59,27 +140,42 @@ function bankIntro(){
   const pct = Math.round(p.bustP * 100);
   return {
     title: 'Bank or Push',
-    note: 'Bust rule this round: <b>a roll is a bust when it shows ' + p.ruleText + '</b> — that\u2019s about a <b>' + pct + '% chance on every single roll</b>',
+    note: 'Bust rule this round: <b>a roll is a bust when it shows ' + p.ruleText + '</b> — about a <b>' + pct + '% chance on every single roll</b>, for you <b>and the Tide</b>',
     cta: 'Start — Roll the Dice',
     fine: 'No clock in this round — the dice wait for you.',
     steps: [
       ['Roll to grow the pot', 'Each roll adds both dice together to your pot. A safe roll of 5+3 adds 8, for example.'],
       ['A bust roll wipes the pot', 'The moment a roll breaks the bust rule above, the <b>entire pot drops to zero</b> and the round ends — there is no partial save.'],
-      ['Bank or push, your call', 'After every safe roll you choose: <b>Bank</b> locks the pot in and ends the round, or <b>Push</b> rolls again for a bigger pot at bust risk.'],
-      ['The math that scores you', 'Every call is scored against expected value: pushing risks the whole pot (about ' + pct + '%) to gain roughly +8 on average. Small pot \u2192 pushing is usually right; big pot \u2192 the risk outgrows the gain. Where exactly the line sits is yours to feel out.'],
-      ['Rewards', 'A +EV call fires \u26a1 SHARP the instant you make it — before the next roll. A \u2212EV call that works out anyway — a push that survives, a bank that lands — is <b>neutral</b>: no reward, no streak break. Only a \u2212EV push that busts breaks the streak, and busting after sharp pushes never does.']
+      ['Meet the Tide', 'The Tide rolls its own pot right beside yours under the <b>same bust rule</b>, and it follows one fixed, visible policy: <b>push below 15, bank at 15 or above</b>. It never adapts and never bluffs — you always know exactly what it will do. It rolls each time you push, and it plays its policy out to the end the moment you bank.'],
+      ['The goal: out-bank the Tide', 'Finish with a <b>higher banked pot</b> than the Tide. It busts too — a busted Tide loses to any banked pot, however small. A tie goes to the Tide, so equal pots count as a loss.'],
+      ['The math that scores you', 'Every call is scored against the <b>true one-step odds of beating the Tide</b> — your pot, the Tide\u2019s pot, both bust risks, and the Tide\u2019s known policy are all priced in. With hints on, the panel shows your win % for banking vs pushing; the call with the better number is the +EV one.'],
+      ['Rewards', 'A +EV call fires \u26a1 SHARP the instant you make it — before the next roll. A \u2212EV call that works out anyway — a push that survives, a bank that still beats the Tide — is <b>neutral</b>: no reward, no streak break. Only a \u2212EV call that goes bad breaks the streak: a push that busts, or a bank that loses the round.']
     ]
   };
 }
 
+function tideStateText(){
+  const t = round.tide;
+  if(t.status === 'bust')   return 'Busted — any banked pot beats it.';
+  if(t.status === 'banked') return 'Banked at ' + t.pot + ' — the number to beat.';
+  return 'Rolling with you — pushes below ' + TIDE_T + '.';
+}
+
 function bankRender(){
   $('#potVal').textContent = round.pot;
+  const t = round.tide;
+  $('#tideVal').textContent = t.status === 'bust' ? '–' : t.pot;
   const d = $('#bankDice');
   const faces = round.lastRoll || [3, 4];
   const cls = round.lastRoll ? (round.busted ? 'bust' : '') : 'dim';
   d.innerHTML = dieHTML(faces[0], cls) + dieHTML(faces[1], cls);
+  const td = $('#tideDice');
+  const tf = t.lastRoll || [2, 5];
+  const tcls = t.lastRoll ? (t.status === 'bust' ? 'bust' : (t.status === 'banked' ? 'tidebanked' : '')) : 'dim';
+  td.innerHTML = dieHTML(tf[0], tcls) + dieHTML(tf[1], tcls);
   const st = { ready: 'Roll to open the pot.', rolling: 'Rolling…', decide: 'Safe roll — bank it or push?' };
   $('#bankStatus').textContent = round.statusText || st[round.state] || '';
+  $('#tideStatus').textContent = t.statusText || tideStateText();
   $('#bankRollBtn').classList.toggle('hidden', round.state !== 'ready');
   $('#bankBankBtn').classList.toggle('hidden', round.state !== 'decide');
   $('#bankPushBtn').classList.toggle('hidden', round.state !== 'decide');
@@ -88,15 +184,39 @@ function bankRender(){
     $('#bankPushBtn').textContent = 'Push';
   }
   const hint = $('#bankHint');
-  if(round.state !== 'done' && hintsEnabled('bank')){
+  if(round.state === 'decide' && hintsEnabled('bank')){
+    const memo = {};
+    const b = vBank(round.pot, t, round.p, round.safe, memo);
+    const q = vPush(round.pot, t, round.p, round.safe, memo);
     hint.classList.remove('hidden');
-    hint.textContent = 'Bust odds each roll: ' + Math.round(round.p.bustP * 100) +
-      '% (busts on ' + round.p.ruleText + ') · a safe roll averages about +8';
+    hint.innerHTML = 'Beat-the-Tide odds · <b>bank now: ' + Math.round(b * 100) + '%</b> · <b>push: ' + Math.round(q * 100) + '%</b> · bust per roll: ' + Math.round(round.p.bustP * 100) + '% (busts on ' + round.p.ruleText + ')';
+  } else if(round.state !== 'done'){
+    hint.classList.remove('hidden');
+    hint.textContent = 'Bust odds each roll: ' + Math.round(round.p.bustP * 100) + '% (busts on ' + round.p.ruleText + ') · the Tide banks at ' + TIDE_T + '+';
   } else hint.classList.add('hidden');
+}
+
+/* one policy step for the Tide — only while live and below its threshold */
+function tideStep(){
+  if(round.tide.status !== 'live' || round.tide.pot >= TIDE_T) return;
+  const a = 1 + ((round.rng() * 6) | 0), b = 1 + ((round.rng() * 6) | 0);
+  round.tide.lastRoll = [a, b];
+  round.tide.rolls.push([a, b]);
+  if(rollBusts(a, b, round.p.rule)){
+    round.tide.status = 'bust';
+    round.tide.statusText = 'The Tide rolled ' + a + '+' + b + ' — bust.';
+  } else {
+    round.tide.pot += a + b;
+    round.tide.status = round.tide.pot >= TIDE_T ? 'banked' : 'live';
+    round.tide.statusText = round.tide.status === 'banked'
+      ? 'The Tide rolled ' + a + '+' + b + ' → ' + round.tide.pot + ' — banked.'
+      : 'The Tide rolled ' + a + '+' + b + ' → ' + round.tide.pot + '.';
+  }
 }
 
 function bankRoll(){
   if(round.state !== 'ready' && round.state !== 'decide') return;
+  const tideRolls = round.state === 'decide';   /* the Tide rolls alongside every push, never the opener */
   round.state = 'rolling';
   bankRender();
   const dur = motionOK() ? 550 : 40;
@@ -104,6 +224,8 @@ function bankRoll(){
   if(motionOK()){
     spin = setInterval(() => {
       $('#bankDice').innerHTML = dieHTML(1 + ((Math.random() * 6) | 0)) + dieHTML(1 + ((Math.random() * 6) | 0));
+      if(tideRolls && round.tide.status === 'live' && round.tide.pot < TIDE_T)
+        $('#tideDice').innerHTML = dieHTML(1 + ((Math.random() * 6) | 0)) + dieHTML(1 + ((Math.random() * 6) | 0));
     }, 70);
   }
   setTimeout(() => {
@@ -111,13 +233,14 @@ function bankRoll(){
     if(!round || round.type !== 'bank') return;
     const a = 1 + ((round.rng() * 6) | 0), b = 1 + ((round.rng() * 6) | 0);
     round.lastRoll = [a, b];
-    const bust = (round.p.rule === 'any1') ? (a === 1 || b === 1) : (a === 1 || b === 1 || a === b);
+    const bust = rollBusts(a, b, round.p.rule);
+    if(tideRolls) tideStep();
     if(bust){
       round.busted = true; round.state = 'done';
       round.statusText = 'Rolled ' + a + '+' + b + ' — bust. The pot is gone.';
-      /* the bust resolves the push that caused it: a \u2212EV push that
+      /* the bust resolves the push that caused it: a −EV push that
          busts is the one outcome that breaks the streak — a sharp push
-         busting is just bad luck, and a \u2212EV push that survives stays
+         busting is just bad luck, and a −EV push that survives stays
          neutral */
       const last = round.decisions[round.decisions.length - 1];
       if(last && last.action === 'push'){
@@ -139,21 +262,53 @@ function bankRoll(){
 
 function bankDecide(action){
   if(round.state !== 'decide') return;
-  const correct = (action === 'push') ? (round.pot < round.p.threshold) : (round.pot >= round.p.threshold);
-  round.decisions.push({ pot: round.pot, action: action, correct: correct, resolved: null });
+  const memo = {};
+  const b = vBank(round.pot, round.tide, round.p, round.safe, memo);
+  const q = vPush(round.pot, round.tide, round.p, round.safe, memo);
+  const correct = action === 'push' ? q >= b - 1e-9 : b >= q - 1e-9;
+  round.decisions.push({
+    pot: round.pot,
+    tidePot: round.tide.status === 'live' ? round.tide.pot : null,
+    action: action, vBank: +b.toFixed(4), vPush: +q.toFixed(4),
+    correct: correct, resolved: null
+  });
   if(correct) processReward(action === 'push' ? $('#bankPushBtn') : $('#bankBankBtn'));
-  /* a \u2212EV call no longer breaks the streak on the spot — the outcome
-     decides: a push that busts pays for the decision, while a push that
-     survives or a bank that lands is neutral (nothing added, nothing taken) */
+  /* a −EV call never breaks the streak on the spot — its outcome decides:
+     a push that busts pays for the decision at the roll, a push that
+     survives or a bank that still beats the Tide is neutral, and a bank
+     that loses the round settles its bill at the verdict */
   if(action === 'bank'){
-    round.decisions[round.decisions.length - 1].resolved = 'banked';
     round.state = 'done';
-    round.statusText = 'Banked ' + round.pot + '.';
+    round.statusText = 'Banked ' + round.pot + ' — the Tide finishes.';
     bankRender();
-    setTimeout(bankFinish, 800);
+    setTimeout(tideFinish, 900);
   } else {
     round.statusText = 'Pushing…';
     bankRoll();
+  }
+}
+
+/* the Tide plays its policy out once the player banks: push below TIDE_T,
+   bank at/above, bust possible — then the pots compare */
+function tideFinish(){
+  if(!round || round.type !== 'bank' || round.state !== 'done') return;
+  if(round.tide.status === 'live' && round.tide.pot < TIDE_T){
+    const dur = motionOK() ? 550 : 40;
+    let spin = null;
+    if(motionOK()){
+      spin = setInterval(() => {
+        $('#tideDice').innerHTML = dieHTML(1 + ((Math.random() * 6) | 0)) + dieHTML(1 + ((Math.random() * 6) | 0));
+      }, 70);
+    }
+    setTimeout(() => {
+      if(spin) clearInterval(spin);
+      if(!round || round.type !== 'bank') return;
+      tideStep();
+      bankRender();
+      setTimeout(tideFinish, 700);
+    }, dur);
+  } else {
+    setTimeout(bankFinish, 450);
   }
 }
 
@@ -161,49 +316,96 @@ function bankFinish(){
   const busted = !!round.busted;
   const total = round.decisions.length;
   const pos = round.decisions.filter(x => x.correct).length;
-  /* \u2212EV calls that luck bailed out: pushes that survived, banks that landed */
-  const neutralCalls = round.decisions.filter(x => !x.correct && x.resolved !== 'bust').length;
+  const tide = round.tide;
+  const tideFinal = tide.status === 'banked' ? tide.pot : 0;
+  const tie = !busted && tide.status === 'banked' && round.pot === tideFinal;
+  const win = !busted && !tie && round.pot > tideFinal;
+  /* the bank resolves with the verdict: a −EV bank that loses the round is
+     the decision that paid for it — a −EV bank that wins got bailed out */
+  const last = round.decisions[round.decisions.length - 1];
+  if(last && last.action === 'bank' && !last.correct){
+    last.resolved = win ? 'banked-win' : 'banked-loss';
+    if(!win){ round.bankBrokeStreak = true; breakStreak(); }
+  }
+  /* −EV calls that luck bailed out: pushes that survived, banks that won anyway */
+  const neutralCalls = round.decisions.filter(x => !x.correct && (x.resolved === 'safe' || x.resolved === 'banked-win')).length;
   const rec = {
     round_type: 'bank', round: round.index, seed: round.seed,
     diff: settings.difficulty, level: +round.level.toFixed(2),
-    rule: round.p.rule, threshold: round.p.threshold,
+    rule: round.p.rule, tidePolicy: TIDE_T,
     decisions: total, posDecisions: pos, neutralDecisions: neutralCalls,
-    busted: busted, banked: busted ? 0 : round.pot
+    busted: busted, banked: busted ? 0 : round.pot,
+    outcome: win ? 1 : 0, tie: tie,
+    dealerStart: tide.rolls.length ? tide.rolls[0][0] + tide.rolls[0][1] : 0,
+    dealerFinal: tideFinal, dealerBusted: tide.status === 'bust',
+    callLog: round.decisions.map(x => ({ pot: x.pot, tidePot: x.tidePot, action: x.action,
+      vBank: x.vBank, vPush: x.vPush, correct: x.correct, resolved: x.resolved }))
   };
   finishRound(rec);
 
   const sharp = total > 0 && pos === total;
   const timeline = total
     ? round.decisions.map(x =>
-        '<div class="tt ' + (x.correct ? 'good' : 'bad') + '">pot ' + x.pot + ' · ' +
+        '<div class="tt ' + (x.correct ? 'good' : 'bad') + '">pot ' + x.pot +
+        (x.tidePot != null ? ' · tide ' + x.tidePot : '') + ' · ' +
         (x.action === 'push' ? 'pushed' : 'banked') + ' · ' +
-        (x.correct ? '+EV' : '−EV' + (x.resolved === 'bust' ? ' · broke the streak' : ' · neutral')) + '</div>').join('')
+        (x.correct ? '+EV' : '−EV' +
+          (x.resolved === 'bust' ? ' · broke the streak'
+           : x.resolved === 'banked-loss' ? ' · cost the round — broke the streak'
+           : ' · neutral')) + '</div>').join('')
     : '<div class="tt">No calls to make — the dice decided this one.</div>';
+
+  /* the Tide's roll history, then where it ended */
+  let tSum = 0, tBusted = false;
+  const tideLine = tide.rolls.map((r, i) => {
+    if(tBusted) return '';
+    if(rollBusts(r[0], r[1], round.p.rule)){
+      tBusted = true;
+      return '<div class="tt tide">tide ' + (i === 0 ? 'opened' : 'rolled') + ' ' + r[0] + '+' + r[1] + ' — bust</div>';
+    }
+    tSum += r[0] + r[1];
+    return '<div class="tt tide">tide ' + (i === 0 ? 'opened' : 'rolled') + ' ' + r[0] + '+' + r[1] + ' → ' + tSum + '</div>';
+  }).join('') +
+  '<div class="tt tide">' + (tide.status === 'banked' ? 'tide banks ' + tide.pot + ' — the number to beat'
+    : tide.status === 'bust' ? 'tide is out — pot 0'
+    : 'tide never finished — you busted first') + '</div>';
+
+  const head = busted
+    ? 'Bust at ' + round.pot + ' — the Tide takes it'
+    : win
+      ? 'Banked ' + round.pot + ' · Tide ' + tideFinal + ' — beaten'
+      : tie
+        ? 'Dead heat at ' + round.pot + ' — ties go to the Tide'
+        : 'Banked ' + round.pot + ' · Tide ' + tideFinal + ' — the Tide takes it';
 
   let deb;
   if(!total)          deb = busted ? 'Busted on the opening roll. Nothing to decide there — pure luck.'
                                     : 'Banked without a single push. The opening roll carried it.';
-  else if(sharp && !busted) deb = 'Sharp calls and a clean bank. Process and luck lined up.';
-  else if(sharp && busted)  deb = 'Sharp calls, unlucky bust. Every push you made was worth making — the streak knows it.';
-  else if(!sharp && !busted) deb = 'Banked — but ' + (total - pos) + ' of ' + total + ' calls fought the math. Luck covered them: neutral, no streak growth and no break.';
-  else if(round.bustBrokeStreak) deb = 'That push fought the math and the bust made it stick — a \u2212EV push that busts is the one thing that breaks the streak. Bank when the pot outgrows the odds.';
-  else                deb = 'The bust came on a sharp push — bad luck, so the streak holds. The ' + (total - pos) + ' \u2212EV call' + (total - pos === 1 ? ' earlier' : 's earlier') + ' got bailed out and count' + (total - pos === 1 ? 's' : '') + ' neutral.';
+  else if(round.bustBrokeStreak) deb = 'That push fought the math and the bust made it stick — a −EV push that busts is the one thing that breaks the streak. Price the Tide before you push.';
+  else if(round.bankBrokeStreak) deb = 'That bank fought the math and the Tide made it stick — a −EV bank that loses the round breaks the streak. When the win odds favored pushing, banking bought the loss.';
+  else if(sharp && win) deb = 'Sharp calls, and the pot held up — you out-banked the Tide. This is the best cell.';
+  else if(sharp && busted) deb = 'Sharp calls, unlucky bust. Every push you made was worth making — the streak knows it.';
+  else if(sharp && !win) deb = 'Sharp calls — the Tide just rolled even or bigger. A sharp loss is luck, not process: the streak holds.';
+  else if(win) deb = 'Banked past the Tide — but ' + (total - pos) + ' of ' + total + ' calls fought the math. Luck covered them: neutral, no streak growth and no break.';
+  else deb = 'The round is lost, but luck bailed out the −EV calls — a survived push or a bank that landed counts neutral. The streak neither grows nor breaks.';
 
   const badges = [];
   if(sharp) badges.push('<span class="rv-badge">⚡ ' + pos + ' of ' + total + ' calls +EV</span>');
-  if(!sharp && !busted && neutralCalls) badges.push('<span class="rv-badge neutral">neutral · no streak change</span>');
+  if(win) badges.push('<span class="rv-badge gold">beat the Tide</span>');
+  if(!sharp && !round.bustBrokeStreak && !round.bankBrokeStreak && neutralCalls)
+    badges.push('<span class="rv-badge neutral">neutral · no streak change</span>');
 
   showReveal({
-    heading: busted ? 'Bust at ' + round.pot : 'Banked ' + round.pot,
+    heading: head,
     badges: badges,
-    detail: timeline,
+    detail: timeline + '<div class="tt-sep"></div>' + tideLine,
     debrief: deb,
     good: sharp,
-    win: !busted,
+    win: win,
     muted: !sharp,
     accent: sharp ? 'sharp' : null,
-    streakNote: (!sharp && !round.bustBrokeStreak && neutralCalls)
-      ? 'Neutral: the \u2212EV calls got bailed out — the streak neither grows nor breaks.'
+    streakNote: (!sharp && !round.bustBrokeStreak && !round.bankBrokeStreak && neutralCalls)
+      ? 'Neutral: the −EV calls got bailed out — the streak neither grows nor breaks.'
       : undefined
   });
 }
