@@ -133,7 +133,7 @@ function typeBreakdownHTML(recs){
   if(!recs.length) return '';
   const a = aggregate(recs);
   const parts = [];
-  if(a.guess.n) parts.push(tbCard('Guess & Bet', a.guess.n, [
+  if(a.guess.n) parts.push(tbCard('Catch the Value', a.guess.n, [
     ['+EV bets', pct(a.guess.pos)],
     ['Best-value found', pct(a.guess.best)]
   ]));
@@ -153,7 +153,7 @@ function edgeTableHTML(a){
   const g = a.guess, rr = a.reroll, bk = a.bank;
   const rows = [];
   if(g.n){
-    rows.push({ head: 'Market rounds (Guess & Bet)', v: g.n });
+    rows.push({ head: 'Market rounds (Catch the Value)', v: g.n });
     rows.push({ label: 'Avg EV of your bets', v: signed(g.avgSelEV) });
     rows.push({ label: 'Avg best EV on the board', v: signed(g.avgBestEV) });
     rows.push({ label: 'Edge (you − best available)', v: signed(g.avgSelEV != null && g.avgBestEV != null ? g.avgSelEV - g.avgBestEV : null) });

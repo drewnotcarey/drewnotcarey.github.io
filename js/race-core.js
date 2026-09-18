@@ -1,7 +1,7 @@
 /* ==========================================================================
    School of Thought — Minnow Race core (pure math, no DOM)
 
-   A Guess & Bet proposition: six minnows, latent strengths, true win
+   A Catch the Value proposition: six minnows, latent strengths, true win
    probabilities by softmax, a book priced off the TRUTH with a realistic
    margin + longshot shading and occasional deliberate mispricings, and a
    truth-blind player model built only from the public form readings.

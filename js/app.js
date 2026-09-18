@@ -45,7 +45,7 @@ const CHIP_LABELS = ['Very low','Low','Medium','High','Very high'];
 const ROUNDS_PER_SESSION = 8;
 
 const ROUND_TYPES = {
-  guess:  { label: 'Guess & Bet',
+  guess:  { label: 'Catch the Value',
             desc:  'Estimate a hidden quantity — or read a race card — then find the mispriced slot on the market' },
   bank:   { label: 'Keep or Roll',
             desc:  'Finish above the Tide without busting — every keep/roll call priced on the true win odds' },
@@ -171,7 +171,7 @@ function showPhase(id){
   window.scrollTo(0,0);
 }
 
-/* race preference drives which propositions Guess & Bet deals:
+/* race preference drives which propositions Catch the Value deals:
    mix (the default) — race joins the rotation at its natural share
    (~1/6 of guess rounds); only — every guess round is a race.
    Returns a fresh array every call, safe to shuffle. */
@@ -365,7 +365,7 @@ function breakStreak(){
 function streakNoteDefault(){
   return streak.current > 0
     ? '⚡ Sharp Streak: ' + streak.current + (streak.current === streak.best ? ' (personal best)' : '')
-    : 'Sharp Streak reset — only a \u2212EV call that loses breaks it. A lucky \u2212EV win is neutral.';
+    : 'Sharp Streak reset — only a \u2212EV call that loses breaks it. A lucky \u2212EV win is neutral — and so is the best pick on a board that offered no +EV choice.';
 }
 function showReveal(o){
   $('#revealHeading').innerHTML = o.heading || '–';
@@ -558,7 +558,7 @@ function buildDebug(){
     store.set('forcedSeed', forcedSeed);
     $('#dbgOut').textContent = 'seed = ' + forcedSeed;
   });
-  /* live EV board inspector (Guess & Bet rounds) */
+  /* live EV board inspector (Catch the Value rounds) */
   setInterval(() => {
     if(round && round.slots){
       const sigLine = (round.type === 'guess' && round.sigYou != null)
@@ -598,7 +598,7 @@ function resetBoardControls(){
   if(ch) ch.style.pointerEvents = '';
   $$('.slot').forEach(x => x.style.pointerEvents = '');
 }
-/* Minnow Race preference lives INSIDE the Guess & Bet card as a compact
+/* Minnow Race preference lives INSIDE the Catch the Value card as a compact
    switch: off (the default) — races mix into the stimulus rotation at
    their natural share; on — every market round is a race. A nested
    button would be invalid HTML, so it is a role=switch span that stops
@@ -621,7 +621,7 @@ function renderTypeRow(){
       sw.setAttribute('role', 'switch');
       sw.setAttribute('aria-checked', raceOnly ? 'true' : 'false');
       sw.setAttribute('tabindex', '0');
-      sw.title = 'On — every Guess & Bet round is a Minnow Race. Off — races mix into the usual stimulus rotation (about 1 in 6).';
+      sw.title = 'On — every Catch the Value round is a Minnow Race. Off — races mix into the usual stimulus rotation (about 1 in 6).';
       sw.innerHTML = '<span class="rs-track"><span class="rs-knob"></span></span>Minnow Race only';
       const flip = () => {
         settings.race = settings.race === 'only' ? 'mix' : 'only';

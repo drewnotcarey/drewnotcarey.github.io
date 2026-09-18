@@ -36,7 +36,7 @@ and outcome, from which long-run skill metrics are derived.
 
 ## 3. Round types
 
-### 3.1 Guess & Bet (market round)
+### 3.1 Catch the Value (market round)
 
 1. A hidden quantity is shown briefly, then hidden. Five stimulus variants:
    dot count, line length (against a labeled reference), blob area (against a
@@ -139,8 +139,10 @@ Two independent channels, fired at different times:
 | −EV | Lose | Everything neutral — no punishing stingers, ever |
 
 **Sharp Streak** counts consecutive +EV calls and breaks only on a −EV call.
-A good bet that loses does not touch it. This is the retention hook, and it
-is deliberately keyed to the correct signal.
+A good bet that loses does not touch it. Since a bet is mandatory, the best
+pick on a board with no +EV slot at all is neutral too, win or lose — the
+streak judges decisions, and sometimes no good decision exists. This is the
+retention hook, and it is deliberately keyed to the correct signal.
 
 **Ethical guardrails:** no real money, no purchases, no near-miss engineering,
 no random reinforcement unrelated to decision quality, no dark patterns. The
@@ -152,7 +154,7 @@ chips are abstract scoring tokens.
 
 Every round writes one record (client-side localStorage, `evgym.*` keys).
 
-Guess & Bet records carry: stimulus type, difficulty/level, true value,
+Catch the Value records carry: stimulus type, difficulty/level, true value,
 player guess, selected slot, payout, implied probability, model probability,
 selected EV, best EV, +EV flag, best-slot flag, chips, stated probability,
 outcome, Brier component, absolute/relative error.

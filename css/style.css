@@ -337,7 +337,7 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 }
 
 /* ---------- minnow race ---------- */
-/* Guess & Bet card switch: "Minnow Race only" — off (default) races mix
+/* Catch the Value card switch: "Minnow Race only" — off (default) races mix
    into the stimulus rotation; on, every market round is a race.
    Every selector is .type-chip-scoped on purpose: the card's own
    `.type-chip span` rule (display:block, margin-top:4px, ...) outranks a

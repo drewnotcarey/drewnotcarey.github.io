@@ -27,7 +27,7 @@ reveals and its clock begins at that moment. Full rules auto-expand the first
 time a round type appears in a session; after that they collapse behind one
 tap.
 
-- **Guess & Bet** — estimate a hidden quantity (dot count, line length, blob
+- **Catch the Value** — estimate a hidden quantity (dot count, line length, blob
   area, angle, or a timed glow), then bet on a market of six rival guesses
   priced like a real book: calibrated win-probability odds with a margin and
   longshot shading, plus occasional huntable mispricings. The EV model is a
@@ -67,7 +67,7 @@ tap.
   mispricing, the whole game in one picture. Race rounds log the same
   ledger fields as any market round plus a compact race block
   (mispricing, winner, true probabilities, model reads, payouts); the
-  Guess & Bet card on the home screen carries a **Minnow Race only**
+  Catch the Value card on the home screen carries a **Minnow Race only**
   switch — off (the default), races join the stimulus rotation at their
   natural share; on, every market round is a race.
 - **Keep or Roll** — a duel against the Tide. You and the Tide each build a
@@ -119,8 +119,10 @@ call is locked (before the reveal); a separate, softer outcome celebration
 (a rising particle cascade) fires only for clean wins. No punishing
 stingers for bad luck on good decisions, and no celebratory effects for
 lucky −EV wins. A −EV call that nevertheless works out is **neutral** —
-no reward, no streak break; only a −EV call that loses breaks the Sharp
-Streak. No real money, no purchases, no random-reinforcement
+no reward, no streak break; since a bet is always required, the best pick
+on a board that offers no +EV slot at all is neutral too, win or lose.
+Only a −EV call that loses — when a better choice existed — breaks the
+Sharp Streak. No real money, no purchases, no random-reinforcement
 tricks.
 
 The process reward is tiered: any +EV call gets the teal ⚡ SHARP treatment,
@@ -159,12 +161,13 @@ rising tone, the slow haptic pulse, and one line of flavor.
 - **Edge report** — chosen EV vs. best available EV, best-value rate, longshot
   tendency, per-round-type sharp-call rates.
 - **Sharp Streak** — consecutive +EV calls; a good bet that loses never
-  breaks it, and a lucky −EV win is neutral (only a −EV call that loses
-  breaks it).
+  breaks it, a lucky −EV win is neutral, and the best pick on an all-−EV
+  board is neutral too (only a −EV call that loses — when a better choice
+  existed — breaks it).
 - **Hint stripping** — per-slot edge indicators (model vs implied chance,
   green +EV / red −EV), bust odds, and EV panels fade as calibration
   tightens (Auto difficulty scales stimuli, bust rules, and clocks with
-  you). Every Guess & Bet reveal names the best-value slot, whether or not
+  you). Every Catch the Value reveal names the best-value slot, whether or not
   you picked it, then pins the true value in gold on a compact number-line
   strip of the market's spread — gray dots for the field, teal for the
   best-value slot, a white ring for your pick — so where reality landed

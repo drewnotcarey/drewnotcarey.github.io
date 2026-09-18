@@ -1,5 +1,5 @@
 /* ==========================================================================
-   School of Thought — Guess & Bet round
+   School of Thought — Catch the Value round
    Stimulus variants: dot count, line length, blob area, angle, timed glow.
    Market: a six-guess rival field (anchor / over / under / herd / outlier /
    compression biases) priced like a real book — calibrated win-probability
@@ -67,16 +67,16 @@ function guessIntro(){
     duration: 'A circle glows for a single timed interval — estimate how long it glowed, in <b>milliseconds</b> (1000 ms = one second). No progress bar on this one; your feel for time is the instrument.'
   }[round.stimulus];
   return {
-    title: 'Guess & Bet',
+    title: 'Catch the Value',
     note: 'This round: <b>' + name + '</b>' + (round.stimulus === 'duration' ? '' : ' · on screen for about <b>' + secs + 's</b>') + ' · <b>payout \u00d7 your chance &gt; 1 = +EV</b>',
     cta: 'Start — Show It',
     fine: 'The viewing clock starts the moment you press Start.',
     steps: [
       ['Watch the flash', what],
-      ['Play the market, not the answer', 'This is a <b>market game</b>. <b>Accuracy is secondary</b> \u2014 the only score that matters is whether you took the <b>highest-EV slot</b>. The point is not answering correctly or picking the slot that ends up closest; it is reading and playing the market: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a \u2212EV bet that wins is luck, not process \u2014 it scores <b>neutral</b>: no streak growth, no penalty. Only a \u2212EV bet that loses breaks the streak.'],
+      ['Play the market, not the answer', 'This is a <b>market game</b>. <b>Accuracy is secondary</b> \u2014 the only score that matters is whether you took the <b>highest-EV slot</b>. The point is not answering correctly or picking the slot that ends up closest; it is reading and playing the market: weighing each payout against the real chances and backing the value you find. A +EV bet that loses was still the right play; a \u2212EV bet that wins is luck, not process \u2014 it scores <b>neutral</b>: no streak growth, no penalty. Only a \u2212EV bet that loses breaks the streak \u2014 with one carve-out: a bet is always required, so when <b>no slot on the board is +EV</b>, taking the best of the bad board is neutral too, win or lose.'],
       ['Lock your estimate', 'Move the slider to your best estimate and lock it in. Closest guess wins — you don\u2019t need to be exact, and an exact tie shares the win.'],
       ['Read the board', 'Your guess joins <b>six rival guesses</b>. Each slot pays its <b>payout</b> (e.g. 3.2\u00d7) if its guess turns out to be the <b>closest</b> to the true value. The board reads as a <b>number line</b>: the whole field is plotted across the top at true spacing, and the slots below sit sorted low to high with the gap between neighbors marked — a guess <b>boxed in</b> by tight gaps on both sides owns only the sliver of outcome-space between its rivals, which is why a central-looking slot can carry a huge payout. The book prices every slot to make a profit — most boards hide one or two mistakes in the odds. Your job is to find them.'],
-      ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — skip it. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
+      ['The one rule that decides every bet', '<b>If the payout \u00d7 your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is \u2212EV — take the least-bad and skip the fireworks; and if the whole board is \u2212EV, that least-bad pick is neutral, win or lose. Locking a +EV bet fires \u26a1 SHARP instantly, win or lose.'],
       ['A worked example', 'A slot paying <b>3\u00d7</b> implies the market rates its win chance at about <b>33%</b> (1 \u00f7 3 \u2248 0.33). If your read is that the real chance is <b>higher than 33%</b> — say 40% — then 0.40 \u00d7 3 = <b>1.2 &gt; 1</b>: the slot is +EV and worth betting. If you think it\u2019s lower, the slot is overpriced and the edge belongs elsewhere.'],
       ['Watch the edge (while hints last)', 'With hints on, every slot shows <b>Your model ~42% \u00b7 Implied ~28% \u00b7 Edge +14%</b> — green for +EV, red for \u2212EV. <b>Implied</b> is what the book\u2019s payout says; <b>your model</b> is your own read of the chances. The biggest green edge is the best bet on the board. Hints fade as your calibration tightens, so build the habit while they\u2019re there.'],
       ['Earn the market\u2019s trust', 'Your model blends <b>your estimate</b> with the <b>field\u2019s consensus</b>, weighted by how accurate your estimates have actually been. It starts trusting the field more than you — new estimators haven\u2019t proven anything. Land close estimates round after round and your own slot starts showing green: that\u2019s the game telling you your read is now worth more than the crowd\u2019s.'],
@@ -88,16 +88,16 @@ function guessIntro(){
 /* ---------------- minnow race briefing ---------------- */
 function raceIntro(){
   return {
-    title: 'Guess & Bet',
+    title: 'Catch the Value',
     note: 'This round: <b>Minnow Race</b> — 6 entries, one question: <b>which price is wrong?</b> · <b>payout × your chance &gt; 1 = +EV</b>',
     cta: 'Start — To the Paddock',
     fine: 'The form-reading clock starts the moment you press Start; prices drop after it.',
     steps: [
       ['Meet the field', 'Six minnows, each with a <b>form meter (0–12)</b> — a noisy reading of how fast it is. Better form, likelier winner; but the reading is noisy, and even the fastest fish loses plenty of races.'],
       ['Study before you price', 'You see the form <b>before the odds appear</b>. Read it first — form your own picture of each minnow’s chances before the market anchors you.'],
-      ['This is a market game', '<b>Accuracy is secondary</b> — the only score that matters is whether you took the <b>highest-EV entry</b>. A +EV bet that loses was still the right play; a −EV bet that wins is luck, not process — it scores <b>neutral</b>: no streak growth, no penalty. Only a −EV bet that loses breaks the streak.'],
+      ['This is a market game', '<b>Accuracy is secondary</b> — the only score that matters is whether you took the <b>highest-EV entry</b>. A +EV bet that loses was still the right play; a −EV bet that wins is luck, not process — it scores <b>neutral</b>: no streak growth, no penalty. Only a −EV bet that loses breaks the streak — with one carve-out: a bet is always required, so when <b>no entry on the board is +EV</b>, taking the best of the bad board is neutral too, win or lose.'],
       ['Read the board', 'Each minnow pays its <b>payout</b> (e.g. 3.4×) if it wins. The book prices every entry to make a profit — the margin is the house’s, so on most boards <b>every price is bad</b>. Some boards carry exactly one mistake: a favorite priced too generously, or a longshot chopped. Hunt the mistake.'],
-      ['The one rule that decides every bet', '<b>If the payout × your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is −EV — take the least-bad and skip the fireworks. Locking a +EV bet fires ⚡ SHARP instantly, win or lose.'],
+      ['The one rule that decides every bet', '<b>If the payout × your estimated chance &gt; 1, the bet is +EV — take it.</b> Below 1.0, the bet is −EV — take the least-bad and skip the fireworks; when the whole board is −EV, that least-bad pick is neutral, win or lose. Locking a +EV bet fires ⚡ SHARP instantly, win or lose.'],
       ['A worked example', 'A minnow paying <b>4×</b> implies the market rates its win chance at about <b>25%</b> (1 ÷ 4). If your form read says it’s really more like <b>35%</b>, then 0.35 × 4 = <b>1.4 &gt; 1</b>: that price is wrong in your favor — that’s the bet.'],
       ['Watch the edge (while hints last)', 'With hints on, every card shows <b>Your model ~35% · Implied ~25% · Edge +10%</b> — green for +EV, red for −EV. Your model is your form read, steadied by your track record: prove your eye and it sharpens.'],
       ['Rate your confidence', 'Pick 1–5 for how sure you are your minnow wins. Honest ratings are scored: you’re calibrated when your 70% calls come true about 70% of the time.'],
@@ -366,7 +366,7 @@ function mcProbs(guesses, anchor, sd, rng, draws){
 }
 
 /* Measured estimating accuracy: rolling RMS of relative error across the
-   player's Guess & Bet history (all stimuli, all sessions). Fewer than 3
+   player's Catch the Value history (all stimuli, all sessions). Fewer than 3
    scored rounds → assume a decent newcomer. This is what the model uses to
    decide how much your estimate is worth against the field's. */
 function playerSigma(){
@@ -524,7 +524,8 @@ function renderBoard(){
        the paddock so the price and the read sit together */
     $('#numline').innerHTML = '';
     $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') +
-      'payout × your chance > 1 = +EV · tap a card to bet';
+      'payout × your chance > 1 = +EV · tap a card to bet' +
+      (hints && round.slots[round.bestIdx].ev <= 0 ? ' · no +EV entry on this board — the least-bad pick scores neutral, win or lose' : '');
     const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].payout - round.slots[b].payout);
     order.forEach(i => {
       const s = round.slots[i];
@@ -546,7 +547,8 @@ function renderBoard(){
     return;
   }
   $('#boardHintExt').textContent = (hints ? 'green edge = +EV · ' : '') +
-    'payout × your chance > 1 = +EV · tap a tag or a slot to select';
+    'payout × your chance > 1 = +EV · tap a tag or a slot to select' +
+    (hints && round.slots[round.bestIdx].ev <= 0 ? ' · no +EV slot on this board — the least-bad pick scores neutral, win or lose' : '');
   const order = round.slots.map((s, i) => i).sort((a, b) => round.slots[a].guess - round.slots[b].guess);
   const vals  = round.slots.map(s => s.display);
   const range = Math.max(1, Math.max.apply(null, vals) - Math.min.apply(null, vals));
@@ -781,6 +783,14 @@ function doRevealGuess(){
   const brier = Math.pow(round.stated - outcome, 2);
   const best  = round.slots[round.bestIdx];
   const fmtEV = v => (v >= 0 ? '+' : '') + v.toFixed(2);
+  /* a bet is mandatory, so a board with no +EV slot anywhere still forces
+     a choice. bestIdx is the EV argmax: when the pick is \u2212EV and at
+     least co-best, no +EV choice existed — the best of a bad board is
+     judged on process, not outcome, because there was no good decision
+     available to make */
+  const bestEV   = best.ev;
+  const badBoard = bestEV <= 0;
+  const tookBest = round.selEV >= bestEV - 1e-9;
 
   const rec = {
     round_type: 'guess', stimulus: round.stimulus,
@@ -793,7 +803,7 @@ function doRevealGuess(){
     selEV: +round.selEV.toFixed(4),
     bestEV: +round.slots[round.bestIdx].ev.toFixed(4),
     selPositive: round.selPositive, selBest: round.selBest,
-    neutral: !round.selPositive && outcome === 1,
+    neutral: !round.selPositive && (outcome === 1 || (badBoard && tookBest)),
     outcome: outcome, brier: +brier.toFixed(4),
     absErr: Math.abs(round.playerGuess - round.trueValue),
     relErr: +(Math.abs(round.playerGuess - round.trueValue) / round.trueValue).toFixed(4)
@@ -802,9 +812,11 @@ function doRevealGuess(){
 
   /* outcome-contingent penalty: only a \u2212EV bet that actually loses
      breaks the streak — a lucky \u2212EV win is neutral (nothing added,
-     nothing taken) */
-  const neutral = !round.selPositive && win;
-  if(!round.selPositive && !win) breakStreak();
+     nothing taken), and so is losing with the best pick on a board that
+     offered no +EV choice: the streak judges decisions, and there was
+     no good decision available to make */
+  const neutral = !round.selPositive && (win || (badBoard && tookBest));
+  if(!round.selPositive && !win && !(badBoard && tookBest)) breakStreak();
 
   const cell = (round.selPositive ? '+EV' : '-EV') + '/' + (win ? 'win' : 'loss');
   const m  = Math.round(s.pModel * 100), im = Math.round(s.implied * 100);
@@ -812,17 +824,24 @@ function doRevealGuess(){
     '+EV/win' : 'You priced this slot at ~' + m + '% against the market\u2019s ~' + im + '% — the edge was real and it landed. This is the best cell.',
     '+EV/loss': 'You priced this slot at ~' + m + '% against the market\u2019s ~' + im + '%. That edge pays over the long run, not on every roll — your Sharp Streak knows the difference.',
     '-EV/win' : 'It landed, but the odds were against it — luck, not process. Neutral: no reward, no penalty, and the streak holds. Don\u2019t let a bailed-out mistake read like skill.',
-    '-EV/loss': 'This bet wasn\u2019t +EV, and it lost — that combination is the one thing that breaks the streak. Sharp calls survive bad luck; \u2212EV calls don\u2019t survive their own odds.'
+    '-EV/loss': 'This bet wasn\u2019t +EV, and it lost — that combination is the one thing that breaks the streak (the lone exception: the best pick on an all-\u2212EV board, which is neutral). Sharp calls survive bad luck; \u2212EV calls don\u2019t survive their own odds.'
   };
+  /* the bad-board exception gets its own debrief — the pick was the best
+     one available, and neutral means neutral in both directions */
+  let debriefTxt = msgs[cell];
+  if(badBoard && tookBest && !round.selPositive)
+    debriefTxt = 'No slot on this board was +EV — the prices gave no edge to take, and a bet was required anyway. You picked the best of a bad board' +
+      (win ? ', and it landed — a lucky break on the only defensible pick.' : ', and it lost — the board\u2019s bad luck, not a bad call.') +
+      ' Neutral: no reward, no penalty, and the streak holds.';
   /* post-lock edge feedback: reinforce hunting the BEST value, not just any +EV */
   let edgeNote;
-  if(round.selBest){
-    edgeNote = round.selPositive
-      ? '⭐ Best-value pick — this was the highest-EV slot on the board.'
-      : 'No slot was +EV this round — you still picked the best of a bad board.';
+  if(round.selPositive && round.selBest){
+    edgeNote = '⭐ Best-value pick — this was the highest-EV slot on the board.';
   } else if(round.selPositive){
     edgeNote = '+EV call, but a better-value slot existed: <b>' + best.label + ' (' + best.display + ')</b> at ' +
                best.payout.toFixed(1) + '× carried EV ' + fmtEV(best.ev) + '.';
+  } else if(tookBest){
+    edgeNote = 'No slot was +EV this round — you still picked the best of a bad board. With no +EV choice available, that pick is neutral: the streak neither grows nor breaks.';
   } else {
     edgeNote = 'The best value was <b>' + best.label + ' (' + best.display + ')</b> at ' +
                best.payout.toFixed(1) + '× (EV ' + fmtEV(best.ev) + ').';
@@ -854,12 +873,16 @@ function doRevealGuess(){
       }).join('') +
       bars +
       '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',
-    debrief: msgs[cell],
+    debrief: debriefTxt,
     good: round.selPositive,
     win: win,
     muted: !round.selPositive,
     accent: round.selPositive ? (round.selBest ? 'best' : 'sharp') : null,
-    streakNote: neutral ? 'Neutral: a lucky \u2212EV win — the streak neither grows nor breaks.' : undefined
+    streakNote: neutral
+      ? (badBoard && tookBest
+          ? 'Neutral: best of a bad board — no +EV choice existed, so the streak neither grows nor breaks.'
+          : 'Neutral: a lucky \u2212EV win — the streak neither grows nor breaks.')
+      : undefined
   });
   /* the truth pin drops onto the spread — motion-gated like every
      flourish; reduced-motion and ✨-off players get the static pin */
@@ -901,11 +924,12 @@ function raceGapHTML(){
   '</div>';
 }
 
-/* race reveal: the market frame leads (best value first, as every Guess
-   & Bet reveal does), then the winner in color with its true chance, the
-   price-vs-truth strip, the race card recap, and the EV comparison.
+/* race reveal: the market frame leads (best value first, as every Catch
+   the Value reveal does), then the winner in color with its true chance,
+   the price-vs-truth strip, the race card recap, and the EV comparison.
    Same reward grammar as the rival market: +EV fires SHARP at lock,
-   a lucky −EV win is neutral, only −EV that loses breaks the streak. */
+   a lucky −EV win is neutral, only −EV that loses breaks the streak —
+   and the best of an all-−EV board is neutral too. */
 function doRevealRace(){
   const s = round.slots[round.selected];
   const win = s.isWinner;
@@ -915,6 +939,14 @@ function doRevealRace(){
   const wIdx = round.slots.findIndex(x => x.isWinner);
   const wSlot = round.slots[wIdx];
   const fmtEV = v => (v >= 0 ? '+' : '') + v.toFixed(2);
+  /* a bet is mandatory, so a board with no +EV entry anywhere still forces
+     a choice. bestIdx is the EV argmax: when the pick is −EV and at least
+     co-best, no +EV choice existed — the best of a bad board is judged on
+     process, not outcome, because there was no good decision available
+     to make */
+  const bestEV   = best.ev;
+  const badBoard = bestEV <= 0;
+  const tookBest = round.selEV >= bestEV - 1e-9;
 
   const rec = {
     round_type: 'guess', stimulus: 'race',
@@ -927,7 +959,7 @@ function doRevealRace(){
     selEV: +round.selEV.toFixed(4),
     bestEV: +round.slots[round.bestIdx].ev.toFixed(4),
     selPositive: round.selPositive, selBest: round.selBest,
-    neutral: !round.selPositive && outcome === 1,
+    neutral: !round.selPositive && (outcome === 1 || (badBoard && tookBest)),
     outcome: outcome, brier: +brier.toFixed(4),
     absErr: null, relErr: null,          /* no quantity to measure — excluded from playerSigma by design */
     race: {
@@ -941,8 +973,12 @@ function doRevealRace(){
   };
   finishRound(rec);
 
-  const neutral = !round.selPositive && win;
-  if(!round.selPositive && !win) breakStreak();
+  /* outcome-contingent penalty: only a −EV bet that actually loses breaks
+     the streak — a lucky −EV win is neutral, and so is losing with the
+     best pick on a board that offered no +EV choice: the streak judges
+     decisions, and there was no good decision available to make */
+  const neutral = !round.selPositive && (win || (badBoard && tookBest));
+  if(!round.selPositive && !win && !(badBoard && tookBest)) breakStreak();
 
   const cell = (round.selPositive ? '+EV' : '-EV') + '/' + (win ? 'win' : 'loss');
   const m  = Math.round(s.pModel * 100), im = Math.round(s.implied * 100);
@@ -950,16 +986,23 @@ function doRevealRace(){
     '+EV/win' : 'You priced ' + s.label + ' at ~' + m + '% against the market’s ~' + im + '% — the edge was real and it swam home. This is the best cell.',
     '+EV/loss': 'You priced ' + s.label + ' at ~' + m + '% against the market’s ~' + im + '%. That edge pays over the long run, not on every race — your Sharp Streak knows the difference.',
     '-EV/win' : 'It swam home, but the odds were against it — luck, not process. Neutral: no reward, no penalty, and the streak holds. Don’t let a bailed-out mistake read like skill.',
-    '-EV/loss': 'This bet wasn’t +EV, and it lost — that combination is the one thing that breaks the streak. Sharp calls survive bad luck; −EV calls don’t survive their own odds.'
+    '-EV/loss': 'This bet wasn’t +EV, and it lost — that combination is the one thing that breaks the streak (the lone exception: the best pick on an all-−EV board, which is neutral). Sharp calls survive bad luck; −EV calls don’t survive their own odds.'
   };
+  /* the bad-board exception gets its own debrief — the pick was the best
+     one available, and neutral means neutral in both directions */
+  let debriefTxt = msgs[cell];
+  if(badBoard && tookBest && !round.selPositive)
+    debriefTxt = 'No entry on this board was +EV — the prices gave no edge to take, and a bet was required anyway. You took the best of a bad board' +
+      (win ? ', and it swam home — a lucky break on the only defensible pick.' : ', and it lost — the board’s bad luck, not a bad call.') +
+      ' Neutral: no reward, no penalty, and the streak holds.';
   let edgeNote;
-  if(round.selBest){
-    edgeNote = round.selPositive
-      ? '⭐ Best-value pick — this was the highest-EV entry on the board.'
-      : 'No entry was +EV this round — you still picked the best of a bad board.';
+  if(round.selPositive && round.selBest){
+    edgeNote = '⭐ Best-value pick — this was the highest-EV entry on the board.';
   } else if(round.selPositive){
     edgeNote = '+EV call, but a better-value entry existed: <b>' + best.label + ' (' + best.display + ')</b> at ' +
                best.payout.toFixed(1) + '× carried EV ' + fmtEV(best.ev) + '.';
+  } else if(tookBest){
+    edgeNote = 'No entry was +EV this round — you still took the best of a bad board. With no +EV choice available, that pick is neutral: the streak neither grows nor breaks.';
   } else {
     edgeNote = 'The best value was <b>' + best.label + ' (' + best.display + ')</b> at ' +
                best.payout.toFixed(1) + '× (EV ' + fmtEV(best.ev) + ').';
@@ -994,11 +1037,15 @@ function doRevealRace(){
       }).join('') +
       bars +
       '<div class="edge-note' + (round.selBest ? ' best' : '') + '">' + edgeNote + '</div>',
-    debrief: msgs[cell],
+    debrief: debriefTxt,
     good: round.selPositive,
     win: win,
     muted: !round.selPositive,
     accent: round.selPositive ? (round.selBest ? 'best' : 'sharp') : null,
-    streakNote: neutral ? 'Neutral: a lucky −EV win — the streak neither grows nor breaks.' : undefined
+    streakNote: neutral
+      ? (badBoard && tookBest
+          ? 'Neutral: best of a bad board — no +EV choice existed, so the streak neither grows nor breaks.'
+          : 'Neutral: a lucky −EV win — the streak neither grows nor breaks.')
+      : undefined
   });
 }
