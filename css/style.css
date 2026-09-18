@@ -338,15 +338,21 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 
 /* ---------- minnow race ---------- */
 /* Guess & Bet card switch: "Minnow Race only" — off (default) races mix
-   into the stimulus rotation; on, every market round is a race */
-.race-switch{display:inline-flex;align-items:center;gap:8px;margin-top:9px;font-size:.72rem;font-weight:700;letter-spacing:.3px;color:var(--dim);cursor:pointer;user-select:none;-webkit-user-select:none;transition:color .15s}
-.race-switch:hover{color:var(--ink)}
-.race-switch:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:6px}
-.rs-track{flex:none;width:30px;height:16px;border-radius:999px;border:2px solid var(--line);background:var(--bg);position:relative;transition:border-color .15s,background .15s}
-.rs-knob{position:absolute;top:0;left:0;width:12px;height:12px;border-radius:50%;background:var(--dim);transition:transform .15s,background .15s}
-.race-switch.on{color:var(--ink)}
-.race-switch.on .rs-track{border-color:var(--teal);background:var(--teal-dim)}
-.race-switch.on .rs-knob{transform:translateX(14px);background:var(--teal)}
+   into the stimulus rotation; on, every market round is a race.
+   Every selector is .type-chip-scoped on purpose: the card's own
+   `.type-chip span` rule (display:block, margin-top:4px, ...) outranks a
+   bare class selector and used to shove the knob out of the track — it
+   slid along the bottom border instead of floating centered inside. */
+.type-chip .race-switch{display:inline-flex;align-items:center;gap:8px;margin-top:9px;font-size:.72rem;font-weight:700;letter-spacing:.3px;color:var(--dim);cursor:pointer;user-select:none;-webkit-user-select:none;transition:color .15s}
+.type-chip .race-switch:hover{color:var(--ink)}
+.type-chip .race-switch:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:6px}
+/* track 34×18 outer (2px border → 30×14 interior); knob 10×10 centered
+   with 2px clearance all round; ON slides it the matching 14px across */
+.type-chip .rs-track{display:block;flex:none;width:34px;height:18px;margin:0;padding:0;border-radius:999px;border:2px solid var(--line);background:var(--bg);position:relative;transition:border-color .15s,background .15s}
+.type-chip .rs-knob{display:block;position:absolute;top:50%;left:3px;width:10px;height:10px;margin:-5px 0 0;padding:0;border-radius:50%;background:var(--dim);transition:transform .15s,background .15s}
+.type-chip .race-switch.on{color:var(--ink)}
+.type-chip .race-switch.on .rs-track{border-color:var(--teal);background:var(--teal-dim)}
+.type-chip .race-switch.on .rs-knob{transform:translateX(14px);background:var(--teal)}
 /* board card: identity chip + 12-segment form meter in the minnow's color */
 .race-chip{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--mcolor,var(--dim))}
 .slot.race{padding:12px 10px}
