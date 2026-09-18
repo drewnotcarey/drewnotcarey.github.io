@@ -67,8 +67,9 @@ tap.
   mispricing, the whole game in one picture. Race rounds log the same
   ledger fields as any market round plus a compact race block
   (mispricing, winner, true probabilities, model reads, payouts); the
-  home screen offers Off / Mix / Race-only so races can join the stimulus
-  rotation or stand alone.
+  Guess & Bet card on the home screen carries a **Minnow Race only**
+  switch — off (the default), races join the stimulus rotation at their
+  natural share; on, every market round is a race.
 - **Keep or Roll** — a duel against the Tide. You and the Tide each build a
   pot across dice rolls that can bust it; the Tide follows one fixed,
   visible policy (roll below 15, keep at 15 or above) under the same bust

@@ -162,7 +162,7 @@ function edgeTableHTML(a){
     rows.push({ sep: true });
   }
   if(rr.n){
-    rows.push({ head: 'Reroll rounds', v: rr.n });
+    rows.push({ head: 'Five Dice Roll rounds', v: rr.n });
     rows.push({ label: 'Sharp calls', v: pct(rr.sharp) });
     rows.push({ label: 'Avg edge vs best play', v: signed(rr.edge, 1) + ' pts' });
     rows.push({ sep: true });

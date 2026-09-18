@@ -85,7 +85,10 @@ let settings = Object.assign(
 );
 settings.types = Object.assign({ guess:true, bank:true, reroll:true }, settings.types || {});
 settings.skill = Object.assign({ guess:1, bank:1, reroll:1 }, settings.skill || {});
-if(['off','mix','only'].indexOf(settings.race) < 0) settings.race = 'mix';
+/* 'off' retired with the card switch: mix is the floor (a player who
+   wants no races simply plays the perceptual modes), so an old 'off'
+   preference migrates to the default 'mix'. */
+settings.race = settings.race === 'only' ? 'only' : 'mix';
 let streak     = store.get('streak', { current: 0, best: 0 });
 let tutSeen    = store.get('tutSeen', false);
 let forcedSeed = store.get('forcedSeed', null);
@@ -169,12 +172,11 @@ function showPhase(id){
 }
 
 /* race preference drives which propositions Guess & Bet deals:
-   off — the five perceptual stimuli only; mix — race joins the rotation
-   (its natural share, ~1/6 of guess rounds); only — every guess round is
-   a race. Returns a fresh array every call, safe to shuffle. */
+   mix (the default) — race joins the rotation at its natural share
+   (~1/6 of guess rounds); only — every guess round is a race.
+   Returns a fresh array every call, safe to shuffle. */
 function stimPool(){
   if(settings.race === 'only') return ['race'];
-  if(settings.race === 'off')  return STIM_TYPES.slice();
   return STIM_TYPES.concat(['race']);
 }
 
@@ -596,27 +598,43 @@ function resetBoardControls(){
   if(ch) ch.style.pointerEvents = '';
   $$('.slot').forEach(x => x.style.pointerEvents = '');
 }
-function renderRaceRow(){
-  const row = $('#raceRow'); if(!row) return;
-  row.innerHTML = '<span class="race-row-label">Minnow Race</span>';
-  [['off','Off'], ['mix','Mix'], ['only','Race only']].forEach(o => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'race-opt' + (settings.race === o[0] ? ' on' : '');
-    b.textContent = o[1];
-    b.setAttribute('aria-pressed', settings.race === o[0] ? 'true' : 'false');
-    b.addEventListener('click', () => { settings.race = o[0]; store.set('settings', settings); renderRaceRow(); });
-    row.appendChild(b);
-  });
-}
-
+/* Minnow Race preference lives INSIDE the Guess & Bet card as a compact
+   switch: off (the default) — races mix into the stimulus rotation at
+   their natural share; on — every market round is a race. A nested
+   button would be invalid HTML, so it is a role=switch span that stops
+   propagation — tapping it must never toggle the card itself. */
 function renderTypeRow(){
   const row = $('#typeRow'); row.innerHTML = '';
   Object.keys(ROUND_TYPES).forEach(t => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'type-chip' + (settings.types[t] ? ' on' : '');
-    b.innerHTML = '<b>' + (settings.types[t] ? '✓ ' : '') + ROUND_TYPES[t].label + '</b><span>' + ROUND_TYPES[t].desc + '</span>';
+    const raceOnly = t === 'guess' && settings.race === 'only';
+    const desc = raceOnly
+      ? 'Race cards only — read the paddock form, then hunt the mispriced minnow on the market'
+      : ROUND_TYPES[t].desc;
+    b.innerHTML = '<b>' + (settings.types[t] ? '✓ ' : '') + ROUND_TYPES[t].label + '</b><span>' + desc + '</span>';
+    if(t === 'guess' && settings.types[t]){
+      const sw = document.createElement('span');
+      sw.className = 'race-switch' + (raceOnly ? ' on' : '');
+      sw.id = 'raceSwitch';
+      sw.setAttribute('role', 'switch');
+      sw.setAttribute('aria-checked', raceOnly ? 'true' : 'false');
+      sw.setAttribute('tabindex', '0');
+      sw.title = 'On — every Guess & Bet round is a Minnow Race. Off — races mix into the usual stimulus rotation (about 1 in 6).';
+      sw.innerHTML = '<span class="rs-track"><span class="rs-knob"></span></span>Minnow Race only';
+      const flip = () => {
+        settings.race = settings.race === 'only' ? 'mix' : 'only';
+        store.set('settings', settings);
+        renderTypeRow();
+        const again = $('#raceSwitch'); if(again) again.focus();
+      };
+      sw.addEventListener('click', e => { e.stopPropagation(); flip(); });
+      sw.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); e.stopPropagation(); flip(); }
+      });
+      b.appendChild(sw);
+    }
     b.addEventListener('click', () => {
       settings.types[t] = !settings.types[t];
       store.set('settings', settings);
@@ -633,7 +651,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#difficulty').value = settings.difficulty;
   $('#hints').value = settings.hints || 'auto';
   renderTypeRow();
-  renderRaceRow();
 
   $('#difficulty').addEventListener('change', () => {
     settings.difficulty = $('#difficulty').value;

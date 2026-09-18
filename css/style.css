@@ -337,12 +337,16 @@ details.rules[open] summary{border-bottom:1px solid var(--line)}
 }
 
 /* ---------- minnow race ---------- */
-/* home-screen preference: off / mix / race only */
-.race-row{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px 0 2px;flex-wrap:wrap}
-.race-row-label{color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;margin-right:2px}
-.race-opt{background:var(--bg2);border:2px solid var(--line);border-radius:999px;padding:6px 15px;font-size:.78rem;font-weight:700;color:var(--dim);transition:border-color .15s,box-shadow .15s,color .15s}
-.race-opt:hover{border-color:#31446e}
-.race-opt.on{border-color:var(--teal);color:var(--ink);box-shadow:0 0 0 3px var(--teal-dim)}
+/* Guess & Bet card switch: "Minnow Race only" — off (default) races mix
+   into the stimulus rotation; on, every market round is a race */
+.race-switch{display:inline-flex;align-items:center;gap:8px;margin-top:9px;font-size:.72rem;font-weight:700;letter-spacing:.3px;color:var(--dim);cursor:pointer;user-select:none;-webkit-user-select:none;transition:color .15s}
+.race-switch:hover{color:var(--ink)}
+.race-switch:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:6px}
+.rs-track{flex:none;width:30px;height:16px;border-radius:999px;border:2px solid var(--line);background:var(--bg);position:relative;transition:border-color .15s,background .15s}
+.rs-knob{position:absolute;top:0;left:0;width:12px;height:12px;border-radius:50%;background:var(--dim);transition:transform .15s,background .15s}
+.race-switch.on{color:var(--ink)}
+.race-switch.on .rs-track{border-color:var(--teal);background:var(--teal-dim)}
+.race-switch.on .rs-knob{transform:translateX(14px);background:var(--teal)}
 /* board card: identity chip + 12-segment form meter in the minnow's color */
 .race-chip{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--mcolor,var(--dim))}
 .slot.race{padding:12px 10px}
